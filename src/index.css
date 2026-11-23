@@ -56,6 +56,16 @@ html, body, #root {
   -webkit-overflow-scrolling: touch;    /* iOS momentum swipe */
 }
 
+/* Universal select and dark container protection against native OS white box glitch */
+select {
+  color-scheme: light dark;
+}
+.bg-black select, .bg-zinc-800 select, .bg-zinc-900 select {
+  background-color: #18181b !important;
+  color: #ffffff !important;
+  color-scheme: dark !important;
+}
+
 body {
   background-color: #ffffff !important;
   color: #000000 !important;

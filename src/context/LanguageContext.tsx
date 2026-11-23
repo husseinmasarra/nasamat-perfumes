@@ -13,7 +13,7 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'nasamat_language_v1';
+const STORAGE_KEY = 'nasamat_language_v2';
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
@@ -25,7 +25,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } catch (e) {
       // ignore
     }
-    return 'ar';
+    return 'en'; // Default to English as requested
   });
 
   const setLanguage = (lang: Language) => {

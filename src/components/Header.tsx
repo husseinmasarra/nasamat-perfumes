@@ -238,18 +238,17 @@ export const Header: React.FC<HeaderProps> = ({
               <span>{language === 'ar' ? 'EN' : 'AR'}</span>
             </button>
 
-            {/* Quick Currency Selector (Always accessible in 1 tap on Mobile and Desktop) */}
-            <div className="flex items-center bg-zinc-800/90 hover:bg-zinc-700 border border-zinc-700 rounded-lg px-1.5 py-0.5 text-[10px] sm:text-xs text-white font-bold shadow-2xs">
-              <select
-                value={settings.currency || '$'}
-                onChange={(e) => onUpdateCurrency(e.target.value)}
-                aria-label="Currency"
-                className="bg-transparent text-white font-black focus:outline-none cursor-pointer text-[10px] sm:text-xs text-center"
-              >
-                <option value="$" className="bg-black text-white">$ USD</option>
-                <option value="ل.ل" className="bg-black text-white">{language === 'ar' ? 'ل.ل LBP' : 'LBP'}</option>
-              </select>
-            </div>
+            {/* Quick Currency Toggle (Instant 1-tap toggle between $ USD and LBP, zero OS select white glitch) */}
+            <button
+              type="button"
+              onClick={() => onUpdateCurrency(settings.currency === '$' ? 'ل.ل' : '$')}
+              className="px-2 py-0.5 rounded-lg bg-zinc-800/90 hover:bg-zinc-700 active:scale-95 text-white text-[10px] sm:text-xs font-mono font-bold transition flex items-center gap-1 cursor-pointer border border-zinc-700 shadow-2xs"
+              title={settings.currency === '$' ? (language === 'ar' ? 'التحويل لليرة اللبنانية (LBP)' : 'Switch to Lebanese Pound (LBP)') : (language === 'ar' ? 'التحويل للدولار الأمريكي ($ USD)' : 'Switch to US Dollar ($ USD)')}
+              aria-label="Toggle Currency"
+            >
+              <span className="text-amber-400 font-bold">$</span>
+              <span>{settings.currency === '$' ? 'USD' : (language === 'ar' ? 'ل.ل' : 'LBP')}</span>
+            </button>
           </div>
 
         </div>
