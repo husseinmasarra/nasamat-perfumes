@@ -1,0 +1,876 @@
+:root {
+  font-family: 'Almarai', 'Tajawal', 'Montserrat', system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+
+  /* StyLuxe Luxury Design Tokens */
+  --styluxe-bg: #ffffff;
+  --styluxe-surface: #ffffff;
+  --styluxe-surface-hover: #f7f7f7;
+  --styluxe-border: #e5e5e5;
+  --styluxe-border-light: #f0f0f0;
+  --styluxe-text: #000000;
+  --styluxe-text-muted: #555555;
+  --styluxe-accent: #000000;
+  --styluxe-gold: #fbbf24;
+  --styluxe-gold-dark: #d97706;
+  --styluxe-whatsapp: #25d366;
+  --styluxe-whatsapp-hover: #20ba5a;
+
+  --font-heading: 'Almarai', 'Cinzel', 'Tajawal', sans-serif;
+  --font-body: 'Almarai', 'Tajawal', 'Montserrat', sans-serif;
+  --font-calligraphy: 'Aref Ruqaa', 'Amiri', serif;
+}
+
+/* ============================================================
+   STYLUXE LUXURY MINIMALIST THEME (styluxelb.com)
+   ============================================================ */
+
+body {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Serif Headings for Luxury Editorial Aesthetic */
+h1, h2, h3, .font-serif, .styluxe-heading {
+  font-family: var(--font-heading);
+  letter-spacing: 0.12em;
+}
+
+/* Haute Parfumerie Arabic Luxury Typography Matching Logo */
+html[dir="rtl"] body,
+html[dir="rtl"] {
+  font-family: 'Almarai', 'Tajawal', sans-serif !important;
+}
+
+html[dir="rtl"] h1,
+html[dir="rtl"] h2,
+html[dir="rtl"] h3,
+html[dir="rtl"] .font-serif,
+html[dir="rtl"] .styluxe-heading {
+  font-family: 'Almarai', 'Tajawal', sans-serif !important;
+  letter-spacing: normal !important;
+}
+
+/* Calligraphic Emblem Font (matches the ornate script in the circle logo) */
+.font-logo-calligraphy {
+  font-family: 'Aref Ruqaa', 'Amiri', serif !important;
+  letter-spacing: normal !important;
+}
+
+/* Subtitle Font (matches "لتركيب العطور الفاخرة" in the logo) */
+.font-logo-subtitle {
+  font-family: 'Almarai', 'Tajawal', sans-serif !important;
+  letter-spacing: normal !important;
+}
+
+/* Base Surfaces & Cards in Pure White */
+.bg-slate-950,
+.bg-slate-900,
+.bg-slate-950\/30,
+.bg-slate-950\/40,
+.bg-slate-950\/50,
+.bg-slate-950\/60,
+.bg-slate-950\/70,
+.bg-slate-950\/80,
+.bg-slate-950\/90,
+.bg-slate-900\/30,
+.bg-slate-900\/40,
+.bg-slate-900\/50,
+.bg-slate-900\/60,
+.bg-slate-900\/70,
+.bg-slate-900\/80,
+.bg-slate-900\/90 {
+  background-color: #ffffff !important;
+}
+
+/* Subtle Inset Sections */
+.bg-slate-850,
+.bg-slate-800,
+.bg-slate-800\/30,
+.bg-slate-800\/40,
+.bg-slate-800\/50,
+.bg-slate-800\/60,
+.bg-slate-800\/70,
+.bg-slate-800\/80,
+.bg-slate-800\/90 {
+  background-color: #f9fafb !important;
+  color: #111827 !important;
+}
+
+/* StyLuxe Hairline Borders */
+.border-slate-800,
+.border-slate-800\/60,
+.border-slate-800\/80,
+.border-slate-800\/90,
+.border-slate-700,
+.border-slate-700\/60,
+.border-slate-700\/80,
+.border-rose-500\/25,
+.border-rose-500\/30,
+.border-rose-500\/40 {
+  border-color: #e5e5e5 !important;
+}
+
+/* Typography: Crisp Pitch Black for Dark Slates */
+.text-slate-100,
+.text-slate-200 {
+  color: #000000 !important;
+}
+
+.text-slate-300,
+.text-slate-400 {
+  color: #374151 !important;
+}
+
+.text-slate-500 {
+  color: #6b7280 !important;
+}
+
+/* Pure White Text for all Dark Backgrounds & Explicit text-white */
+.text-white,
+button.bg-black,
+button.bg-black *,
+.badge-black,
+.badge-black *,
+.bg-zinc-900,
+.bg-zinc-900 *,
+.bg-zinc-950,
+.bg-zinc-950 * {
+  color: #ffffff !important;
+}
+
+/* Ensure buttons with light or white backgrounds NEVER get forced white text */
+button.bg-white,
+button.bg-white *,
+button.bg-slate-50,
+button.bg-slate-50 *,
+button.bg-neutral-50,
+button.bg-neutral-50 *,
+button.bg-neutral-100,
+button.bg-neutral-100 *,
+.size-pill-unselected,
+.size-pill-unselected * {
+  color: #000000 !important;
+}
+
+/* High-Contrast Colors for Metrics on White Backgrounds */
+.text-emerald-400,
+.text-emerald-500 {
+  color: #047857 !important;
+}
+.text-emerald-300,
+.text-emerald-200 {
+  color: #065f46 !important;
+}
+
+.text-amber-400,
+.text-amber-500,
+.text-gold {
+  color: #b45309 !important;
+}
+.text-amber-300,
+.text-amber-200 {
+  color: #92400e !important;
+}
+
+.text-sky-400,
+.text-sky-500 {
+  color: #0284c7 !important;
+}
+.text-sky-300,
+.text-sky-200 {
+  color: #0369a1 !important;
+}
+
+.text-rose-400,
+.text-rose-500 {
+  color: #e11d48 !important;
+}
+.text-rose-300,
+.text-rose-200 {
+  color: #be123c !important;
+}
+
+/* Explicit Black Text Override */
+.text-black {
+  color: #000000 !important;
+}
+
+/* Soft contrast badge backgrounds on white cards */
+.bg-emerald-500\/10,
+.bg-emerald-500\/20 {
+  background-color: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+}
+.bg-amber-500\/10,
+.bg-amber-500\/20 {
+  background-color: #fffbeb !important;
+  border-color: #fde68a !important;
+}
+.bg-sky-500\/10,
+.bg-sky-500\/20 {
+  background-color: #f0f9ff !important;
+  border-color: #bae6fd !important;
+}
+.bg-rose-500\/10,
+.bg-rose-500\/20 {
+  background-color: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+}
+
+/* StyLuxe Hero Banners: High-Fashion Editorial Clean White */
+[class*="from-slate-900"],
+[class*="bg-gradient-to-r"][class*="from-slate-900"],
+[class*="bg-gradient-to-br"][class*="from-slate-900"] {
+  background: #ffffff !important;
+  border: 1px solid #e5e5e5 !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04) !important;
+}
+
+[class*="from-slate-900"] h1,
+[class*="from-slate-900"] h2,
+[class*="from-slate-900"] h3 {
+  color: #000000 !important;
+  font-family: var(--font-heading) !important;
+  letter-spacing: 0.15em !important;
+}
+
+[class*="from-slate-900"] p {
+  color: #555555 !important;
+  letter-spacing: 0.05em !important;
+}
+
+/* StyLuxe Product Cards Styling */
+.product-card,
+[class*="hover:border-amber-500"],
+[class*="hover:border-rose-500"] {
+  background-color: #ffffff !important;
+  border: 1px solid #f0f0f0 !important;
+  transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+}
+
+.product-card:hover,
+[class*="hover:border-amber-500"]:hover,
+[class*="hover:border-rose-500"]:hover {
+  border-color: #000000 !important;
+  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.08) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* StyLuxe Black Action Buttons (Add to Cart / Confirm) */
+button.bg-black,
+button.bg-zinc-950,
+button[class*="from-amber-500"],
+button.bg-rose-600,
+.styluxe-btn-black {
+  background: #000000 !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  border-radius: 0.5rem !important;
+  transition: background-color 0.2s ease, transform 0.2s ease !important;
+}
+
+button.bg-black:hover,
+button.bg-zinc-950:hover,
+button[class*="from-amber-500"]:hover,
+button.bg-rose-600:hover,
+.styluxe-btn-black:hover {
+  background: #222222 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* StyLuxe WhatsApp CTA Button */
+.styluxe-whatsapp-btn,
+button.bg-emerald-600,
+button.bg-emerald-500 {
+  background-color: #25d366 !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.15em !important;
+  text-transform: uppercase !important;
+  border-radius: 0.5rem !important;
+}
+
+.styluxe-whatsapp-btn:hover,
+button.bg-emerald-600:hover,
+button.bg-emerald-500:hover {
+  background-color: #20ba5a !important;
+}
+
+/* StyLuxe Size Selection Buttons (Selected = Solid Black, Unselected = Crisp White/Slate with dark text) */
+.size-pill-selected,
+.size-btn-selected,
+button[class*="border-rose-500"][class*="shadow-md"] {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #000000 !important;
+  font-weight: 800 !important;
+}
+
+.size-pill-selected *,
+.size-btn-selected span,
+button[class*="border-rose-500"][class*="shadow-md"] span {
+  color: #ffffff !important;
+}
+
+.size-pill-selected .badge-top {
+  background-color: #fbbf24 !important;
+  color: #000000 !important;
+}
+
+.size-pill-unselected {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 1.5px solid #d1d5db !important;
+  font-weight: 700 !important;
+}
+
+.size-pill-unselected:hover {
+  background-color: #f3f4f6 !important;
+  border-color: #000000 !important;
+}
+
+.size-pill-unselected span,
+.size-pill-unselected * {
+  color: #000000 !important;
+}
+
+.size-pill-unselected .price-subtext {
+  color: #4b5563 !important;
+}
+
+/* StyLuxe Badges: Solid Black with White Text */
+.badge-black,
+span.bg-amber-500,
+span.bg-rose-500,
+span[class*="bg-amber-500/20"],
+span[class*="bg-rose-500/15"] {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  border-color: #000000 !important;
+}
+
+/* Gold Accent Highlights */
+.text-gold,
+.text-amber-400,
+.text-amber-500 {
+  color: #d97706 !important;
+}
+
+/* Inputs, Selects, and Search Boxes */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+select,
+textarea {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #e5e5e5 !important;
+  border-radius: 0.5rem !important;
+  transition: border-color 0.2s ease !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #000000 !important;
+  outline: none !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #888888 !important;
+}
+
+/* StyLuxe Top Header & Navigation Bar */
+header {
+  background-color: rgba(255, 255, 255, 0.98) !important;
+  border-bottom: 1px solid #e5e5e5 !important;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.04) !important;
+}
+
+header h1 {
+  color: #000000 !important;
+  font-family: var(--font-heading) !important;
+  letter-spacing: 0.15em !important;
+}
+
+/* Tabs Navigation Bar in StyLuxe Style */
+nav,
+.tabs-nav-bar {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #e5e5e5 !important;
+}
+
+.tabs-nav-bar button,
+nav button {
+  color: #555555 !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+  transition: all 0.2s ease !important;
+}
+
+.tabs-nav-bar button:hover,
+nav button:hover {
+  color: #000000 !important;
+  background-color: #f7f7f7 !important;
+}
+
+/* Active Navigation Tab: Clean Black Pill */
+.tabs-nav-bar button[class*="from-amber-500"],
+nav button[class*="from-amber-500"] {
+  background: #000000 !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  border-radius: 0.75rem !important;
+}
+
+.tabs-nav-bar button[class*="from-amber-500"] *,
+nav button[class*="from-amber-500"] * {
+  color: #ffffff !important;
+}
+
+/* Modals & Slide-over Drawers in StyLuxe Style */
+.fixed.inset-0.bg-slate-950\/85,
+.fixed.inset-0.bg-slate-950\/80,
+.fixed.inset-0.bg-slate-950\/90 {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+/* Tables (Excel sheet, Invoices, Recipes) in StyLuxe Style */
+table {
+  border-collapse: collapse !important;
+}
+
+thead {
+  background-color: #f7f7f7 !important;
+  border-bottom: 2px solid #e5e5e5 !important;
+}
+
+thead th {
+  color: #000000 !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  padding: 0.75rem 1rem !important;
+}
+
+tbody tr {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+  transition: background-color 0.15s ease !important;
+}
+
+tbody tr:hover {
+  background-color: #fbfbfb !important;
+}
+
+tbody td {
+  color: #000000 !important;
+}
+
+/* Floating WhatsApp Concierge Button */
+.styluxe-floating-whatsapp {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  background-color: #25d366;
+  color: #ffffff;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
+  z-index: 50;
+  transition: transform 0.25s ease, background-color 0.25s ease;
+  cursor: pointer;
+}
+
+.styluxe-floating-whatsapp:hover {
+  transform: scale(1.08);
+  background-color: #20ba5a;
+}
+
+/* Scrollbars in StyLuxe Style */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f7f7f7;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cccccc;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #000000;
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* ============================================================
+   ADMIN SIDEBAR ULTRA HIGH-CONTRAST CLARITY RULES
+   ============================================================ */
+.admin-sidebar {
+  background-color: #0c0c0e !important;
+  color: #ffffff !important;
+}
+
+.admin-sidebar-nav-btn,
+.admin-sidebar-nav-btn span {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.admin-sidebar-nav-btn svg {
+  color: #f3f4f6 !important;
+  stroke: #f3f4f6 !important;
+}
+
+.admin-sidebar-nav-btn:hover {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.admin-sidebar-nav-btn:hover span,
+.admin-sidebar-nav-btn:hover svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.admin-sidebar-nav-btn.active,
+.admin-sidebar-nav-btn.active * {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  stroke: #000000 !important;
+  font-weight: 800 !important;
+}
+
+.admin-sidebar-nav-btn.active span {
+  color: #000000 !important;
+}
+
+.admin-sidebar-nav-btn.active svg {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
+.admin-sidebar-nav-btn.active .admin-badge {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.admin-store-btn,
+.admin-store-btn *,
+.admin-store-btn span {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+  border-color: #475569 !important;
+}
+
+.admin-store-btn svg {
+  color: #fbbf24 !important;
+  stroke: #fbbf24 !important;
+}
+
+.admin-store-btn:hover,
+.admin-store-btn:hover * {
+  background-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+.admin-logout-btn,
+.admin-logout-btn *,
+.admin-logout-btn span {
+  background-color: #e11d48 !important;
+  color: #ffffff !important;
+  border-color: #f43f5e !important;
+}
+
+.admin-logout-btn svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.admin-logout-btn:hover,
+.admin-logout-btn:hover * {
+  background-color: #be123c !important;
+  color: #ffffff !important;
+}
+
+/* Slide-in & Fade Animations */
+@keyframes slideRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slideLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-slideRight {
+  animation: slideRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slideLeft {
+  animation: slideLeft 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* ============================================================
+   HAUTE PARFUMERIE LUXURY ANIMATIONS & EFFECTS SUITE
+   ============================================================ */
+
+/* 1. Crystal Glass Sheen Sweep on Hover */
+@keyframes shineSweep {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(250%) skewX(-20deg);
+    opacity: 0;
+  }
+}
+
+.shine-sweep-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine-sweep-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-150%) skewX(-20deg);
+  z-index: 15;
+}
+
+.group:hover .shine-sweep-overlay,
+.shine-sweep-wrapper:hover .shine-sweep-overlay {
+  animation: shineSweep 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* 2. Floating Golden Essence Dust & Sparkles */
+@keyframes floatParticle {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translateY(-14px) rotate(180deg) scale(1.1);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateY(0px) rotate(360deg);
+    opacity: 0.35;
+  }
+}
+
+.animate-float-particle-1 {
+  animation: floatParticle 5s ease-in-out infinite;
+}
+
+.animate-float-particle-2 {
+  animation: floatParticle 7s ease-in-out infinite 1.5s;
+}
+
+.animate-float-particle-3 {
+  animation: floatParticle 6s ease-in-out infinite 3s;
+}
+
+/* 3. Golden Text Gradient Shimmer */
+@keyframes textShine {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+.animate-text-gold-shine {
+  background: linear-gradient(90deg, #b45309 0%, #f59e0b 25%, #fef08a 50%, #f59e0b 75%, #b45309 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: textShine 4s linear infinite;
+}
+
+/* 4. Luxury WhatsApp Pulse Concentric Rings */
+@keyframes luxuryPulseRing {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.8;
+  }
+  60% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+}
+
+.pulse-ring-aura {
+  position: absolute;
+  inset: -6px;
+  border-radius: 9999px;
+  background-color: #25d366;
+  opacity: 0.5;
+  z-index: -1;
+  pointer-events: none;
+  animation: luxuryPulseRing 2.4s cubic-bezier(0.2, 0, 0, 1) infinite;
+}
+
+.pulse-ring-aura-secondary {
+  position: absolute;
+  inset: -12px;
+  border-radius: 9999px;
+  background-color: #34d399;
+  opacity: 0.35;
+  z-index: -2;
+  pointer-events: none;
+  animation: luxuryPulseRing 2.4s cubic-bezier(0.2, 0, 0, 1) infinite 0.7s;
+}
+
+/* 5. Cart Button Elastic Bump */
+@keyframes cartBump {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.22) rotate(-5deg); }
+  50% { transform: scale(0.94) rotate(3deg); }
+  75% { transform: scale(1.08) rotate(-1deg); }
+  100% { transform: scale(1); }
+}
+
+.animate-cart-bump {
+  animation: cartBump 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* 6. Liquid Wave for Bespoke Perfume Flacon */
+@keyframes liquidWave {
+  0% {
+    transform: translateX(0) scaleY(1);
+  }
+  50% {
+    transform: translateX(-15%) scaleY(1.05);
+  }
+  100% {
+    transform: translateX(0) scaleY(1);
+  }
+}
+
+.animate-liquid-wave {
+  animation: liquidWave 3s ease-in-out infinite;
+}
+
+@keyframes bubbleFloat {
+  0% {
+    transform: translateY(100%) scale(0.5);
+    opacity: 0;
+  }
+  40% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-20%) scale(1.1);
+    opacity: 0;
+  }
+}
+
+.animate-bubble-1 {
+  animation: bubbleFloat 2.8s ease-in infinite;
+}
+
+.animate-bubble-2 {
+  animation: bubbleFloat 3.5s ease-in infinite 1s;
+}
+
+.animate-bubble-3 {
+  animation: bubbleFloat 2.2s ease-in infinite 1.8s;
+}
+
+/* 7. Toast Spring Pop */
+@keyframes toastSpringPop {
+  0% {
+    transform: translateY(30px) scale(0.9);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(-4px) scale(1.02);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-toast-pop {
+  animation: toastSpringPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 8. Top Luxury Shimmer Line */
+@keyframes luxuryHeaderShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.luxury-top-shimmer-bar {
+  background: linear-gradient(
+    90deg,
+    #000000 0%,
+    #d97706 25%,
+    #fbbf24 50%,
+    #fef3c7 60%,
+    #fbbf24 70%,
+    #d97706 80%,
+    #000000 100%
+  );
+  background-size: 200% 100%;
+  animation: luxuryHeaderShimmer 4s ease-in-out infinite;
+}
+
+
