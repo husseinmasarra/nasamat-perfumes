@@ -453,7 +453,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5 sm:gap-3.5">
           {/* Breadcrumbs Navigation Trail */}
-          <nav className="flex items-center gap-1.5 text-xs text-neutral-500 font-medium overflow-x-auto scrollbar-none py-0.5">
+          <nav className="flex items-center gap-1.5 text-xs text-neutral-500 font-medium overflow-x-auto scrollbar-none no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden py-0.5">
             <button
               type="button"
               onClick={() => navigateToCustomerPage('home')}
@@ -1560,7 +1560,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
 
       {/* Luxury Sub-Navigation Bar with Real Circular Category Photos */}
       <div className="bg-white border-b border-neutral-200 sticky top-14 sm:top-16 z-30 -mt-2 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-2.5 shadow-xs">
-        <div className="max-w-7xl mx-auto flex items-center justify-between overflow-x-auto scrollbar-none gap-3">
+        <div className="max-w-7xl mx-auto flex items-center justify-between overflow-x-auto scrollbar-none no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden gap-3">
           <nav className="flex items-center gap-1.5 sm:gap-2 text-xs font-bold uppercase tracking-wider">
             {[
               { id: 'home', page: 'home', conf: getCategoryConfig('home') },
@@ -1688,7 +1688,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
           </div>
 
           {/* Circular Category Quick-Nav Strip (Real Luxury Photos - 100% Editable) */}
-          <div className="py-2 overflow-x-auto scrollbar-none">
+          <div className="py-2 overflow-x-auto scrollbar-none no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             <div className="flex items-center justify-between gap-4 min-w-max mx-auto px-1">
               {navCategories
                 .filter((cat) => cat.id !== 'home' && cat.id !== 'atelier')
@@ -2034,7 +2034,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
             </div>
 
             {/* Category Filter Pills (Dynamically synchronized with all store categories) */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               {navCategories
                 .filter((cat) => cat.id !== 'home' && cat.id !== 'atelier' && cat.id !== 'mix-perfume' && cat.id !== 'bundles' && cat.id !== 'delivery')
                 .map((cat) => (
@@ -2545,7 +2545,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                       </div>
 
                       {/* Family Filter Chips */}
-                      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                         {[
                           { id: 'all', label: language === 'ar' ? 'الكل' : 'All' },
                           { id: 'oriental', label: language === 'ar' ? 'شرقية' : 'Oriental' },
