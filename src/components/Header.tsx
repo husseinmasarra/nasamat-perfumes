@@ -127,18 +127,19 @@ export const Header: React.FC<HeaderProps> = ({
     return () => window.removeEventListener('nasamat_cart_bump', handleBump);
   }, []);
 
-  // Shared official social badges
-  const renderSocialBadges = (iconSize: string = 'w-4 h-4') => (
-    <div className="flex items-center gap-1.5 shrink-0">
+  // Shared official social badges with larger icons and luxury capsules
+  const renderSocialBadges = (iconSize: string = 'w-5 h-5') => (
+    <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
       <a 
         href={`https://wa.me/${formatWhatsAppPhone(settings.storePhone)}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="hover:scale-110 active:scale-95 transition-transform p-0.5"
-        title="WhatsApp"
+        className="flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-400 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+        title="WhatsApp Concierge"
         aria-label="WhatsApp"
       >
         <WhatsAppOfficialBadge className={iconSize} />
+        <span className="hidden xl:inline font-bold text-[10px] text-emerald-300">WhatsApp</span>
       </a>
       <a
         href={settings.instagramUrl || '#'}
@@ -150,11 +151,12 @@ export const Header: React.FC<HeaderProps> = ({
             alert(language === 'ar' ? 'سيتم تفعيل وإضافة رابط حساب الإنستغرام قريباً!' : 'Instagram link will be added soon!');
           }
         }}
-        className="hover:scale-110 active:scale-95 transition-transform p-0.5"
+        className="flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-full bg-pink-500/15 hover:bg-pink-500/25 border border-pink-500/40 text-pink-300 hover:scale-105 active:scale-95 transition-all cursor-pointer"
         title="Instagram"
         aria-label="Instagram"
       >
         <InstagramOfficialBadge className={iconSize} />
+        <span className="hidden xl:inline font-bold text-[10px] text-pink-300">Instagram</span>
       </a>
       <a
         href={settings.facebookUrl || '#'}
@@ -166,11 +168,12 @@ export const Header: React.FC<HeaderProps> = ({
             alert(language === 'ar' ? 'سيتم تفعيل وإضافة رابط صفحة الفيسبوك قريباً!' : 'Facebook link will be added soon!');
           }
         }}
-        className="hover:scale-110 active:scale-95 transition-transform p-0.5"
+        className="flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-full bg-blue-500/15 hover:bg-blue-500/25 border border-blue-500/40 text-blue-300 hover:scale-105 active:scale-95 transition-all cursor-pointer"
         title="Facebook"
         aria-label="Facebook"
       >
         <FacebookOfficialBadge className={iconSize} />
+        <span className="hidden xl:inline font-bold text-[10px] text-blue-300">Facebook</span>
       </a>
     </div>
   );
@@ -187,7 +190,7 @@ export const Header: React.FC<HeaderProps> = ({
           
           {/* Start Side: Official Social Icons & Lebanon Pin */}
           <div className="flex items-center gap-2 shrink-0">
-            {renderSocialBadges('w-4 h-4')}
+            {renderSocialBadges('w-5 h-5')}
             <span className="hidden sm:inline font-mono text-[10px] text-zinc-400 ps-1 border-s border-zinc-700">
               BEIRUT · LEBANON
             </span>

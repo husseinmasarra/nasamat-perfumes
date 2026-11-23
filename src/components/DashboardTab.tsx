@@ -23,6 +23,7 @@ import {
 import type { FragranceOil, RawMaterial, ProductionBatch, AppSettings, FragranceFamily } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { getLocalizedOilName, getLocalizedBrand, getLocalizedFamily } from '../utils/i18n';
+import { saveSettings, loadSettings } from '../utils/storage';
 
 interface DashboardTabProps {
   oils: FragranceOil[];
@@ -54,7 +55,9 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   const [storeLocation, setStoreLocation] = useState(
     settings.storeLocation || (language === 'ar' ? 'بيروت - لبنان' : 'Beirut - Lebanon')
   );
-  const [storePhone, setStorePhone] = useState(settings.storePhone || '+961 70 000 000');
+  const [storePhone, setStorePhone] = useState(
+    settings.storePhone && settings.storePhone !== '+961 70 000 000' ? settings.storePhone : '+961 81 713 408'
+  );
   const [currency, setCurrency] = useState(settings.currency || '$');
   const [defaultProfitMargin, setDefaultProfitMargin] = useState(settings.defaultProfitMargin || 65);
   const [defaultConcentration, setDefaultConcentration] = useState(settings.defaultConcentrationPercent || 33);
@@ -66,7 +69,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   useEffect(() => {
     if (settings.storeName) setStoreName(settings.storeName);
     if (settings.storeLocation) setStoreLocation(settings.storeLocation);
-    if (settings.storePhone) setStorePhone(settings.storePhone);
+    if (settings.storePhone && settings.storePhone !== '+961 70 000 000') setStorePhone(settings.storePhone);
     if (settings.currency) setCurrency(settings.currency);
     if (settings.defaultProfitMargin) setDefaultProfitMargin(settings.defaultProfitMargin);
     if (settings.defaultConcentrationPercent) setDefaultConcentration(settings.defaultConcentrationPercent);
@@ -154,18 +157,22 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
     if (onUpdateSettings) {
-      onUpdateSettings({
+      const current = loadSettings();
+      const updated: AppSettings = {
+        ...current,
         ...settings,
-        storeName,
-        storeLocation,
-        storePhone,
+        storeName: storeName.trim() || settings.storeName,
+        storeLocation: storeLocation.trim() || settings.storeLocation,
+        storePhone: storePhone.trim() || settings.storePhone,
         currency,
         defaultProfitMargin: Number(defaultProfitMargin),
         defaultConcentrationPercent: Number(defaultConcentration),
         defaultFixativePercent: Number(defaultFixative),
         adminPassword: adminPassword.trim() || '1234',
         lastBackupDate: new Date().toISOString(),
-      });
+      };
+      saveSettings(updated);
+      onUpdateSettings(updated);
       setSavedAlert(true);
       setTimeout(() => setSavedAlert(false), 3500);
     }

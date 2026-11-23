@@ -318,19 +318,53 @@ export function saveBatches(batches: ProductionBatch[]) {
   }
 }
 
+export const PERMANENT_KEYS = {
+  PHONE: 'nasamat_permanent_phone',
+  FACEBOOK: 'nasamat_permanent_facebook',
+  INSTAGRAM: 'nasamat_permanent_instagram',
+  STORE_NAME: 'nasamat_permanent_store_name',
+  STORE_LOCATION: 'nasamat_permanent_store_location',
+  STORE_BIO: 'nasamat_permanent_store_bio',
+};
+
 export function loadSettings(): AppSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-    if (!raw) return INITIAL_SETTINGS;
-    const parsed: AppSettings = JSON.parse(raw);
+    const parsed: Partial<AppSettings> = raw ? JSON.parse(raw) : {};
+
+    // Dedicated permanent overrides: never lose or revert user settings
+    const permPhone = localStorage.getItem(PERMANENT_KEYS.PHONE);
+    const permFacebook = localStorage.getItem(PERMANENT_KEYS.FACEBOOK);
+    const permInstagram = localStorage.getItem(PERMANENT_KEYS.INSTAGRAM);
+    const permStoreName = localStorage.getItem(PERMANENT_KEYS.STORE_NAME);
+    const permStoreLocation = localStorage.getItem(PERMANENT_KEYS.STORE_LOCATION);
+    const permStoreBio = localStorage.getItem(PERMANENT_KEYS.STORE_BIO);
+
+    // Resolve storePhone: if permPhone exists, use it. If parsed has old placeholder, upgrade to permPhone or real phone
+    let storePhone = permPhone || parsed.storePhone || INITIAL_SETTINGS.storePhone;
+    if (storePhone === '+961 70 000 000' || storePhone === '70000000') {
+      storePhone = permPhone || '+961 81 713 408';
+    }
+
+    const facebookUrl = permFacebook !== null ? permFacebook : (parsed.facebookUrl || '');
+    const instagramUrl = permInstagram !== null ? permInstagram : (parsed.instagramUrl || '');
+    const storeName = permStoreName || parsed.storeName || INITIAL_SETTINGS.storeName;
+    const storeLocation = permStoreLocation || parsed.storeLocation || INITIAL_SETTINGS.storeLocation;
+    const storeBio = permStoreBio || parsed.storeBio || INITIAL_SETTINGS.storeBio;
+
     return {
+      ...INITIAL_SETTINGS,
       ...parsed,
+      storeName,
+      storePhone,
+      storeLocation,
+      storeBio,
+      facebookUrl,
+      instagramUrl,
       theme: parsed.theme || 'light',
       adminPassword: parsed.adminPassword || '1234',
       adminSecretSlug: parsed.adminSecretSlug || 'nasmat-vault-77',
       lbpRate: parsed.lbpRate === 89500 || !parsed.lbpRate ? 90000 : parsed.lbpRate,
-      facebookUrl: parsed.facebookUrl || '',
-      instagramUrl: parsed.instagramUrl || '',
     };
   } catch (e) {
     console.error('Failed to load settings from storage', e);
@@ -341,6 +375,31 @@ export function loadSettings(): AppSettings {
 export function saveSettings(settings: AppSettings) {
   try {
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+
+    // Also persist permanently into immutable backup keys
+    if (settings.storePhone && settings.storePhone !== '+961 70 000 000') {
+      localStorage.setItem(PERMANENT_KEYS.PHONE, settings.storePhone.trim());
+    }
+    if (settings.facebookUrl !== undefined) {
+      localStorage.setItem(PERMANENT_KEYS.FACEBOOK, settings.facebookUrl.trim());
+    }
+    if (settings.instagramUrl !== undefined) {
+      localStorage.setItem(PERMANENT_KEYS.INSTAGRAM, settings.instagramUrl.trim());
+    }
+    if (settings.storeName) {
+      localStorage.setItem(PERMANENT_KEYS.STORE_NAME, settings.storeName.trim());
+    }
+    if (settings.storeLocation) {
+      localStorage.setItem(PERMANENT_KEYS.STORE_LOCATION, settings.storeLocation.trim());
+    }
+    if (settings.storeBio) {
+      localStorage.setItem(PERMANENT_KEYS.STORE_BIO, settings.storeBio.trim());
+    }
+
+    // Broadcast update event so all open views / components re-render immediately
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('nasamat_settings_updated', { detail: settings }));
+    }
   } catch (e) {
     console.error('Failed to save settings to storage', e);
   }
@@ -483,17 +542,29 @@ export function resetAllToDefaults(): {
   recipes: SavedRecipe[];
   invoices: Invoice[];
 } {
+  // Preserve custom phone and social media links so store contact info is NEVER wiped
+  const currentSettings = loadSettings();
+  const preservedSettings: AppSettings = {
+    ...INITIAL_SETTINGS,
+    storePhone: currentSettings.storePhone || INITIAL_SETTINGS.storePhone,
+    facebookUrl: currentSettings.facebookUrl || '',
+    instagramUrl: currentSettings.instagramUrl || '',
+    storeName: currentSettings.storeName || INITIAL_SETTINGS.storeName,
+    storeLocation: currentSettings.storeLocation || INITIAL_SETTINGS.storeLocation,
+    storeBio: currentSettings.storeBio || INITIAL_SETTINGS.storeBio,
+  };
+
   localStorage.setItem(STORAGE_KEYS.OILS, JSON.stringify(INITIAL_OILS));
   localStorage.setItem(STORAGE_KEYS.MATERIALS, JSON.stringify(INITIAL_RAW_MATERIALS));
   localStorage.setItem(STORAGE_KEYS.BATCHES, JSON.stringify(INITIAL_BATCHES));
-  localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(INITIAL_SETTINGS));
+  localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(preservedSettings));
   localStorage.setItem(STORAGE_KEYS.RECIPES, JSON.stringify(INITIAL_RECIPES));
   localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(INITIAL_INVOICES));
   return {
     oils: INITIAL_OILS,
     materials: INITIAL_RAW_MATERIALS,
     batches: INITIAL_BATCHES,
-    settings: INITIAL_SETTINGS,
+    settings: preservedSettings,
     recipes: INITIAL_RECIPES,
     invoices: INITIAL_INVOICES,
   };

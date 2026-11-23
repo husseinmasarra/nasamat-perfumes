@@ -35,7 +35,7 @@ import { AdminAuthModal } from './components/AdminAuthModal';
 import { CustomerAuthModal } from './components/CustomerAuthModal';
 import { BottleLabelModal } from './components/BottleLabelModal';
 import { AdminFinancialStatementModal } from './components/AdminFinancialStatementModal';
-import { WhatsAppIcon, WhatsAppOfficialIcon } from './components/icons';
+import { WhatsAppIcon, WhatsAppOfficialIcon, InstagramOfficialBadge, FacebookOfficialBadge } from './components/icons';
 import { AdminSidebar, type AdminNavTab } from './components/AdminSidebar';
 import { AdminProductsPricingTab } from './components/AdminProductsPricingTab';
 import { AdminPOSTerminalTab } from './components/AdminPOSTerminalTab';
@@ -113,6 +113,24 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     initPixels(settings.trackingPixels);
   }, [settings.trackingPixels]);
+
+  // Synchronize settings instantly across components and storage
+  useEffect(() => {
+    const handleSettingsUpdated = (e: Event) => {
+      const customEvent = e as CustomEvent<AppSettings>;
+      if (customEvent.detail) {
+        setSettings(customEvent.detail);
+      } else {
+        setSettings(loadSettings());
+      }
+    };
+    window.addEventListener('nasamat_settings_updated', handleSettingsUpdated);
+    window.addEventListener('storage', handleSettingsUpdated);
+    return () => {
+      window.removeEventListener('nasamat_settings_updated', handleSettingsUpdated);
+      window.removeEventListener('storage', handleSettingsUpdated);
+    };
+  }, []);
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedReceiptInvoice, setSelectedReceiptInvoice] = useState<Invoice | null>(null);
@@ -1123,33 +1141,72 @@ const AppContent: React.FC = () => {
         />
       )}
 
-      {/* Floating Official WhatsApp Button (Official Icon Only) */}
+      {/* Floating Official Luxury Social Media Suite (WhatsApp, Instagram, Facebook) */}
       {portal === 'customer' && (
-        <a
-          href={`https://wa.me/${formatWhatsAppPhone(settings.storePhone)}?text=${encodeURIComponent(
-            language === 'ar'
-              ? 'مرحباً نسمات، أود التواصل والاستفسار بخصوص عطوركم الفاخرة.'
-              : 'Hello Nasamat, I would like to inquire about your luxury perfumes.'
-          )}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Contact via WhatsApp"
-          title={language === 'ar' ? 'تواصل معنا عبر واتساب' : 'Chat via WhatsApp'}
-          className="fixed bottom-6 start-6 z-40 group flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-2xl"
-        >
-          {/* Concentric Aura Rings */}
-          <div className="pulse-ring-aura" />
-          <div className="pulse-ring-aura-secondary" />
+        <div className="fixed bottom-5 start-5 z-40 flex flex-col items-center gap-2.5">
+          {/* Secondary Official Badges: Facebook */}
+          <a
+            href={settings.facebookUrl || '#'}
+            target={settings.facebookUrl ? '_blank' : '_self'}
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              if (!settings.facebookUrl) {
+                e.preventDefault();
+                alert(language === 'ar' ? 'سيتم تفعيل وإضافة رابط صفحة الفيسبوك قريباً!' : 'Facebook link will be added soon!');
+              }
+            }}
+            aria-label="Facebook Page"
+            title={language === 'ar' ? 'صفحة فيسبوك الرسمية' : 'Official Facebook Page'}
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden flex items-center justify-center bg-white hover:scale-115 active:scale-95 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer border border-neutral-200"
+          >
+            <FacebookOfficialBadge className="w-11 h-11 sm:w-12 sm:h-12" />
+          </a>
 
-          {/* Official WhatsApp Logo SVG (The Official Icon Only) */}
-          <WhatsAppOfficialIcon className="w-14 h-14 sm:w-16 sm:h-16 shrink-0 group-hover:rotate-6 transition-transform filter drop-shadow-lg" />
+          {/* Secondary Official Badges: Instagram */}
+          <a
+            href={settings.instagramUrl || '#'}
+            target={settings.instagramUrl ? '_blank' : '_self'}
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              if (!settings.instagramUrl) {
+                e.preventDefault();
+                alert(language === 'ar' ? 'سيتم تفعيل وإضافة رابط حساب الإنستغرام قريباً!' : 'Instagram link will be added soon!');
+              }
+            }}
+            aria-label="Instagram Profile"
+            title={language === 'ar' ? 'حساب إنستغرام الرسمي' : 'Official Instagram Profile'}
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl overflow-hidden flex items-center justify-center bg-white hover:scale-115 active:scale-95 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer border border-neutral-200"
+          >
+            <InstagramOfficialBadge className="w-11 h-11 sm:w-12 sm:h-12" />
+          </a>
 
-          {/* Online Indicator Badge */}
-          <span className="absolute top-0 end-0 flex h-3.5 w-3.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-white shadow-xs"></span>
-          </span>
-        </a>
+          {/* Primary Official WhatsApp Concierge Button */}
+          <a
+            href={`https://wa.me/${formatWhatsAppPhone(settings.storePhone)}?text=${encodeURIComponent(
+              language === 'ar'
+                ? 'مرحباً نسمات، أود التواصل والاستفسار بخصوص عطوركم الفاخرة.'
+                : 'Hello Nasamat, I would like to inquire about your luxury perfumes.'
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Contact via WhatsApp"
+            title={language === 'ar' ? 'تواصل فوري عبر واتساب' : 'Chat via WhatsApp'}
+            className="group relative flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-2xl"
+          >
+            {/* Concentric Aura Rings */}
+            <div className="pulse-ring-aura" />
+            <div className="pulse-ring-aura-secondary" />
+
+            {/* Official WhatsApp Logo SVG */}
+            <WhatsAppOfficialIcon className="w-14 h-14 sm:w-16 sm:h-16 shrink-0 group-hover:rotate-6 transition-transform filter drop-shadow-lg" />
+
+            {/* Online Indicator Badge */}
+            <span className="absolute top-0 end-0 flex h-3.5 w-3.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-white shadow-xs"></span>
+            </span>
+          </a>
+        </div>
       )}
 
     </div>

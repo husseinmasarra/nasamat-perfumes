@@ -973,7 +973,10 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
     if (settings) {
       setAdminPasswordInput(settings.adminPassword || '1234');
       setAdminSecretSlugInput(settings.adminSecretSlug || 'nasmat-vault-77');
-      setStorePhoneInput(settings.storePhone || '+961 70 000 000');
+      const cleanPhone = settings.storePhone && settings.storePhone !== '+961 70 000 000' 
+        ? settings.storePhone 
+        : '+961 81 713 408';
+      setStorePhoneInput(cleanPhone);
       setFacebookUrlInput(settings.facebookUrl || '');
       setInstagramUrlInput(settings.instagramUrl || '');
       setDeliveryFeeInput(settings.defaultDeliveryFee !== undefined ? settings.defaultDeliveryFee : 3);
@@ -4214,6 +4217,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                         type="text"
                         value={storePhoneInput}
                         onChange={(e) => setStorePhoneInput(e.target.value)}
+                        onBlur={() => handleSaveAllSettings(undefined, 'phone')}
                         placeholder="81713408"
                         className="w-full p-2.5 rounded-xl border border-neutral-300 font-mono focus:outline-none focus:border-black font-bold text-sm"
                         required
@@ -4298,6 +4302,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                         type="url"
                         value={facebookUrlInput}
                         onChange={(e) => setFacebookUrlInput(e.target.value)}
+                        onBlur={() => handleSaveAllSettings(undefined, 'social')}
                         placeholder="https://facebook.com/nasmat.perfumes"
                         className="w-full p-2.5 rounded-xl border border-neutral-300 font-mono text-xs focus:outline-none focus:border-black"
                         dir="ltr"
@@ -4335,6 +4340,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                         type="url"
                         value={instagramUrlInput}
                         onChange={(e) => setInstagramUrlInput(e.target.value)}
+                        onBlur={() => handleSaveAllSettings(undefined, 'social')}
                         placeholder="https://instagram.com/nasmat.perfumes"
                         className="w-full p-2.5 rounded-xl border border-neutral-300 font-mono text-xs focus:outline-none focus:border-black"
                         dir="ltr"

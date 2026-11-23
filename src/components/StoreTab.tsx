@@ -1687,6 +1687,78 @@ export const StoreTab: React.FC<StoreTabProps> = ({
             </div>
           </div>
 
+          {/* Haute Parfumerie VIP Concierge & Social Media Showcase */}
+          <div className="p-5 sm:p-7 rounded-3xl bg-neutral-900 text-white border border-neutral-800 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="space-y-1.5 text-center md:text-start">
+              <div className="flex items-center justify-center md:justify-start gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span className="text-xs font-mono font-bold tracking-wider text-amber-400 uppercase">
+                  {language === 'ar' ? 'المستشار العطري وقنوات التواصل المباشر' : 'VIP Fragrance Concierge & Social Lounge'}
+                </span>
+              </div>
+              <h3 className="text-base sm:text-xl font-black font-serif text-white tracking-wide">
+                {language === 'ar' ? 'تواصل معنا مباشرة وتابع أحدث إصدارات نسمات' : 'Connect Directly With Our Master Parfumeurs'}
+              </h3>
+              <p className="text-xs text-neutral-400 max-w-lg">
+                {language === 'ar' 
+                  ? 'فريقنا متاح دائماً لمساعدتك في اختيار عطرك، تنسيق باقات الهدايا، والاستفسار عن التوصيل.'
+                  : 'Chat with our fragrance specialists, track your delivery, or follow our latest royal releases.'}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 shrink-0">
+              {/* WhatsApp */}
+              <a
+                href={`https://wa.me/${formatWhatsAppPhone(settings.storePhone)}?text=${encodeURIComponent(
+                  language === 'ar' ? 'مرحباً، أود استشارة المستشار العطري في نسمات.' : 'Hello, I would like to consult the fragrance concierge.'
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                title="WhatsApp"
+              >
+                <WhatsAppOfficialBadge className="w-5 h-5 sm:w-6 sm:h-6" />
+                <span className="font-bold">{language === 'ar' ? 'واتساب' : 'WhatsApp'}</span>
+              </a>
+
+              {/* Instagram */}
+              <a
+                href={settings.instagramUrl || '#'}
+                target={settings.instagramUrl ? '_blank' : '_self'}
+                rel="noopener noreferrer"
+                onClick={(e) => {
+                  if (!settings.instagramUrl) {
+                    e.preventDefault();
+                    alert(language === 'ar' ? 'سيتم تفعيل وإضافة رابط حساب الإنستغرام قريباً!' : 'Instagram link will be added soon!');
+                  }
+                }}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-xs shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                title="Instagram"
+              >
+                <InstagramOfficialBadge className="w-5 h-5 sm:w-6 sm:h-6" />
+                <span className="font-bold">{language === 'ar' ? 'إنستغرام' : 'Instagram'}</span>
+              </a>
+
+              {/* Facebook */}
+              <a
+                href={settings.facebookUrl || '#'}
+                target={settings.facebookUrl ? '_blank' : '_self'}
+                rel="noopener noreferrer"
+                onClick={(e) => {
+                  if (!settings.facebookUrl) {
+                    e.preventDefault();
+                    alert(language === 'ar' ? 'سيتم تفعيل وإضافة رابط صفحة الفيسبوك قريباً!' : 'Facebook link will be added soon!');
+                  }
+                }}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold text-xs shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                title="Facebook"
+              >
+                <FacebookOfficialBadge className="w-5 h-5 sm:w-6 sm:h-6" />
+                <span className="font-bold">{language === 'ar' ? 'فيسبوك' : 'Facebook'}</span>
+              </a>
+            </div>
+          </div>
+
           {/* Circular Category Quick-Nav Strip (Real Luxury Photos - 100% Editable) */}
           <div className="py-2 overflow-x-auto scrollbar-none no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             <div className="flex items-center justify-between gap-4 min-w-max mx-auto px-1">
@@ -3836,17 +3908,17 @@ export const StoreTab: React.FC<StoreTabProps> = ({
               {language === 'ar' ? 'خدمة الزبائن وحسابات التواصل' : 'Customer Care & Social Media'}
             </div>
             
-            <div className="flex items-center justify-center md:justify-end gap-3 pt-0.5">
+            <div className="flex items-center justify-center md:justify-end gap-3.5 pt-1">
               {/* WhatsApp Official Badge */}
               <a 
                 href={`https://wa.me/${formatWhatsAppPhone(settings.storePhone)}`} 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer shrink-0"
+                className="w-12 h-12 rounded-full flex items-center justify-center hover:scale-115 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer shrink-0"
                 title="WhatsApp"
                 aria-label="WhatsApp"
               >
-                <WhatsAppOfficialBadge className="w-10 h-10" />
+                <WhatsAppOfficialBadge className="w-12 h-12" />
               </a>
 
               {/* Instagram Official Badge */}
@@ -3860,11 +3932,11 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                     alert(language === 'ar' ? 'سيتم تفعيل وإضافة رابط حساب الإنستغرام قريباً!' : 'Instagram link will be added soon!');
                   }
                 }}
-                className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer shrink-0"
+                className="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center hover:scale-115 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer shrink-0"
                 title="Instagram"
                 aria-label="Instagram"
               >
-                <InstagramOfficialBadge className="w-10 h-10" />
+                <InstagramOfficialBadge className="w-12 h-12" />
               </a>
 
               {/* Facebook Official Badge */}
@@ -3878,11 +3950,11 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                     alert(language === 'ar' ? 'سيتم تفعيل وإضافة رابط صفحة الفيسبوك قريباً!' : 'Facebook link will be added soon!');
                   }
                 }}
-                className="w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer shrink-0"
+                className="w-12 h-12 rounded-full flex items-center justify-center hover:scale-115 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer shrink-0"
                 title="Facebook"
                 aria-label="Facebook"
               >
-                <FacebookOfficialBadge className="w-10 h-10" />
+                <FacebookOfficialBadge className="w-12 h-12" />
               </a>
             </div>
           </div>
@@ -4015,6 +4087,71 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                   </button>
                 </div>
               )}
+
+              {/* Official Social Media Channels (Prominent Mobile Drawer Card) */}
+              <div className="p-3.5 rounded-2xl bg-gradient-to-br from-neutral-900 via-black to-neutral-900 text-white shadow-md space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-amber-400 text-xs">✨</span>
+                    <span className="text-[11px] font-black uppercase tracking-wider text-amber-400">
+                      {isAr ? 'قنوات التواصل المباشر' : 'OFFICIAL SOCIAL & CHAT'}
+                    </span>
+                  </div>
+                  <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    {isAr ? 'متاحون فوراً' : 'ONLINE'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 pt-1">
+                  {/* WhatsApp */}
+                  <a
+                    href={`https://wa.me/${formatWhatsAppPhone(settings.storePhone)}?text=${encodeURIComponent(
+                      isAr ? 'مرحباً نسمات، أود التواصل والاستفسار.' : 'Hello Nasamat, I would like to inquire.'
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white/10 hover:bg-emerald-600/30 border border-white/10 hover:border-emerald-500/50 transition-all active:scale-95 group text-center"
+                  >
+                    <WhatsAppOfficialBadge className="w-8 h-8 group-hover:scale-110 transition-transform" />
+                    <span className="text-[10px] font-bold text-white mt-1.5">{isAr ? 'واتساب' : 'WhatsApp'}</span>
+                  </a>
+
+                  {/* Instagram */}
+                  <a
+                    href={settings.instagramUrl || '#'}
+                    target={settings.instagramUrl ? '_blank' : '_self'}
+                    rel="noopener noreferrer"
+                    onClick={(e) => {
+                      if (!settings.instagramUrl) {
+                        e.preventDefault();
+                        alert(isAr ? 'سيتم تفعيل وإضافة رابط حساب الإنستغرام قريباً!' : 'Instagram link will be added soon!');
+                      }
+                    }}
+                    className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white/10 hover:bg-pink-600/30 border border-white/10 hover:border-pink-500/50 transition-all active:scale-95 group text-center"
+                  >
+                    <InstagramOfficialBadge className="w-8 h-8 group-hover:scale-110 transition-transform" />
+                    <span className="text-[10px] font-bold text-white mt-1.5">{isAr ? 'إنستغرام' : 'Instagram'}</span>
+                  </a>
+
+                  {/* Facebook */}
+                  <a
+                    href={settings.facebookUrl || '#'}
+                    target={settings.facebookUrl ? '_blank' : '_self'}
+                    rel="noopener noreferrer"
+                    onClick={(e) => {
+                      if (!settings.facebookUrl) {
+                        e.preventDefault();
+                        alert(isAr ? 'سيتم تفعيل وإضافة رابط صفحة الفيسبوك قريباً!' : 'Facebook link will be added soon!');
+                      }
+                    }}
+                    className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white/10 hover:bg-blue-600/30 border border-white/10 hover:border-blue-500/50 transition-all active:scale-95 group text-center"
+                  >
+                    <FacebookOfficialBadge className="w-8 h-8 group-hover:scale-110 transition-transform" />
+                    <span className="text-[10px] font-bold text-white mt-1.5">{isAr ? 'فيسبوك' : 'Facebook'}</span>
+                  </a>
+                </div>
+              </div>
 
               {/* Section 1: الأقسام الرئيسية والخدمات الفاخرة */}
               <div className="space-y-1">
@@ -4264,11 +4401,11 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                     href={`https://wa.me/${formatWhatsAppPhone(settings.storePhone)}`} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer shrink-0"
+                    className="w-11 h-11 rounded-full flex items-center justify-center hover:scale-115 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer shrink-0"
                     title="WhatsApp"
                     aria-label="WhatsApp"
                   >
-                    <WhatsAppOfficialBadge className="w-10 h-10" />
+                    <WhatsAppOfficialBadge className="w-11 h-11" />
                   </a>
 
                   {/* Instagram */}
@@ -4282,11 +4419,11 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                         alert(isAr ? 'سيتم تفعيل وإضافة رابط حساب الإنستغرام قريباً!' : 'Instagram link will be added soon!');
                       }
                     }}
-                    className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer shrink-0"
+                    className="w-11 h-11 rounded-2xl overflow-hidden flex items-center justify-center hover:scale-115 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer shrink-0"
                     title="Instagram"
                     aria-label="Instagram"
                   >
-                    <InstagramOfficialBadge className="w-10 h-10" />
+                    <InstagramOfficialBadge className="w-11 h-11" />
                   </a>
 
                   {/* Facebook */}
@@ -4300,11 +4437,11 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                         alert(isAr ? 'سيتم تفعيل وإضافة رابط صفحة الفيسبوك قريباً!' : 'Facebook link will be added soon!');
                       }
                     }}
-                    className="w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer shrink-0"
+                    className="w-11 h-11 rounded-full flex items-center justify-center hover:scale-115 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer shrink-0"
                     title="Facebook"
                     aria-label="Facebook"
                   >
-                    <FacebookOfficialBadge className="w-10 h-10" />
+                    <FacebookOfficialBadge className="w-11 h-11" />
                   </a>
                 </div>
               </div>

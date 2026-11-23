@@ -7,7 +7,7 @@ export const INITIAL_SETTINGS: AppSettings = {
   defaultProfitMargin: 75,
   theme: 'light',
   storeName: 'نسمات للعطور الملكية - لبنان',
-  storePhone: '+961 70 000 000',
+  storePhone: '+961 81 713 408',
   storeLocation: 'بيروت / جبل لبنان',
   storeBio: 'صياغة وتركيب أفخم العطور العالمية والنيش بتركيز إكستري دو بارفان لثبات وفوحان دائم',
   facebookUrl: '',
