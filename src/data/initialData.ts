@@ -10,7 +10,7 @@ export const INITIAL_SETTINGS: AppSettings = {
   storePhone: '+961 81 713 408',
   storeLocation: 'بيروت / جبل لبنان',
   storeBio: 'صياغة وتركيب أفخم العطور العالمية والنيش بتركيز إكستري دو بارفان لثبات وفوحان دائم',
-  facebookUrl: 'https://www.facebook.com/nasamat.perfumes/',
+  facebookUrl: 'https://www.facebook.com/profile.php?id=61596789873419',
   instagramUrl: 'https://www.instagram.com/nasamat.purfume/',
   adminPassword: '1234',
   adminSecretSlug: 'nasmat-vault-77',

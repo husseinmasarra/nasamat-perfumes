@@ -9,7 +9,7 @@ export type WhatsAppVIPActionType = 'compounding' | 'delivery' | 'satisfaction' 
 
 export const OFFICIAL_SOCIAL_LINKS = {
   instagram: 'https://www.instagram.com/nasamat.purfume/',
-  facebook: 'https://www.facebook.com/nasamat.perfumes/',
+  facebook: 'https://www.facebook.com/profile.php?id=61596789873419',
   whatsapp: '96181713408',
 };
 
