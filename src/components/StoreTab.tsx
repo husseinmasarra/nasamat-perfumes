@@ -469,7 +469,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
               <>
                 <span className="text-neutral-300">/</span>
                 <span className="font-semibold text-neutral-600 shrink-0">
-                  {getCategoryConfig(selectedCategory).labelAr}
+                  {language === 'ar' ? getCategoryConfig(selectedCategory).labelAr : getCategoryConfig(selectedCategory).labelEn}
                 </span>
               </>
             )}
@@ -2130,15 +2130,15 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                         <span className="text-black font-serif uppercase tracking-widest">NASAMAT ATELIER</span>
                       </div>
                       <h3 className="text-lg font-black text-black font-serif">
-                        {rec.name}
+                        {language === 'ar' ? rec.name : (rec.nameEn || rec.name)}
                       </h3>
-                      {rec.nameEn && (
+                      {language === 'ar' && rec.nameEn && (
                         <p className="text-xs text-neutral-400 font-medium font-sans">
                           {rec.nameEn}
                         </p>
                       )}
                       <p className="text-xs text-neutral-600 leading-relaxed">
-                        {rec.description}
+                        {language === 'ar' ? rec.description : (rec.descriptionEn || rec.description)}
                       </p>
 
                       {/* Olfactory Notes Box */}
@@ -2148,7 +2148,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                             {language === 'ar' ? 'الهرم العطري والنوتات:' : 'Olfactory Pyramid:'}
                           </span>
                           <span className="text-neutral-700 leading-relaxed font-sans block">
-                            {rec.scentNotes}
+                            {language === 'ar' ? rec.scentNotes : getLocalizedNotes(rec.scentNotes, 'en')}
                           </span>
                         </div>
                       )}
