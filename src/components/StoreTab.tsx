@@ -1400,13 +1400,13 @@ export const StoreTab: React.FC<StoreTabProps> = ({
             {stockStatus === 'in_stock' && (
               <span className="px-1.5 sm:px-2 py-0.5 rounded-full bg-white/95 border border-neutral-200 text-neutral-800 text-[8px] sm:text-[9px] font-bold flex items-center gap-1 shadow-2xs">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                <span>{t('storeInStockBottles')} ({maxBottlesPossible})</span>
+                <span>{t('storeInStockBottles')}</span>
               </span>
             )}
             {stockStatus === 'low_stock' && (
               <span className="px-1.5 sm:px-2 py-0.5 rounded-full bg-white/95 border border-amber-300 text-amber-800 text-[8px] sm:text-[9px] font-bold flex items-center gap-1 shadow-2xs">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                <span>{t('storeLowStockBottles')} ({maxBottlesPossible})</span>
+                <span>{t('storeLowStockBottles')}</span>
               </span>
             )}
             {stockStatus === 'out_of_stock' && (
