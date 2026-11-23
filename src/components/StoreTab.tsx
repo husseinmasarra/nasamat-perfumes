@@ -2115,7 +2115,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                     <div className="w-full sm:w-36 h-48 bg-neutral-100 rounded-2xl overflow-hidden shrink-0 relative">
                       <img
                         src={rec.imageUrl || 'https://images.unsplash.com/photo-1615397349754-cfa2066a298e?auto=format&fit=crop&w=400&q=80'}
-                        alt={rec.name}
+                        alt={language === 'ar' ? rec.name : (rec.nameEn || getLocalizedOilName(rec.name, 'en'))}
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute top-2 start-2 bg-white/95 backdrop-blur-xs border border-neutral-300 text-neutral-900 text-[9px] font-black px-2 py-0.5 rounded shadow-xs uppercase tracking-wider">
@@ -2444,11 +2444,11 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                                     {oil?.code || `OIL-${idx + 1}`}
                                   </span>
                                   <span className="font-bold text-xs text-black truncate">
-                                    {oil?.name || 'زيت عطري'}
+                                    {oil ? (language === 'ar' ? oil.name : (oil.nameEn || getLocalizedOilName(oil.name, 'en'))) : (language === 'ar' ? 'زيت عطري' : 'Fragrance Oil')}
                                   </span>
                                   {oil?.brand && (
                                     <span className="text-[10px] text-neutral-400 hidden sm:inline truncate">
-                                      ({oil.brand})
+                                      ({language === 'ar' ? oil.brand : getLocalizedBrand(oil.brand, 'en')})
                                     </span>
                                   )}
                                 </div>
@@ -2583,14 +2583,14 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                             <div className="truncate flex-1">
                               <div className="flex items-center gap-2">
                                 <span className="font-bold text-xs text-black truncate">
-                                  {oil.name}
+                                  {language === 'ar' ? oil.name : (oil.nameEn || getLocalizedOilName(oil.name, 'en'))}
                                 </span>
                                 <span className="font-mono text-[9px] bg-neutral-200 text-neutral-800 px-1 rounded font-bold">
                                   {oil.code}
                                 </span>
                               </div>
                               <p className="text-[10px] text-neutral-500 truncate mt-0.5">
-                                {oil.brand || 'نسمات'} {oil.family ? `• ${oil.family}` : ''}
+                                {language === 'ar' ? (oil.brand || 'نسمات') : getLocalizedBrand(oil.brand || 'Nasamat', 'en')} {oil.family ? `• ${oil.family}` : ''}
                               </p>
                             </div>
 
@@ -3345,7 +3345,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                             <div className="flex items-center gap-2.5 min-w-0">
                               <img
                                 src={perfume.imageUrl || 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=200&q=80'}
-                                alt={perfume.name}
+                                alt={isAr ? perfume.name : ((perfume as any).nameEn || getLocalizedOilName(perfume.name, 'en'))}
                                 className="w-10 h-10 rounded-xl object-cover shrink-0 border border-neutral-200"
                                 onError={(e) => {
                                   (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=200&q=80';
@@ -4386,7 +4386,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                       {/* Image Thumbnail */}
                       <div className="w-14 h-14 rounded-lg bg-neutral-100 overflow-hidden flex-shrink-0 border border-neutral-200">
                         {item.imageUrl ? (
-                          <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                          <img src={item.imageUrl} alt={isAr ? item.name : (item.nameEn || getLocalizedOilName(item.name, 'en'))} className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-neutral-500">
                             <Droplet className="w-5 h-5 text-neutral-400" />

@@ -153,18 +153,18 @@ export const INITIAL_NAV_CATEGORIES: CategoryNavConfig[] = [
 ];
 
 export const LUXURY_PRESET_IMAGES = [
-  { name: 'عطر كلاسيكي ملكي', url: 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=600&q=80' },
-  { name: 'عطر ذهبي فاخر', url: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=600&q=80' },
-  { name: 'عطور رجالية سوداء', url: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80' },
-  { name: 'عطور نسائية وردية', url: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=600&q=80' },
-  { name: 'عطور نيش شفافة', url: 'https://images.unsplash.com/photo-1615397349754-cfa2066a298e?auto=format&fit=crop&w=600&q=80' },
-  { name: 'مختبر وتركيب العطور', url: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=600&q=80' },
-  { name: 'باقات هدايا وتوفير', url: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=600&q=80' },
-  { name: 'توصيل سريع وطرود', url: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=600&q=80' },
-  { name: 'عود وعنبر ملكي', url: 'https://images.unsplash.com/photo-1508746829417-e6f548d8d6ed?auto=format&fit=crop&w=600&q=80' },
-  { name: 'عطر زمردي وأخضر', url: 'https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?auto=format&fit=crop&w=600&q=80' },
-  { name: 'زهور وبساتين غراس', url: 'https://images.unsplash.com/photo-1583445013765-46c20c4a6772?auto=format&fit=crop&w=600&q=80' },
-  { name: 'بخاخ ذهبي أنتيك', url: 'https://images.unsplash.com/photo-1590736969955-71cc94801759?auto=format&fit=crop&w=600&q=80' },
+  { name: 'عطر كلاسيكي ملكي', nameEn: 'Royal Classic Flacon', url: 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=600&q=80' },
+  { name: 'عطر ذهبي فاخر', nameEn: 'Luxury Gold Perfume', url: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=600&q=80' },
+  { name: 'عطور رجالية سوداء', nameEn: 'Flacon Noir Masculin', url: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80' },
+  { name: 'عطور نسائية وردية', nameEn: 'Rose Blush Feminine', url: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=600&q=80' },
+  { name: 'عطور نيش شفافة', nameEn: 'Crystal Niche Flacon', url: 'https://images.unsplash.com/photo-1615397349754-cfa2066a298e?auto=format&fit=crop&w=600&q=80' },
+  { name: 'مختبر وتركيب العطور', nameEn: 'Artisan Perfume Atelier', url: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=600&q=80' },
+  { name: 'باقات هدايا وتوفير', nameEn: 'Luxury Gift Sets', url: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=600&q=80' },
+  { name: 'توصيل سريع وطرود', nameEn: 'Express Delivery Parcels', url: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=600&q=80' },
+  { name: 'عود وعنبر ملكي', nameEn: 'Royal Oud & Amber', url: 'https://images.unsplash.com/photo-1508746829417-e6f548d8d6ed?auto=format&fit=crop&w=600&q=80' },
+  { name: 'عطر زمردي وأخضر', nameEn: 'Emerald Green Flacon', url: 'https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?auto=format&fit=crop&w=600&q=80' },
+  { name: 'زهور وبساتين غراس', nameEn: 'Grasse French Florals', url: 'https://images.unsplash.com/photo-1583445013765-46c20c4a6772?auto=format&fit=crop&w=600&q=80' },
+  { name: 'بخاخ ذهبي أنتيك', nameEn: 'Antique Gold Sprayer', url: 'https://images.unsplash.com/photo-1590736969955-71cc94801759?auto=format&fit=crop&w=600&q=80' },
 ];
 
 export function loadNavCategories(): CategoryNavConfig[] {

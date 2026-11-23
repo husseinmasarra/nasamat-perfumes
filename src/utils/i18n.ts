@@ -1053,7 +1053,23 @@ export function getLocalizedOilName(fullName: string, lang: Language): string {
 export function getLocalizedNotes(notesText: string, lang: Language): string {
   if (!notesText || lang === 'ar') return notesText;
 
+  let result = notesText;
+  // Normalize Arabic prefixes before replacing
+  result = result.replace(/ال(?=[\u0600-\u06FF])/g, '');
+  result = result.replace(/ال([A-Za-z])/g, '$1');
+
   const notesMap: [RegExp, string][] = [
+    // Marketing & Subtitle descriptors
+    [/-\s*الرقم 1 مبيعاً في لبنان للرجال/gi, '• #1 Best Seller in Lebanon'],
+    [/-\s*كلاسيكي راقي صيفي وشتوي/gi, '• All-Season Timeless Classic'],
+    [/-\s*ملك العطور الرجالية/gi, '• The King of Men Fragrances'],
+    [/-\s*ملكة العطور النسائية في بيروت/gi, '• Beirut Queen of Scents'],
+    [/-\s*فخم جداً شتوي/gi, '• Opulent Luxury Signature'],
+    [/-\s*شبابي رياضي عالي الفوحان/gi, '• Vibrant High-Sillage Sport'],
+    [/الأكثر طلباً وتوفيراً|الأكثر طلباً|الأكثر مبيعاً/gi, 'Best Seller'],
+    [/خلطة ملكية|خلطة خاصة/gi, 'Royal Signature Blend'],
+
+    // Raw Olfactory Notes
     [/برغموت كاليبريا|برغموت كالابريا|برغموت/gi, 'Bergamot'],
     [/فلفل سيتشوان|فلفل أسود|فلفل وردي|فلفل/gi, 'Pepper'],
     [/خزامى بروفانس|خزامى|لافندر/gi, 'Lavender'],
@@ -1085,10 +1101,20 @@ export function getLocalizedNotes(notesText: string, lang: Language): string {
     [/ماندارين صقلي|ماندارين|يوسفي/gi, 'Sicilian Mandarin'],
     [/جريب فروت وردي|جريب فروت/gi, 'Pink Grapefruit'],
     [/ليمون إيطالي|ليمون صقلي|ليمون/gi, 'Italian Lemon'],
+    [/ورد تركي|ورد بلغاري|ورد مجفف/gi, 'Turkish Damascena Rose'],
+    [/ليتشي/gi, 'Lychee'],
+    [/راوند/gi, 'Rhubarb'],
+    [/سوسن فاخر|سوسن/gi, 'Noble Florentine Iris'],
+    [/بذور خبازي/gi, 'Ambrette Seeds'],
+    [/ورق غار/gi, 'Bay Leaf'],
+    [/صمغ إليمي|إليمي/gi, 'Elemi Resin'],
+    [/لابدانوم/gi, 'Labdanum'],
+    [/خشب بتولا مدخن|خشب بتولا|بتولا/gi, 'Smoked Birch Wood'],
+    [/طحلب بلوط|طحلب سنديان|أوكموس/gi, 'Oakmoss'],
+    [/أيزو إي سوبر|ايزو اي سوبر/gi, 'Iso E Super'],
     [/قهوة محمصة|قهوة/gi, 'Roasted Coffee'],
     [/شوكولاتة داكنة|كاكاو/gi, 'Dark Chocolate'],
-    [/طحلب السنديان|أوكموس/gi, 'Oakmoss'],
-    [/راتنج البنزوين|بنزوين|صمغ الإليمي/gi, 'Benzoin & Elemi'],
+    [/راتنج البنزوين|بنزوين/gi, 'Benzoin'],
     [/تبغ كوبي|أوراق التبغ|تبغ/gi, 'Cuban Tobacco'],
     [/عسل بري|عسل/gi, 'Wild Honey'],
     [/شاي أخضر|شاي أسود/gi, 'Tea Accords'],
@@ -1098,22 +1124,38 @@ export function getLocalizedNotes(notesText: string, lang: Language): string {
     [/توابل دافئة وحارة|توابل حارة/gi, 'Warm & Spicy'],
     [/عنبري عميق|عنبري دافئ/gi, 'Deep Amber'],
     [/أروماتيك رجالي|أروماتيك دافئ|أروماتك/gi, 'Warm Aromatic'],
+    [/أروماتيك استثنائي|أروماتيك/gi, 'Refined Aromatic'],
     [/خشبي راقٍ|خشبي عميق|خشبي/gi, 'Refined Woody'],
     [/بخور شرقي|بخور ملكي/gi, 'Oriental Incense'],
-    [/جلدي ملكي|جلدي/gi, 'Royal Leather'],
+    [/جلدي ملكي|جلدي/gi, 'Royal Italian Leather'],
     [/زهري أنيق|زهري ناعم/gi, 'Elegant Floral'],
     [/سكري ولذيذ|غورماند/gi, 'Gourmand & Sweet'],
     [/بودري ناعم|بودري/gi, 'Soft Powdery'],
-    [/خشب البتولا المدخن|خشب البتولا/gi, 'Smoked Birch Wood'],
     [/زنجبيل منعش|زنجبيل/gi, 'Fresh Ginger'],
     [/جوزة الطيب/gi, 'Nutmeg'],
-    [/ورد تركي|ورد بلغاري|ورد مجفف/gi, 'Damascena Rose'],
     [/افتتاحية حارة/gi, 'Spicy Opening'],
     [/قلب زهري/gi, 'Floral Heart'],
     [/قاعدة خشبية/gi, 'Woody Base'],
+
+    // Descriptors & Origins
+    [/إيطالي|إيطالية/gi, 'Italian'],
+    [/فرنسي|فرنسية/gi, 'French'],
+    [/مغربي|مغربية/gi, 'Moroccan'],
+    [/صقلي|صقلية/gi, 'Sicilian'],
+    [/كشميري|كشميرية/gi, 'Kashmiri'],
+    [/مدخن|مدخنة/gi, 'Smoked'],
+    [/نقي|صافي/gi, 'Pure'],
+    [/ملكي|ملكية/gi, 'Royal'],
+    [/فاخر|فاخرة/gi, 'Luxury'],
+    [/نادر/gi, 'Rare'],
+    [/مقرمش|مقرمشة/gi, 'Crisp'],
+    [/فوار|فوارة/gi, 'Sparkling'],
+    [/حار|حارة/gi, 'Spicy'],
+    [/ناعم|ناعمة/gi, 'Smooth'],
+    [/دافئ|دافئة/gi, 'Warm'],
+    [/منعش|منعشة/gi, 'Fresh']
   ];
 
-  let result = notesText;
   for (const [pattern, replacement] of notesMap) {
     result = result.replace(pattern, replacement);
   }
@@ -1128,7 +1170,10 @@ export function getLocalizedNotes(notesText: string, lang: Language): string {
     .replace(/نفحات\s*/g, 'notes of ')
     .replace(/مزيج\s*/g, 'blend of ');
 
-  // Clean remaining Arabic characters
+  // Strip trailing Arabic relative suffixes attached to English words (e.g. Leatherي -> Leather)
+  result = result.replace(/([A-Za-z])(?:ي|ة|ات|ية)\b/g, '$1');
+
+  // Purge any remaining Arabic characters completely
   if (/[\u0600-\u06FF]/.test(result)) {
     result = result.replace(/[\u0600-\u06FF]/g, '').trim();
   }
@@ -1138,7 +1183,10 @@ export function getLocalizedNotes(notesText: string, lang: Language): string {
     .replace(/[،؛]/g, ',')
     .replace(/\s*,\s*/g, ', ')
     .replace(/(,\s*)+/g, ', ')
+    .replace(/\s*-\s*-+\s*/g, ' - ')
+    .replace(/\s*-\s*(\d+)?\s*(in)?\s*$/gi, '')
     .replace(/^,\s*|,\s*$/g, '')
+    .replace(/^\s*-\s*|\s*-\s*$/g, '')
     .trim();
 
   if (result.length < 3) {

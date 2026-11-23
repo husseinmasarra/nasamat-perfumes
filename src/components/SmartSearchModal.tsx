@@ -10,7 +10,7 @@ import {
 import type { FragranceOil, RawMaterial } from '../types';
 import { smartSearchOils, smartSearchMaterials, SMART_SEARCH_CHIPS, type SmartFilterChip } from '../utils/search';
 import { useLanguage } from '../context/LanguageContext';
-import { getLocalizedOilName, getLocalizedBrand, getLocalizedMaterialName } from '../utils/i18n';
+import { getLocalizedOilName, getLocalizedBrand, getLocalizedMaterialName, getLocalizedNotes } from '../utils/i18n';
 
 interface SmartSearchModalProps {
   isOpen: boolean;
@@ -224,7 +224,7 @@ export const SmartSearchModal: React.FC<SmartSearchModalProps> = ({
                               {oil.imageUrl ? (
                                 <img
                                   src={oil.imageUrl}
-                                  alt={oil.name}
+                                  alt={localizedName}
                                   className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                                   loading="lazy"
                                 />
@@ -255,7 +255,7 @@ export const SmartSearchModal: React.FC<SmartSearchModalProps> = ({
                               </h4>
                               {oil.notes && (
                                 <p className="text-[11px] text-neutral-500 truncate mt-0.5">
-                                  {oil.notes}
+                                  {getLocalizedNotes(oil.notes, language)}
                                 </p>
                               )}
                             </div>
@@ -336,7 +336,7 @@ export const SmartSearchModal: React.FC<SmartSearchModalProps> = ({
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 rounded-xl border border-neutral-200 bg-neutral-100 overflow-hidden shrink-0">
                             {mat.imageUrl ? (
-                              <img src={mat.imageUrl} alt={mat.name} className="w-full h-full object-cover" />
+                              <img src={mat.imageUrl} alt={localizedMatName} className="w-full h-full object-cover" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-neutral-400">
                                 <Package className="w-5 h-5" />

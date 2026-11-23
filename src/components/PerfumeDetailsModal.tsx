@@ -582,7 +582,7 @@ export const PerfumeDetailsModal: React.FC<PerfumeDetailsModalProps> = ({
                     {isAr ? 'طابع الانطباع والأثر' : 'Aura & Impression'}
                   </div>
                   <div className="text-xs sm:text-sm font-bold text-black">
-                    {isAr ? profile.vibeAr : (profile.vibeEn || profile.vibeAr)}
+                    {isAr ? profile.vibeAr : (profile.vibeEn || 'Commanding Charisma, Absolute Success & Unforgettable Presence')}
                   </div>
                 </div>
               </div>
@@ -1107,10 +1107,10 @@ export const PerfumeDetailsModal: React.FC<PerfumeDetailsModalProps> = ({
                       className={`p-1 rounded-xl border transition cursor-pointer flex flex-col items-center ${
                         photoInputUrl === preset.url ? 'border-black bg-neutral-100 ring-2 ring-black' : 'border-neutral-200 hover:border-black'
                       }`}
-                      title={preset.name}
+                      title={isAr ? preset.name : (preset.nameEn || 'Luxury Perfume')}
                     >
                       <div className="w-12 h-14 rounded-lg overflow-hidden bg-neutral-100">
-                        <img src={preset.url} alt={preset.name} className="w-full h-full object-cover" />
+                        <img src={preset.url} alt={isAr ? preset.name : (preset.nameEn || 'Luxury Perfume')} className="w-full h-full object-cover" />
                       </div>
                     </button>
                   ))}
