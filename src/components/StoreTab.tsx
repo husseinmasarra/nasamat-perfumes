@@ -1319,7 +1319,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
         className="group bg-white border border-neutral-200 hover:border-black rounded-2xl overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between cursor-pointer transform hover:-translate-y-1.5"
       >
         {/* Product Visual Header (3:4 ratio luxury boutique style) */}
-        <div className="relative aspect-[3/4] max-h-64 sm:max-h-72 bg-neutral-50 overflow-hidden flex items-center justify-center p-3">
+        <div className="relative aspect-[3/4] max-h-52 sm:max-h-72 bg-neutral-50 overflow-hidden flex items-center justify-center p-2 sm:p-3">
           {/* Haute Parfumerie Crystal Sheen Light Reflection */}
           <div className="shine-sweep-overlay" />
           {imageUrl ? (
@@ -1336,19 +1336,19 @@ export const StoreTab: React.FC<StoreTabProps> = ({
           )}
 
           {/* Badges top-start & top-end (Nasamat Signature) */}
-          <div className="absolute top-2.5 start-2.5 flex flex-col gap-1 items-start">
-            <span className="px-2.5 py-1 rounded-md bg-black text-white text-[10px] font-black uppercase tracking-wider shadow-sm">
+          <div className="absolute top-2 start-2 flex flex-col gap-1 items-start">
+            <span className="px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded sm:rounded-md bg-black text-white text-[8px] sm:text-[10px] font-black uppercase tracking-wider shadow-sm">
               {badgeOverride
                 ? (isAr ? badgeOverride : (badgeOverride.includes('أكثر') ? '★ Best Seller' : badgeOverride))
                 : (isRecipe ? (isAr ? '★ خلطة ملكية' : '★ Royal Blend') : (isAr ? '★ الأكثر طلباً' : '★ Best Seller'))}
             </span>
           </div>
 
-          <div className="absolute top-2.5 end-2.5 flex flex-col gap-1 items-end">
-            <span className="px-2 py-0.5 rounded-md bg-rose-600 text-white text-[10px] font-black uppercase tracking-wider shadow-sm">
+          <div className="absolute top-2 end-2 flex flex-col gap-1 items-end">
+            <span className="px-1.5 sm:px-2 py-0.5 rounded sm:rounded-md bg-rose-600 text-white text-[8px] sm:text-[10px] font-black uppercase tracking-wider shadow-sm">
               {isAr ? `وفّر $${originalPrice - price}` : `Save $${originalPrice - price}`}
             </span>
-            <span className="px-2 py-0.5 rounded-md bg-white/95 backdrop-blur-xs text-neutral-900 border border-neutral-300 text-[9px] font-mono font-bold shadow-xs">
+            <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-white/95 backdrop-blur-xs text-neutral-900 border border-neutral-300 text-[9px] font-mono font-bold shadow-xs">
               EXTRAIT DE PARFUM
             </span>
           </div>
@@ -1362,21 +1362,21 @@ export const StoreTab: React.FC<StoreTabProps> = ({
           </div>
 
           {/* Stock Status Pill bottom-start */}
-          <div className="absolute bottom-2 start-2.5">
+          <div className="absolute bottom-2 start-2">
             {stockStatus === 'in_stock' && (
-              <span className="px-2 py-0.5 rounded-full bg-white/95 border border-neutral-200 text-neutral-800 text-[9px] font-bold flex items-center gap-1 shadow-2xs">
+              <span className="px-1.5 sm:px-2 py-0.5 rounded-full bg-white/95 border border-neutral-200 text-neutral-800 text-[8px] sm:text-[9px] font-bold flex items-center gap-1 shadow-2xs">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                 <span>{t('storeInStockBottles')} ({maxBottlesPossible})</span>
               </span>
             )}
             {stockStatus === 'low_stock' && (
-              <span className="px-2 py-0.5 rounded-full bg-white/95 border border-amber-300 text-amber-800 text-[9px] font-bold flex items-center gap-1 shadow-2xs">
+              <span className="px-1.5 sm:px-2 py-0.5 rounded-full bg-white/95 border border-amber-300 text-amber-800 text-[8px] sm:text-[9px] font-bold flex items-center gap-1 shadow-2xs">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                 <span>{t('storeLowStockBottles')} ({maxBottlesPossible})</span>
               </span>
             )}
             {stockStatus === 'out_of_stock' && (
-              <span className="px-2 py-0.5 rounded-full bg-white/95 border border-rose-300 text-rose-700 text-[9px] font-bold shadow-xs">
+              <span className="px-1.5 sm:px-2 py-0.5 rounded-full bg-white/95 border border-rose-300 text-rose-700 text-[8px] sm:text-[9px] font-bold shadow-xs">
                 {t('storeOutOfStockBottles')}
               </span>
             )}
@@ -1384,59 +1384,59 @@ export const StoreTab: React.FC<StoreTabProps> = ({
         </div>
 
         {/* Product Body (Luxury Editorial Hierarchy) */}
-        <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
+        <div className="p-2.5 sm:p-4 md:p-5 flex-1 flex flex-col justify-between space-y-2 sm:space-y-3">
           <div>
             {/* Inspiration Sub-label */}
-            <div className="text-xs text-neutral-600 font-bold uppercase tracking-wider flex items-center gap-1 truncate">
+            <div className="text-[10px] sm:text-xs text-neutral-600 font-bold uppercase tracking-wider flex items-center gap-1 truncate">
               <span className="text-neutral-500 font-bold">{isAr ? 'مستوحى من:' : 'Inspired by:'}</span>
               <span className="text-black font-black truncate">{displayBrand}</span>
             </div>
 
             {/* Fragrance Name */}
-            <h3 className="font-serif font-black text-black text-base sm:text-lg leading-snug line-clamp-1 mt-0.5 group-hover:underline">
+            <h3 className="font-serif font-black text-black text-xs sm:text-base md:text-lg leading-snug line-clamp-1 mt-0.5 group-hover:underline">
               {displayName}
             </h3>
 
             {/* English Name if in Arabic mode and available */}
             {isAr && nameEn && (
-              <p className="text-xs text-neutral-500 font-bold line-clamp-1">
+              <p className="text-[9px] sm:text-xs text-neutral-500 font-bold line-clamp-1">
                 {nameEn}
               </p>
             )}
 
             {/* Star Rating (5 gold stars) */}
-            <div className="flex items-center gap-1.5 text-xs mt-1">
+            <div className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs mt-0.5 sm:mt-1">
               <span className="text-amber-500 font-black tracking-tighter">★★★★★</span>
-              <span className="text-xs font-black text-black font-mono">4.9</span>
-              <span className="text-[11px] text-neutral-600 font-bold">({isRecipe ? (isAr ? '184 تقييم' : '184 reviews') : (isAr ? '142 تقييم' : '142 reviews')})</span>
+              <span className="text-[10px] sm:text-xs font-black text-black font-mono">4.9</span>
+              <span className="hidden sm:inline text-[11px] text-neutral-600 font-bold">({isRecipe ? (isAr ? '184 تقييم' : '184 reviews') : (isAr ? '142 تقييم' : '142 reviews')})</span>
             </div>
 
             {/* Scent notes pill */}
             {notesText && (
-              <p className="text-[11px] text-slate-800 font-semibold mt-2 line-clamp-1 leading-relaxed bg-slate-100 px-2.5 py-1.5 rounded-lg border border-slate-200">
+              <p className="text-[9px] sm:text-[11px] text-slate-800 font-semibold mt-1 sm:mt-2 line-clamp-1 leading-relaxed bg-slate-100 px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg border border-slate-200">
                 {notesText}
               </p>
             )}
           </div>
 
           {/* Pricing & Size Selection */}
-          <div className="space-y-2 pt-1 border-t border-neutral-100">
+          <div className="space-y-1.5 sm:space-y-2 pt-1 border-t border-neutral-100">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-black font-extrabold text-xs uppercase tracking-wider">
+              <span className="text-black font-extrabold text-[10px] sm:text-xs uppercase tracking-wider">
                 {language === 'ar' ? 'اختر الحجم:' : 'Select Size:'}
               </span>
-              <div className="flex items-baseline gap-2">
-                <span className="text-xs text-neutral-500 line-through font-mono font-bold">
+              <div className="flex items-baseline gap-1.5 sm:gap-2">
+                <span className="text-[10px] sm:text-xs text-neutral-500 line-through font-mono font-bold">
                   ${originalPrice}
                 </span>
-                <span className="text-black font-mono font-black text-lg">
+                <span className="text-black font-mono font-black text-sm sm:text-lg">
                   ${price.toFixed(2)}
                 </span>
               </div>
             </div>
 
             {/* Size pills (30ml, 50ml, 100ml) */}
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-1 sm:gap-2">
               {[
                 { size: 30, label: '30ml' },
                 { size: 50, label: '50ml', popular: true },
@@ -1452,18 +1452,18 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                       e.stopPropagation();
                       setSize(key, s.size);
                     }}
-                    className={`relative py-2 px-1 rounded-xl text-xs font-black transition-all flex flex-col items-center justify-center cursor-pointer ${
+                    className={`relative py-1 sm:py-2 px-0.5 sm:px-1 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black transition-all flex flex-col items-center justify-center cursor-pointer ${
                       isSelected
                         ? 'size-pill-selected bg-black text-white border-2 border-black shadow-md scale-[1.02]'
                         : 'size-pill-unselected bg-white hover:bg-neutral-50 text-black border-2 border-neutral-300'
                     }`}
                   >
-                    <span className="text-xs font-black uppercase tracking-wider">{s.label}</span>
-                    <span className={`text-xs font-mono font-bold mt-0.5 ${isSelected ? 'text-amber-300' : 'price-subtext text-neutral-700'}`}>
+                    <span className="text-[9px] sm:text-xs font-black uppercase tracking-wider">{s.label}</span>
+                    <span className={`text-[9px] sm:text-xs font-mono font-bold mt-0.5 ${isSelected ? 'text-amber-300' : 'price-subtext text-neutral-700'}`}>
                       ${sInfo.price}
                     </span>
                     {s.popular && (
-                      <span className="badge-top absolute -top-2 -end-1 bg-amber-400 text-black text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase shadow-xs">
+                      <span className="badge-top absolute -top-1.5 -end-1 bg-amber-400 text-black text-[7px] sm:text-[8px] font-black px-1 sm:px-1.5 py-0.2 rounded-full uppercase shadow-xs">
                         {isAr ? 'توب' : 'TOP'}
                       </span>
                     )}
@@ -1474,7 +1474,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
           </div>
 
           {/* Add to Cart Action */}
-          <div className="pt-2 border-t border-neutral-200">
+          <div className="pt-1.5 sm:pt-2 border-t border-neutral-200">
             {/* Add to Cart (Black Luxury Button) */}
             <button
               onClick={(e) => {
@@ -1493,14 +1493,14 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                 );
               }}
               disabled={stockStatus === 'out_of_stock'}
-              className={`w-full py-2.5 px-3 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition cursor-pointer shadow-md ${
+              className={`w-full py-2 sm:py-2.5 px-1.5 sm:px-3 rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-wider flex items-center justify-center gap-1 sm:gap-2 transition cursor-pointer shadow-md ${
                 stockStatus === 'out_of_stock'
                   ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed border border-neutral-300'
                   : 'bg-black hover:bg-neutral-800 text-white shadow-sm'
               }`}
             >
-              <ShoppingBag className="w-4 h-4 text-white" />
-              <span>
+              <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white shrink-0" />
+              <span className="truncate">
                 {stockStatus === 'out_of_stock'
                   ? t('storeOutOfStockBottles')
                   : `${t('storeAddToCart')} ($${price.toFixed(2)})`}
@@ -1776,7 +1776,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
             </div>
 
             {/* 4 Bestsellers Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
               {curatedFeatured.map((item) => renderProductCard(item, isAr ? '★ الأكثر طلباً' : '★ Best Seller'))}
             </div>
           </div>
@@ -2031,7 +2031,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
           </div>
 
           {/* Catalog Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
             {unifiedItems.map((item) => renderProductCard(item))}
           </div>
         </div>
@@ -2652,7 +2652,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
               </div>
 
               {/* Right Column: Luxury Flacon Visualizer & Save to Customer Record (5 cols) */}
-              <div className="lg:col-span-5 space-y-6 sticky top-28">
+              <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-28">
                 
                 <div className="bg-white border-2 border-black rounded-3xl p-6 shadow-xl space-y-5">
                   <div className="flex items-center justify-between border-b border-neutral-100 pb-3">

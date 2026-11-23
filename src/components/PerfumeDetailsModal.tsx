@@ -285,7 +285,7 @@ export const PerfumeDetailsModal: React.FC<PerfumeDetailsModalProps> = ({
         </div>
 
         {/* Modal Scrollable Content */}
-        <div className="p-4 sm:p-6 max-h-[82vh] overflow-y-auto space-y-6">
+        <div className="p-3.5 sm:p-6 max-h-[88dvh] sm:max-h-[82vh] overflow-y-auto space-y-4 sm:space-y-6">
           
           {/* Hero Section: Flacon + Editorial Details */}
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 bg-neutral-50 rounded-2xl p-4 sm:p-5 border border-neutral-200">
