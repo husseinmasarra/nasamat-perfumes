@@ -449,7 +449,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
 
   // World-Class Sticky Return & Breadcrumbs Header (like Sephora, Zara, Chanel)
   const renderInternalPageBackHeader = (titleAr: string, titleEn: string, subtitle?: string) => (
-    <div className="bg-white/95 backdrop-blur-md sticky top-0 z-20 border-b border-neutral-200 py-3.5 px-4 -mx-4 sm:-mx-6 sm:px-6 mb-6 shadow-2xs">
+    <div className="bg-white/95 backdrop-blur-md sticky top-0 z-20 border-b border-neutral-200 py-3.5 px-2.5 sm:px-6 -mx-2.5 sm:-mx-6 mb-6 shadow-2xs">
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5 sm:gap-3.5">
           {/* Breadcrumbs Navigation Trail */}
@@ -1559,7 +1559,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
       )}
 
       {/* Luxury Sub-Navigation Bar with Real Circular Category Photos */}
-      <div className="bg-white border-b border-neutral-200 sticky top-14 sm:top-16 z-30 -mt-2 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-2.5 shadow-xs">
+      <div className="bg-white border-b border-neutral-200 sticky top-14 sm:top-16 z-30 -mt-2 -mx-2.5 sm:-mx-6 lg:-mx-8 px-2.5 sm:px-6 lg:px-8 py-2.5 shadow-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between overflow-x-auto scrollbar-none no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden gap-3">
           <nav className="flex items-center gap-1.5 sm:gap-2 text-xs font-bold uppercase tracking-wider">
             {[
@@ -1647,7 +1647,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                     className="px-6 py-3.5 rounded-xl bg-black hover:bg-neutral-800 text-white font-bold text-xs uppercase tracking-wider transition shadow-md flex items-center gap-2 cursor-pointer"
                   >
                     <ShoppingBag className="w-4 h-4 text-white" />
-                    <span>{language === 'ar' ? 'تصفح كل العطور (110+ عطر)' : 'Shop All Perfumes'}</span>
+                    <span>{language === 'ar' ? 'تصفح كل العطور' : 'Shop All Perfumes'}</span>
                   </button>
                   <button
                     onClick={() => navigateToCustomerPage('signatures')}
@@ -1734,9 +1734,11 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                       <span className="text-xs font-black text-black group-hover:underline block">
                         {language === 'ar' ? cat.labelAr : cat.labelEn}
                       </span>
-                      <span className="text-[10px] text-neutral-500 font-bold block mt-0.5">
-                        {language === 'ar' ? cat.countAr : cat.countEn}
-                      </span>
+                      {cat.countAr && !/\d+/.test(cat.countAr) && (
+                        <span className="text-[10px] text-neutral-500 font-bold block mt-0.5">
+                          {language === 'ar' ? cat.countAr : cat.countEn}
+                        </span>
+                      )}
                     </button>
                   </div>
                 ))}
@@ -1804,7 +1806,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                 onClick={() => navigateToCustomerPage('catalog', 'all')}
                 className="text-xs font-bold text-neutral-800 hover:text-black flex items-center gap-1 group cursor-pointer"
               >
-                <span>{language === 'ar' ? 'عرض الكتالوج الكامل (110+)' : 'Explore full catalog'}</span>
+                <span>{language === 'ar' ? 'عرض الكتالوج الكامل' : 'Explore full catalog'}</span>
                 <span className="transition-transform group-hover:translate-x-1">←</span>
               </button>
             </div>
@@ -1989,9 +1991,9 @@ export const StoreTab: React.FC<StoreTabProps> = ({
       {customerPage === 'catalog' && (
         <div className="space-y-6 animate-fadeIn">
           {renderInternalPageBackHeader(
-            'خزانة العطور الملكية (110+ عطر)', 
+            language === 'ar' ? 'خزانة العطور الملكية' : 'Royal Perfumery Archives', 
             'Royal Perfumery Archives', 
-            language === 'ar' ? 'تصفح تشكيلة عطور إكستري دو بارفان الكاملة' : 'Explore 110+ Extrait Fragrances'
+            language === 'ar' ? 'تصفح تشكيلة عطور إكستري دو بارفان الكاملة' : 'Explore All Extrait Fragrances'
           )}
           {/* Filter and Search Controls */}
           <div className="bg-white border border-neutral-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
@@ -2055,8 +2057,8 @@ export const StoreTab: React.FC<StoreTabProps> = ({
             <div className="flex items-center justify-between text-xs text-neutral-500 pt-1 border-t border-neutral-100">
               <span className="font-semibold">
                 {language === 'ar'
-                  ? `يعرض ${unifiedItems.length} عطر فاخر بتركيز إكستري دو بارفان`
-                  : `Showing ${unifiedItems.length} luxury extrait perfumes`}
+                  ? 'تشكيلة عطور فاخرة بتركيز إكستري دو بارفان'
+                  : 'Luxury Extrait de Parfum Fragrances'}
               </span>
               <span className="text-[11px] font-mono text-neutral-400">
                 30ml ($5) • 50ml ($7) • 100ml ($12)
@@ -2282,7 +2284,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
               >
                 <History className="w-4 h-4" />
                 <span>
-                  {language === 'ar' ? `سجل خلطاتي المحفوظة (${customerBlends.length})` : `My Saved Blends (${customerBlends.length})`}
+                  {language === 'ar' ? 'سجل خلطاتي المحفوظة' : 'My Saved Blends'}
                 </span>
                 {customerBlends.length > 0 && (
                   <span className="w-2 h-2 rounded-full bg-amber-400"></span>
@@ -2526,8 +2528,8 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                       <span className="text-xs font-bold text-black uppercase tracking-wider">
                         {language === 'ar' ? 'اختر زيتاً لإضافته للخلطة من زيوت المشروع:' : 'Add Project Oils to Formula:'}
                       </span>
-                      <span className="text-[11px] text-neutral-500 font-mono">
-                        {filteredPickerOils.length} {language === 'ar' ? 'زيتاً متاحاً' : 'available'}
+                      <span className="text-[11px] text-neutral-500 font-medium">
+                        {language === 'ar' ? 'زيوت نقية متاحة' : 'Available Pure Oils'}
                       </span>
                     </div>
 
@@ -4033,7 +4035,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                   {
                     id: 'catalog',
                     configId: 'all',
-                    label: language === 'ar' ? 'خزانة العطور الملكية (110+ عطر)' : 'All Perfumes (110+)',
+                    label: language === 'ar' ? 'خزانة العطور الملكية' : 'All Perfumes',
                     action: () => {
                       navigateToCustomerPage('catalog', 'all');
                       setIsMenuDrawerOpen(false);
@@ -4138,7 +4140,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                           />
                           <div className="flex flex-col min-w-0">
                             <span className="text-xs truncate">{language === 'ar' ? cat.labelAr : cat.labelEn}</span>
-                            {cat.countAr && (
+                            {cat.countAr && !/\d+/.test(cat.countAr) && (
                               <span className={`text-[10px] ${isActive ? 'text-neutral-300' : 'text-neutral-500'}`}>
                                 {language === 'ar' ? cat.countAr : cat.countEn}
                               </span>

@@ -51,64 +51,64 @@ export const INITIAL_NAV_CATEGORIES: CategoryNavConfig[] = [
     labelAr: 'كل العطور',
     labelEn: 'All Scents',
     imageUrl: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=300&q=80',
-    countAr: '110+ عطر',
-    countEn: '110+ Perfumes',
+    countAr: '',
+    countEn: '',
   },
   {
     id: 'men',
     labelAr: 'عطور رجالية',
     labelEn: "Men's Perfume",
     imageUrl: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=300&q=80',
-    countAr: '45 عطر',
-    countEn: '45 Perfumes',
+    countAr: '',
+    countEn: '',
   },
   {
     id: 'women',
     labelAr: 'عطور نسائية',
     labelEn: "Women's Perfume",
     imageUrl: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=300&q=80',
-    countAr: '45 عطر',
-    countEn: '45 Perfumes',
+    countAr: '',
+    countEn: '',
   },
   {
     id: 'unisex',
     labelAr: 'للجنسين ونيش',
     labelEn: 'Unisex & Niche',
     imageUrl: 'https://images.unsplash.com/photo-1615397349754-cfa2066a298e?auto=format&fit=crop&w=300&q=80',
-    countAr: '20 عطر',
-    countEn: '20 Perfumes',
+    countAr: '',
+    countEn: '',
   },
   {
     id: 'signatures',
     labelAr: 'خلطات ملكية',
     labelEn: 'Royal Blends',
     imageUrl: 'https://images.unsplash.com/photo-1508746829417-e6f548d8d6ed?auto=format&fit=crop&w=300&q=80',
-    countAr: '10 خلطات',
-    countEn: '10 Signatures',
+    countAr: '',
+    countEn: '',
   },
   {
     id: 'oriental',
     labelAr: 'عطور شرقية وعود',
     labelEn: 'Oriental & Royal Oud',
     imageUrl: 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=300&q=80',
-    countAr: '25 عطر',
-    countEn: '25 Perfumes',
+    countAr: '',
+    countEn: '',
   },
   {
     id: 'musk',
     labelAr: 'مسك الطهارة والبودرة',
     labelEn: 'Musk & Powder Collection',
     imageUrl: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=300&q=80',
-    countAr: '15 خلطة',
-    countEn: '15 Scents',
+    countAr: '',
+    countEn: '',
   },
   {
     id: 'home_linen',
     labelAr: 'معطرات جو ومفارش',
     labelEn: 'Home & Linen Atmosphere',
     imageUrl: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=300&q=80',
-    countAr: '12 معطر',
-    countEn: '12 Diffusers',
+    countAr: '',
+    countEn: '',
   },
   {
     id: 'bakhoor',
@@ -172,6 +172,11 @@ export function loadNavCategories(): CategoryNavConfig[] {
     const raw = localStorage.getItem(STORAGE_KEYS.NAV_CATEGORIES);
     if (raw) {
       const saved: CategoryNavConfig[] = JSON.parse(raw);
+      // Auto-strip product count numbers from countAr / countEn for clean luxury UI
+      saved.forEach((c) => {
+        if (c.countAr && /\d+/.test(c.countAr)) c.countAr = '';
+        if (c.countEn && /\d+/.test(c.countEn)) c.countEn = '';
+      });
       // Auto-merge any missing default categories while preserving custom edits
       const existingIds = new Set(saved.map((c) => c.id));
       const missing = INITIAL_NAV_CATEGORIES.filter((c) => !existingIds.has(c.id));

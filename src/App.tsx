@@ -718,7 +718,7 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className={`min-h-screen bg-white text-black flex flex-col ${language === 'ar' ? "font-['Almarai',sans-serif]" : "font-sans font-['Montserrat']"}`}>
+    <div className={`min-h-screen bg-white text-black flex flex-col w-full max-w-full overflow-x-hidden ${language === 'ar' ? "font-['Almarai',sans-serif]" : "font-sans font-['Montserrat']"}`}>
       
       {/* Top Header */}
       <Header
