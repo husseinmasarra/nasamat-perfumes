@@ -170,7 +170,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      <header className="bg-white/95 backdrop-blur-md border-b border-zinc-200 sticky top-0 z-40 px-4 lg:px-8 py-2.5">
+      <header className="bg-white/95 backdrop-blur-md border-b border-zinc-200 sticky top-0 z-40 px-3 sm:px-4 lg:px-8 py-2 sm:py-2.5 overflow-x-hidden">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
           
           {/* Side 1 (Start): Customer Menu Trigger & Info Badge OR Admin Status */}
@@ -241,28 +241,28 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Quick Search Button (available in both) */}
             <button
               onClick={onOpenSmartSearch}
-              className="flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-neutral-50 hover:bg-neutral-100 border border-neutral-300 text-black text-xs font-bold transition cursor-pointer shadow-xs"
+              className="flex items-center gap-1 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-neutral-50 hover:bg-neutral-100 border border-neutral-300 text-black text-xs font-bold transition cursor-pointer shadow-xs"
               title={language === 'ar' ? 'البحث السريع في العطور والمواد (Ctrl + K)' : 'Quick Search (Ctrl + K)'}
             >
-              <Search className="w-3.5 h-3.5 text-black" />
-              <span className="hidden md:inline">{t('smartSearchBtn')}</span>
-              <kbd className="hidden lg:inline-block px-1.5 py-0.2 rounded bg-white border border-neutral-300 text-[10px] text-neutral-700 font-mono">
+              <Search className="w-4 h-4 text-black" />
+              <span className="hidden lg:inline">{t('smartSearchBtn')}</span>
+              <kbd className="hidden xl:inline-block px-1.5 py-0.2 rounded bg-white border border-neutral-300 text-[10px] text-neutral-700 font-mono">
                 Ctrl+K
               </kbd>
             </button>
 
-            {/* Language Switcher Button (available in both) */}
+            {/* Language Switcher Button (Desktop & Tablet) */}
             <button
               onClick={toggleLanguage}
-              className="flex items-center gap-1 px-2 py-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-white hover:bg-neutral-100 border border-neutral-300 text-black text-xs font-bold transition shadow-xs cursor-pointer"
+              className="hidden md:flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white hover:bg-neutral-100 border border-neutral-300 text-black text-xs font-bold transition shadow-xs cursor-pointer"
               title={language === 'ar' ? 'Switch to English' : 'التحويل للغة العربية'}
             >
-              <span className="hidden sm:inline text-xs">🌐</span>
-              <span className="text-[11px] sm:text-xs">{language === 'ar' ? 'EN' : 'عربي'}</span>
+              <span className="text-xs">🌐</span>
+              <span className="text-xs">{language === 'ar' ? 'EN' : 'عربي'}</span>
             </button>
 
-            {/* Currency selector (available in both) */}
-            <div className="flex items-center gap-0.5 sm:gap-1 bg-white border border-neutral-300 rounded-xl px-1.5 sm:px-2 py-1 text-xs text-black font-bold shadow-xs">
+            {/* Currency selector (Desktop & Tablet) */}
+            <div className="hidden md:flex items-center gap-1 bg-white border border-neutral-300 rounded-xl px-2 py-1 text-xs text-black font-bold shadow-xs">
               <select
                 value={settings.currency || '$'}
                 onChange={(e) => onUpdateCurrency(e.target.value)}
@@ -277,11 +277,11 @@ export const Header: React.FC<HeaderProps> = ({
             {/* ================= CUSTOMER PORTAL CONTROLS ================= */}
             {portal === 'customer' && (
               <>
-                {/* Customer Account Button (Google / Apple Login) */}
+                {/* Customer Account Button (Desktop & Tablet) */}
                 {onOpenCustomerAuth && (
                   <button
                     onClick={onOpenCustomerAuth}
-                    className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl border text-xs font-bold transition shadow-xs cursor-pointer ${
+                    className={`hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition shadow-xs cursor-pointer ${
                       customerUser
                         ? 'bg-amber-50 border-amber-300 text-amber-950 hover:bg-amber-100'
                         : 'bg-white hover:bg-neutral-100 border-neutral-300 text-black'
@@ -297,15 +297,15 @@ export const Header: React.FC<HeaderProps> = ({
                             className="w-full h-full object-cover"
                           />
                         </div>
-                        <span className="font-bold max-w-[60px] sm:max-w-[110px] truncate">{customerUser.name.split(' ')[0]}</span>
-                        {customerUser.provider === 'google' && <GoogleIcon className="hidden sm:block w-3.5 h-3.5 shrink-0" />}
-                        {customerUser.provider === 'apple' && <AppleIcon className="hidden sm:block w-3.5 h-3.5 text-black shrink-0" />}
+                        <span className="font-bold max-w-[80px] sm:max-w-[110px] truncate">{customerUser.name.split(' ')[0]}</span>
+                        {customerUser.provider === 'google' && <GoogleIcon className="w-3.5 h-3.5 shrink-0" />}
+                        {customerUser.provider === 'apple' && <AppleIcon className="w-3.5 h-3.5 text-black shrink-0" />}
                       </>
                     ) : (
                       <>
                         <Users className="w-3.5 h-3.5 text-black shrink-0" />
-                        <span className="hidden sm:inline">{language === 'ar' ? 'حسابي' : 'Sign In'}</span>
-                        <div className="hidden md:flex items-center gap-1 shrink-0 ps-1 border-s border-neutral-300 ms-0.5">
+                        <span>{language === 'ar' ? 'حسابي' : 'Sign In'}</span>
+                        <div className="flex items-center gap-1 shrink-0 ps-1 border-s border-neutral-300 ms-0.5">
                           <GoogleIcon className="w-3.5 h-3.5" />
                           <AppleIcon className="w-3.5 h-3.5 text-black" />
                         </div>
@@ -314,7 +314,7 @@ export const Header: React.FC<HeaderProps> = ({
                   </button>
                 )}
 
-                {/* Cart Button */}
+                {/* Cart Button (Always visible on Mobile and Desktop) */}
                 {onOpenCart && (
                   <button
                     onClick={onOpenCart}
@@ -327,7 +327,7 @@ export const Header: React.FC<HeaderProps> = ({
                     }`}
                     title={language === 'ar' ? 'سلة المشتريات' : 'Shopping Cart'}
                   >
-                    <ShoppingBag className={`w-3.5 h-3.5 ${cartCount > 0 ? 'text-amber-700' : 'text-neutral-700'}`} />
+                    <ShoppingBag className={`w-4 h-4 ${cartCount > 0 ? 'text-amber-700' : 'text-neutral-700'}`} />
                     <span className="hidden sm:inline text-neutral-900 font-bold">{t('storeViewCart')}</span>
                     {cartCount > 0 && (
                       <span className="flex items-center justify-center min-w-[18px] sm:min-w-[20px] h-4.5 sm:h-5 px-1 sm:px-1.5 rounded-full bg-amber-600 text-white font-black text-[10px] sm:text-[11px] shadow-xs">

@@ -52,7 +52,8 @@ import {
   GoogleIcon,
   AppleIcon,
   FacebookIcon,
-  InstagramIcon
+  InstagramIcon,
+  Users
 } from './icons';
 import { 
   loadNavCategories, 
@@ -124,7 +125,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
   onUpdateOil,
   onUpdateRecipe,
 }) => {
-  const { language, t } = useLanguage();
+  const { language, toggleLanguage, t } = useLanguage();
   const isAr = language === 'ar';
 
   // Customer Boutique Pages: 'home' (الرئيسية واكتشف), 'catalog' (الكتالوج وكل العطور), 'signatures' (خلطات نسمات الحصرية), 'mix-perfume' (ركّب عطرك الخاص), 'bundles' (باقات التوفير), 'atelier' (قصة الدار والمختبر), 'delivery' (التوصيل والدفع في لبنان)
@@ -3937,6 +3938,47 @@ export const StoreTab: React.FC<StoreTabProps> = ({
 
             {/* Menu Links List */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 divide-y divide-neutral-100">
+              {/* Account Quick Card inside Drawer */}
+              {onOpenCustomerAuth && (
+                <div className="pb-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsMenuDrawerOpen(false);
+                      onOpenCustomerAuth();
+                    }}
+                    className={`w-full p-3 rounded-2xl border text-xs font-bold transition flex items-center justify-between cursor-pointer shadow-2xs ${
+                      customerUser
+                        ? 'bg-amber-50/90 border-amber-300 text-amber-950 hover:bg-amber-100'
+                        : 'bg-neutral-50 hover:bg-neutral-100 border-neutral-300 text-black'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-full overflow-hidden bg-white border border-neutral-300 flex items-center justify-center shrink-0 shadow-2xs">
+                        {customerUser ? (
+                          <img
+                            src={customerUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(customerUser.name)}&background=000&color=fff`}
+                            alt={customerUser.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <Users className="w-4 h-4 text-black" />
+                        )}
+                      </div>
+                      <div className="text-start">
+                        <div className="font-black text-xs text-black">
+                          {customerUser ? customerUser.name : (language === 'ar' ? 'حسابي / تسجيل الدخول' : 'My Account / Sign In')}
+                        </div>
+                        <div className="text-[10px] text-neutral-500 font-normal">
+                          {customerUser ? (customerUser.email || customerUser.phone || 'VIP Customer') : (language === 'ar' ? 'سجل دخولك لحفظ خلطاتك وعنوانك' : 'Sign in to save your blends & address')}
+                        </div>
+                      </div>
+                    </div>
+                    <span className="text-xs text-neutral-400 font-bold px-1.5">←</span>
+                  </button>
+                </div>
+              )}
+
               {/* Section 1: الأقسام الرئيسية والخدمات الفاخرة */}
               <div className="space-y-1">
                 <div className="px-3 py-1 text-[10px] font-black uppercase tracking-widest text-neutral-400">
@@ -4128,8 +4170,25 @@ export const StoreTab: React.FC<StoreTabProps> = ({
               </div>
             </div>
 
-            {/* Drawer Footer with Cart and WhatsApp concierge */}
-            <div className="p-4 border-t border-neutral-200 bg-neutral-50 space-y-2">
+            {/* Drawer Footer with Cart, Language Switcher and WhatsApp concierge */}
+            <div className="p-4 border-t border-neutral-200 bg-neutral-50 space-y-2.5">
+              {/* Language Switcher in Drawer */}
+              <button
+                type="button"
+                onClick={() => {
+                  toggleLanguage();
+                }}
+                className="w-full py-2 px-3 rounded-xl bg-white border border-neutral-300 hover:border-black text-xs font-bold flex items-center justify-between shadow-2xs transition cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">🌐</span>
+                  <span className="text-neutral-700">{language === 'ar' ? 'لغة العرض' : 'Language'}</span>
+                </div>
+                <span className="text-[11px] px-2 py-0.5 rounded-md bg-neutral-100 border border-neutral-200 text-black font-black uppercase">
+                  {language === 'ar' ? 'English (EN)' : 'العربية (AR)'}
+                </span>
+              </button>
+
               <button
                 onClick={() => {
                   setIsMenuDrawerOpen(false);
