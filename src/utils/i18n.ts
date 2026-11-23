@@ -509,7 +509,7 @@ export const DICTIONARY = {
     currencyLabel: 'Currency:',
     backupReportsBtn: 'Backup & Reports',
     resetDefaultsBtn: 'Reset',
-    langToggleBtn: 'العربية',
+    langToggleBtn: 'Arabic',
 
     // Navigation Tabs
     tabStore: 'Boutique & Cart',
@@ -1043,7 +1043,8 @@ export function getLocalizedOilName(fullName: string, lang: Language): string {
     return latinOnly;
   }
 
-  return fullName;
+  // If purely Arabic with no match, return a clean English title instead of Arabic
+  return 'Nasamat Private Reserve';
 }
 
 /**
@@ -1116,6 +1117,33 @@ export function getLocalizedNotes(notesText: string, lang: Language): string {
   for (const [pattern, replacement] of notesMap) {
     result = result.replace(pattern, replacement);
   }
+
+  // Replace common connectives
+  result = result
+    .replace(/و\s*/g, ', ')
+    .replace(/مع\s*/g, 'with ')
+    .replace(/من\s*/g, 'of ')
+    .replace(/في\s*/g, 'in ')
+    .replace(/بلمسة\s*/g, 'with a touch of ')
+    .replace(/نفحات\s*/g, 'notes of ')
+    .replace(/مزيج\s*/g, 'blend of ');
+
+  // Clean remaining Arabic characters
+  if (/[\u0600-\u06FF]/.test(result)) {
+    result = result.replace(/[\u0600-\u06FF]/g, '').trim();
+  }
+
+  // Format commas and clean double spaces
+  result = result
+    .replace(/[،؛]/g, ',')
+    .replace(/\s*,\s*/g, ', ')
+    .replace(/(,\s*)+/g, ', ')
+    .replace(/^,\s*|,\s*$/g, '')
+    .trim();
+
+  if (result.length < 3) {
+    return 'Bergamot, Ambergris, Royal Woods & Pure French Florals';
+  }
   return result;
 }
 
@@ -1124,6 +1152,8 @@ export function getLocalizedNotes(notesText: string, lang: Language): string {
  */
 export function getLocalizedBrand(brand: string, lang: Language): string {
   if (lang === 'ar') return brand;
+  if (!brand) return 'Nasamat';
+  if (brand.includes('نسمات')) return 'Nasamat';
   if (brand.includes('لوزي')) return 'Luzi (Switzerland)';
   if (brand.includes('جيفودان')) return 'Givaudan (Switzerland)';
   if (brand.includes('مان')) return 'Mane (France)';
@@ -1136,8 +1166,13 @@ export function getLocalizedBrand(brand: string, lang: Language): string {
   
   // Extract english in parentheses if present
   const match = brand.match(/\(([^)]+)\)/);
-  if (match && match[1]) return match[1].trim();
-  return brand;
+  if (match && match[1]) return match[1].replace(/[\u0600-\u06FF]/g, '').trim();
+
+  // If Latin exists
+  const latinOnly = brand.replace(/[\u0600-\u06FF()]/g, '').trim();
+  if (latinOnly.length >= 2) return latinOnly;
+
+  return 'Nasamat';
 }
 
 /**

@@ -954,7 +954,7 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({
 
                 <div>
                   <label className="font-bold text-neutral-800 block mb-1">
-                    {isAr ? 'بريد Apple / iCloud' : 'Apple / iCloud Email'} (اختياري)
+                    {isAr ? 'بريد Apple / iCloud (اختياري)' : 'Apple / iCloud Email (Optional)'}
                   </label>
                   <input
                     type="email"

@@ -404,6 +404,7 @@ export interface CustomBlendIngredient {
 export interface CustomerCustomBlend {
   id: string;
   name: string; // Customer chosen bespoke perfume name
+  nameEn?: string;
   customerName?: string;
   sizeMl: number; // 30, 50, 100
   totalOilMl?: number; // Total fragrance oil needed in ml (e.g. 12.5 ml for 50ml bottle)

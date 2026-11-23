@@ -157,7 +157,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
     }
     return [];
   });
-  const [customPerfumeName, setCustomPerfumeName] = useState('خلطة الملوك الخاصة');
+  const [customPerfumeName, setCustomPerfumeName] = useState('');
   const [customPerfumeRecipient, setCustomPerfumeRecipient] = useState('');
   const [customPerfumeSize, setCustomPerfumeSize] = useState<number>(50);
   const [oilPickerSearch, setOilPickerSearch] = useState('');
@@ -655,6 +655,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
       return {
         oilId: bo.oilId,
         oilName: match?.name || 'زيت عطري',
+        oilNameEn: match?.nameEn || (match?.name ? getLocalizedOilName(match.name, 'en') : 'Fragrance Oil'),
         oilCode: match?.code,
         oilBrand: match?.brand,
         percentage: bo.percentage,
@@ -665,6 +666,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
     const newBlend: CustomerCustomBlend = {
       id: `blend-${Date.now()}`,
       name: customPerfumeName.trim(),
+      nameEn: !/[\u0600-\u06FF]/.test(customPerfumeName.trim()) ? customPerfumeName.trim() : 'Bespoke Blend',
       customerName: customPerfumeRecipient.trim() || undefined,
       sizeMl: customPerfumeSize,
       totalOilMl,
@@ -716,7 +718,11 @@ export const StoreTab: React.FC<StoreTabProps> = ({
       showToast(language === 'ar' ? 'يرجى اختيار زيت واحد على الأقل للتركيب' : 'Please select at least one oil');
       return;
     }
-    const name = blend ? blend.name : (customPerfumeName.trim() || 'خلطة عطرية خاصة');
+    const isAr = language === 'ar';
+    const fallbackName = isAr ? 'خلطة عطرية خاصة' : 'Bespoke Blend';
+    const name = blend 
+      ? (isAr ? blend.name : (blend.nameEn || getLocalizedOilName(blend.name, 'en'))) 
+      : (customPerfumeName.trim() || fallbackName);
     const size = blend ? blend.sizeMl : customPerfumeSize;
     const price = blend ? blend.totalPrice : customPerfumePrice;
     const totalOilMl = Number((size * 0.25).toFixed(2));
@@ -725,22 +731,26 @@ export const StoreTab: React.FC<StoreTabProps> = ({
     const itemsBreakdown = blend
       ? blend.ingredients.map((ing, i) => {
           const ml = ing.ml || Number(((totalOilMl * ing.percentage) / 100).toFixed(2));
-          return `  ${i + 1}. ${ing.oilName}${ing.oilCode ? ` [${ing.oilCode}]` : ''}: ${ml} ملل (${ing.percentage}%)`;
+          const ingName = isAr ? ing.oilName : (ing.oilNameEn || getLocalizedOilName(ing.oilName, 'en'));
+          return `  ${i + 1}. ${ingName}${ing.oilCode ? ` [${ing.oilCode}]` : ''}: ${ml} ${isAr ? 'ملل' : 'ml'} (${ing.percentage}%)`;
         }).join('\n')
       : blendOils.map((bo, i) => {
           const match = oils.find((o) => o.id === bo.oilId);
           const ml = Number(((totalOilMl * bo.percentage) / 100).toFixed(2));
-          return `  ${i + 1}. ${match?.name || 'زيت'}${match?.code ? ` [${match.code}]` : ''}: ${ml} ملل (${bo.percentage}%)`;
+          const oilName = isAr ? (match?.name || 'زيت') : (match?.nameEn || (match?.name ? getLocalizedOilName(match.name, 'en') : 'Fragrance Oil'));
+          return `  ${i + 1}. ${oilName}${match?.code ? ` [${match.code}]` : ''}: ${ml} ${isAr ? 'ملل' : 'ml'} (${bo.percentage}%)`;
         }).join('\n');
 
-    const detailedNotes = `الحجم المختار: ${size} ملل (تركيز إكستري دو بارفان)\nإجمالي الزيوت: ${totalOilMl} ملل | كحول إيثيلي نقي 96%: ${alcoholMl} ملل\nالتركيبة المعملية الدقيقة بالملل:\n${itemsBreakdown}${customPerfumeRecipient ? `\nلصالح: ${customPerfumeRecipient}` : ''}`;
+    const detailedNotes = isAr
+      ? `الحجم المختار: ${size} ملل (تركيز إكستري دو بارفان)\nإجمالي الزيوت: ${totalOilMl} ملل | كحول إيثيلي نقي 96%: ${alcoholMl} ملل\nالتركيبة المعملية الدقيقة بالملل:\n${itemsBreakdown}${customPerfumeRecipient ? `\nلصالح: ${customPerfumeRecipient}` : ''}`
+      : `Selected Size: ${size}ml (Extrait de Parfum Concentration)\nTotal Fragrance Oils: ${totalOilMl}ml | Pure 96% Ethyl Alcohol: ${alcoholMl}ml\nFormulation Breakdown:\n${itemsBreakdown}${customPerfumeRecipient ? `\nFor: ${customPerfumeRecipient}` : ''}`;
 
     onAddToCart({
       itemType: 'recipe',
       referenceId: blend ? blend.id : `custom-blend-${Date.now()}`,
-      name: `خلطة مخصصة: ${name} (${size} ملل)`,
+      name: isAr ? `خلطة مخصصة: ${name} (${size} ملل)` : `Bespoke Blend: ${name} (${size}ml)`,
       nameEn: `Bespoke Blend: ${name} (${size}ml)`,
-      brand: 'مختبر نسمات الحرفي (Bespoke Atelier)',
+      brand: isAr ? 'مختبر نسمات الحرفي (Bespoke Atelier)' : 'Nasamat Bespoke Atelier',
       imageUrl: 'https://images.unsplash.com/photo-1615397349754-cfa2066a298e?auto=format&fit=crop&w=400&q=80',
       sizeMl: size,
       unitPrice: price,
@@ -764,7 +774,9 @@ export const StoreTab: React.FC<StoreTabProps> = ({
       showToast(language === 'ar' ? 'يرجى اختيار زيت واحد على الأقل للتركيب' : 'Please select at least one oil');
       return;
     }
-    const name = blend ? blend.name : (customPerfumeName.trim() || 'عطري المخصص');
+    const isAr = language === 'ar';
+    const fallbackName = isAr ? 'عطري المخصص' : 'My Custom Fragrance';
+    const name = blend ? (isAr ? blend.name : (blend.nameEn || getLocalizedOilName(blend.name, 'en'))) : (customPerfumeName.trim() || fallbackName);
     const size = blend ? blend.sizeMl : customPerfumeSize;
     const price = blend ? blend.totalPrice : customPerfumePrice;
     const concentration = (settings.defaultConcentrationPercent || 33) / 100;
@@ -775,29 +787,50 @@ export const StoreTab: React.FC<StoreTabProps> = ({
     const formulaLines = blend
       ? blend.ingredients.map((ing, i) => {
           const ml = ing.ml || Number(((totalOilMl * ing.percentage) / 100).toFixed(2));
-          return `  ${i + 1}. *${ing.oilName}* ${ing.oilCode ? `[${ing.oilCode}]` : ''}: *${ml} ملل* (${ing.percentage}%)`;
+          const ingName = isAr ? ing.oilName : (ing.oilNameEn || getLocalizedOilName(ing.oilName, 'en'));
+          return `  ${i + 1}. *${ingName}* ${ing.oilCode ? `[${ing.oilCode}]` : ''}: *${ml} ${isAr ? 'ملل' : 'ml'}* (${ing.percentage}%)`;
         }).join('\n')
       : blendOils.map((bo, i) => {
           const match = oils.find((o) => o.id === bo.oilId);
           const ml = Number(((totalOilMl * bo.percentage) / 100).toFixed(2));
-          return `  ${i + 1}. *${match?.name || 'زيت'}* ${match?.code ? `[${match?.code}]` : ''}: *${ml} ملل* (${bo.percentage}%)`;
+          const oilName = isAr ? (match?.name || 'زيت') : (match?.nameEn || (match?.name ? getLocalizedOilName(match.name, 'en') : 'Fragrance Oil'));
+          return `  ${i + 1}. *${oilName}* ${match?.code ? `[${match?.code}]` : ''}: *${ml} ${isAr ? 'ملل' : 'ml'}* (${bo.percentage}%)`;
         }).join('\n');
 
-    let msg = `*طلب تركيب عطر مخصص من بوتيك نسمات 🧪✨*\n`;
-    msg += `------------------------------------\n`;
-    msg += `👑 *اسم العطر المختار من الزبون:* "${name}"\n`;
-    if (customPerfumeRecipient || blend?.customerName) {
-      msg += `👤 *الاسم / الإهداء:* ${blend?.customerName || customPerfumeRecipient}\n`;
+    let msg = '';
+    if (isAr) {
+      msg = `*طلب تركيب عطر مخصص من بوتيك نسمات 🧪✨*\n`;
+      msg += `------------------------------------\n`;
+      msg += `👑 *اسم العطر المختار من الزبون:* "${name}"\n`;
+      if (customPerfumeRecipient || blend?.customerName) {
+        msg += `👤 *الاسم / الإهداء:* ${blend?.customerName || customPerfumeRecipient}\n`;
+      }
+      msg += `🧴 *الحجم المطلوب:* ${size} ملل (تركيز إكستري دو بارفان)\n`;
+      msg += `🧪 *إجمالي الزيوت العطرية المطلوبة للعبوة:* *${totalOilMl} ملل*\n`;
+      msg += `💧 *كحول عطري نقي 96%:* *${alcoholMl} ملل*\n`;
+      msg += `💵 *السعر:* $${price.toFixed(2)} (~${Math.round(price * (settings.lbpRate || 90000)).toLocaleString()} ل.ل)\n`;
+      msg += `------------------------------------\n`;
+      msg += `🧬 *المقادير المعملية الدقيقة بالملمتر (ملل):*\n`;
+      msg += formulaLines + '\n';
+      msg += `------------------------------------\n`;
+      msg += `يرجى تحضير الخلطة بالمقادير المذكورة وتأكيد التوصيل. شكراً لكم!`;
+    } else {
+      msg = `*Bespoke Perfume Order - NASAMAT Atelier 🧪✨*\n`;
+      msg += `------------------------------------\n`;
+      msg += `👑 *Fragrance Name:* "${name}"\n`;
+      if (customPerfumeRecipient || blend?.customerName) {
+        msg += `👤 *Client / Dedication:* ${blend?.customerName || customPerfumeRecipient}\n`;
+      }
+      msg += `🧴 *Bottle Size:* ${size}ml (Extrait de Parfum 30%)\n`;
+      msg += `🧪 *Total Fragrance Oils:* *${totalOilMl} ml*\n`;
+      msg += `💧 *Pure Perfumer's Alcohol 96%:* *${alcoholMl} ml*\n`;
+      msg += `💵 *Price:* $${price.toFixed(2)} (~${Math.round(price * (settings.lbpRate || 90000)).toLocaleString()} LBP)\n`;
+      msg += `------------------------------------\n`;
+      msg += `🧬 *Formulation Breakdown:*\n`;
+      msg += formulaLines + '\n';
+      msg += `------------------------------------\n`;
+      msg += `Please formulate this bespoke blend with the specified ratios and confirm delivery. Thank you!`;
     }
-    msg += `🧴 *الحجم المطلوب:* ${size} ملل (تركيز إكستري دو بارفان)\n`;
-    msg += `🧪 *إجمالي الزيوت العطرية المطلوبة للعبوة:* *${totalOilMl} ملل*\n`;
-    msg += `💧 *كحول عطري نقي 96%:* *${alcoholMl} ملل*\n`;
-    msg += `💵 *السعر:* $${price.toFixed(2)} (~${Math.round(price * (settings.lbpRate || 90000)).toLocaleString()} ل.ل)\n`;
-    msg += `------------------------------------\n`;
-    msg += `🧬 *المقادير المعملية الدقيقة بالملمتر (ملل):*\n`;
-    msg += formulaLines + '\n';
-    msg += `------------------------------------\n`;
-    msg += `يرجى تحضير الخلطة بالمقادير المذكورة وتأكيد التوصيل. شكراً لكم!`;
 
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
@@ -1340,7 +1373,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
           <div className="absolute top-2 start-2 flex flex-col gap-1 items-start">
             <span className="px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded sm:rounded-md bg-black text-white text-[8px] sm:text-[10px] font-black uppercase tracking-wider shadow-sm">
               {badgeOverride
-                ? (isAr ? badgeOverride : (badgeOverride.includes('أكثر') ? '★ Best Seller' : badgeOverride))
+                ? (isAr ? badgeOverride : (badgeOverride.includes('أكثر') ? '★ Best Seller' : (!/[\u0600-\u06FF]/.test(badgeOverride) ? badgeOverride : '★ Special Offer')))
                 : (isRecipe ? (isAr ? '★ خلطة ملكية' : '★ Royal Blend') : (isAr ? '★ الأكثر طلباً' : '★ Best Seller'))}
             </span>
           </div>
@@ -2292,7 +2325,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                         type="text"
                         value={customPerfumeName}
                         onChange={(e) => setCustomPerfumeName(e.target.value)}
-                        placeholder=""
+                        placeholder={language === 'ar' ? 'مثال: خلطة الملوك الخاصة' : 'e.g. Royal Imperial Blend'}
                         className="w-full bg-neutral-50 border border-neutral-300 focus:border-black rounded-xl px-4 py-2.5 text-xs font-bold text-black focus:outline-none"
                       />
                     </div>
@@ -2308,7 +2341,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                         type="text"
                         value={customPerfumeRecipient}
                         onChange={(e) => setCustomPerfumeRecipient(e.target.value)}
-                        placeholder=""
+                        placeholder={language === 'ar' ? 'مثال: سمو الأمير / الاسم الكريم' : 'e.g. John Doe / Client Name'}
                         className="w-full bg-neutral-50 border border-neutral-300 focus:border-black rounded-xl px-4 py-2.5 text-xs font-bold text-black focus:outline-none"
                       />
                       <p className="text-[10px] text-neutral-500 mt-1">
@@ -2702,7 +2735,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                         {/* Royal Label on Glass */}
                         <div className="absolute top-4 inset-x-2 bg-black/60 backdrop-blur-xs border border-amber-400/30 rounded-lg p-1 text-center z-10">
                           <p className="text-[7px] text-amber-300 font-mono tracking-widest uppercase">NASAMAT</p>
-                          <p className="text-[9px] font-bold text-white truncate">{customPerfumeName || 'خاص'}</p>
+                          <p className="text-[9px] font-bold text-white truncate">{customPerfumeName || (language === 'ar' ? 'خاص' : 'Bespoke')}</p>
                           {customPerfumeRecipient && (
                             <p className="text-[7px] text-amber-300 font-bold truncate">FOR: {customPerfumeRecipient}</p>
                           )}
@@ -3015,14 +3048,16 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                   {bundle.isFeatured && (
                     <div className="absolute -top-3.5 start-1/2 -translate-x-1/2 bg-black text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-md whitespace-nowrap inline-flex items-center gap-1.5">
                       <Sparkles className="w-3 h-3 text-amber-400" />
-                      <span>{bundle.badge || (language === 'ar' ? 'الأكثر طلباً وتوفيراً' : 'Bestseller')} {bundle.freeDelivery ? (language === 'ar' ? '• شحن مجاني' : '• Free Ship') : ''}</span>
+                      <span>{isAr ? (bundle.badge || 'الأكثر طلباً وتوفيراً') : (bundle.badge && !/[\u0600-\u06FF]/.test(bundle.badge) ? bundle.badge : 'Bestseller')} {bundle.freeDelivery ? (language === 'ar' ? '• شحن مجاني' : '• Free Ship') : ''}</span>
                     </div>
                   )}
 
                   <div className="space-y-4 pt-1">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">
-                        {bundle.badge || (isManagerCurated ? (language === 'ar' ? 'باقة مختارة من الدار' : 'Curated Set') : (language === 'ar' ? 'باقة التوفير' : 'Value Bundle'))}
+                        {isAr
+                          ? (bundle.badge || (isManagerCurated ? 'باقة مختارة من الدار' : 'باقة التوفير'))
+                          : (bundle.badge && !/[\u0600-\u06FF]/.test(bundle.badge) ? bundle.badge : (isManagerCurated ? 'Curated Set' : 'Value Bundle'))}
                       </span>
                       {savings > 0 && (
                         <span className="bg-amber-100 text-amber-900 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-amber-300">
@@ -3034,7 +3069,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                     <div className="w-full h-44 bg-neutral-100 rounded-2xl overflow-hidden relative">
                       <img
                         src={bundle.imageUrl || 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=400&q=80'}
-                        alt={bundle.name}
+                        alt={isAr ? bundle.name : (bundle.nameEn || 'Luxury Bundle')}
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=400&q=80';
@@ -3053,10 +3088,10 @@ export const StoreTab: React.FC<StoreTabProps> = ({
 
                     <div>
                       <h3 className="text-lg sm:text-xl font-black text-black font-serif">
-                        {isAr ? bundle.name : (bundle.nameEn || bundle.name)}
+                        {isAr ? bundle.name : (bundle.nameEn || (bundle.id === 'bundle-duo' ? 'Niche Duo Bundle' : bundle.id === 'bundle-trio' ? 'Elite Trio Bundle' : bundle.id === 'bundle-quad' ? 'Royal Quad Bundle' : 'Luxury Bundle'))}
                       </h3>
                       <p className="text-xs text-neutral-500 mt-1">
-                        {isAr ? (bundle.subtitle || bundle.description) : (bundle.descriptionEn || bundle.subtitle || bundle.description)}
+                        {isAr ? (bundle.subtitle || bundle.description) : (bundle.descriptionEn || (bundle.id === 'bundle-duo' ? '2 x 50ml flacons of your choice' : bundle.id === 'bundle-trio' ? '3 x 50ml flacons + Free Delivery' : bundle.id === 'bundle-quad' ? '4 x 50ml flacons + Free Delivery' : 'Curated luxury fragrance set'))}
                       </p>
                     </div>
 
@@ -3070,7 +3105,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                             ? ['3 x 50ml flacons of any fragrance', 'Immediate free delivery across Lebanon 🚚', 'Luxury box & gift wrapping']
                             : bundle.id === 'bundle-quad'
                             ? ['4 x 50ml flacons from premium collection', 'Free delivery to all Lebanese governorates', 'Luxury gift box + complimentary samples']
-                            : bundle.features || bundle.featuresAr || []));
+                            : ['Bespoke luxury flacons', 'Extrait de Parfum concentration', 'Complimentary gift packaging']));
                       return featList.length > 0 ? (
                         <ul className="text-xs text-neutral-600 space-y-2 border-t border-neutral-100 pt-3">
                           {featList.map((feat, fIdx) => (
@@ -4185,7 +4220,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                   <span className="text-neutral-700">{language === 'ar' ? 'لغة العرض' : 'Language'}</span>
                 </div>
                 <span className="text-[11px] px-2 py-0.5 rounded-md bg-neutral-100 border border-neutral-200 text-black font-black uppercase">
-                  {language === 'ar' ? 'English (EN)' : 'العربية (AR)'}
+                  {language === 'ar' ? 'English (EN)' : 'Arabic (AR)'}
                 </span>
               </button>
 

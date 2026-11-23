@@ -255,10 +255,10 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               onClick={toggleLanguage}
               className="hidden md:flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white hover:bg-neutral-100 border border-neutral-300 text-black text-xs font-bold transition shadow-xs cursor-pointer"
-              title={language === 'ar' ? 'Switch to English' : 'التحويل للغة العربية'}
+              title={language === 'ar' ? 'Switch to English' : 'Switch to Arabic'}
             >
               <span className="text-xs">🌐</span>
-              <span className="text-xs">{language === 'ar' ? 'EN' : 'عربي'}</span>
+              <span className="text-xs">{language === 'ar' ? 'EN' : 'AR'}</span>
             </button>
 
             {/* Currency selector (Desktop & Tablet) */}
@@ -270,7 +270,7 @@ export const Header: React.FC<HeaderProps> = ({
                 className="bg-transparent text-black font-black focus:outline-none cursor-pointer text-xs"
               >
                 <option value="$" className="bg-white text-black">$ USD</option>
-                <option value="ل.ل" className="bg-white text-black">ل.ل LBP</option>
+                <option value="ل.ل" className="bg-white text-black">{language === 'ar' ? 'ل.ل LBP' : 'LBP'}</option>
               </select>
             </div>
 
