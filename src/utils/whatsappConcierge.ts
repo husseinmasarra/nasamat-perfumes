@@ -7,6 +7,46 @@ import type { Invoice } from '../types';
 
 export type WhatsAppVIPActionType = 'compounding' | 'delivery' | 'satisfaction' | 'receipt';
 
+export const OFFICIAL_SOCIAL_LINKS = {
+  instagram: 'https://www.instagram.com/nasamat.purfume/',
+  facebook: 'https://www.facebook.com/nasamat.perfumes/',
+  whatsapp: '96181713408',
+};
+
+/**
+ * Normalizes and formats social media URLs (Instagram, Facebook) so they ALWAYS
+ * open cleanly on mobile phones (iOS & Android) and desktop.
+ * - Handles empty values by falling back to official accounts.
+ * - Removes leading '@' handles and builds absolute https:// URLs.
+ * - Ensures native apps (Instagram / Facebook) or browser tabs open without relative-path bugs.
+ */
+export function formatSocialUrl(url: string | undefined | null, platform: 'instagram' | 'facebook'): string {
+  if (!url || !url.trim()) {
+    return OFFICIAL_SOCIAL_LINKS[platform];
+  }
+  let clean = url.trim();
+
+  // If user only typed @handle or handle
+  if (platform === 'instagram') {
+    if (clean.startsWith('@')) clean = clean.slice(1);
+    if (!clean.includes('instagram.com')) {
+      return `https://www.instagram.com/${clean}/`;
+    }
+  } else if (platform === 'facebook') {
+    if (clean.startsWith('@')) clean = clean.slice(1);
+    if (!clean.includes('facebook.com')) {
+      return `https://www.facebook.com/${clean}`;
+    }
+  }
+
+  // Prepend https:// if protocol is missing
+  if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
+    clean = `https://${clean}`;
+  }
+
+  return clean;
+}
+
 export interface WhatsAppVIPOrderData {
   customerName: string;
   customerPhone: string;

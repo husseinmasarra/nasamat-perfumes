@@ -69,7 +69,7 @@ import {
 } from '../utils/storage';
 import { trackPixelEvent } from '../utils/pixelTracker';
 import { syncSingleOrderToGoogleSheetWebhook } from '../utils/googleSheets';
-import { formatWhatsAppPhone, formatDisplayPhone } from '../utils/whatsappConcierge';
+import { formatWhatsAppPhone, formatDisplayPhone, formatSocialUrl } from '../utils/whatsappConcierge';
 import type { CustomerUser, SavingsBundle } from '../types';
 import { PerfumeDetailsModal } from './PerfumeDetailsModal';
 
@@ -3742,15 +3742,9 @@ export const StoreTab: React.FC<StoreTabProps> = ({
 
               {/* Instagram Official Badge */}
               <a
-                href={settings.instagramUrl || '#'}
-                target={settings.instagramUrl ? '_blank' : '_self'}
+                href={formatSocialUrl(settings.instagramUrl, 'instagram')}
+                target="_blank"
                 rel="noopener noreferrer"
-                onClick={(e) => {
-                  if (!settings.instagramUrl) {
-                    e.preventDefault();
-                    alert(language === 'ar' ? 'سيتم تفعيل وإضافة رابط حساب الإنستغرام قريباً!' : 'Instagram link will be added soon!');
-                  }
-                }}
                 className="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center hover:scale-115 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer shrink-0"
                 title="Instagram"
                 aria-label="Instagram"
@@ -3760,15 +3754,9 @@ export const StoreTab: React.FC<StoreTabProps> = ({
 
               {/* Facebook Official Badge */}
               <a
-                href={settings.facebookUrl || '#'}
-                target={settings.facebookUrl ? '_blank' : '_self'}
+                href={formatSocialUrl(settings.facebookUrl, 'facebook')}
+                target="_blank"
                 rel="noopener noreferrer"
-                onClick={(e) => {
-                  if (!settings.facebookUrl) {
-                    e.preventDefault();
-                    alert(language === 'ar' ? 'سيتم تفعيل وإضافة رابط صفحة الفيسبوك قريباً!' : 'Facebook link will be added soon!');
-                  }
-                }}
                 className="w-12 h-12 rounded-full flex items-center justify-center hover:scale-115 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer shrink-0"
                 title="Facebook"
                 aria-label="Facebook"
@@ -3938,16 +3926,10 @@ export const StoreTab: React.FC<StoreTabProps> = ({
 
                   {/* Instagram */}
                   <a
-                    href={settings.instagramUrl || '#'}
-                    target={settings.instagramUrl ? '_blank' : '_self'}
+                    href={formatSocialUrl(settings.instagramUrl, 'instagram')}
+                    target="_blank"
                     rel="noopener noreferrer"
-                    onClick={(e) => {
-                      if (!settings.instagramUrl) {
-                        e.preventDefault();
-                        alert(isAr ? 'سيتم تفعيل وإضافة رابط حساب الإنستغرام قريباً!' : 'Instagram link will be added soon!');
-                      }
-                    }}
-                    className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white/10 hover:bg-pink-600/30 border border-white/10 hover:border-pink-500/50 transition-all active:scale-95 group text-center"
+                    className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white/10 hover:bg-pink-600/30 border border-white/10 hover:border-pink-500/50 transition-all active:scale-95 group text-center cursor-pointer"
                   >
                     <InstagramOfficialBadge className="w-8 h-8 group-hover:scale-110 transition-transform" />
                     <span className="text-[10px] font-bold text-white mt-1.5">{isAr ? 'إنستغرام' : 'Instagram'}</span>
@@ -3955,16 +3937,10 @@ export const StoreTab: React.FC<StoreTabProps> = ({
 
                   {/* Facebook */}
                   <a
-                    href={settings.facebookUrl || '#'}
-                    target={settings.facebookUrl ? '_blank' : '_self'}
+                    href={formatSocialUrl(settings.facebookUrl, 'facebook')}
+                    target="_blank"
                     rel="noopener noreferrer"
-                    onClick={(e) => {
-                      if (!settings.facebookUrl) {
-                        e.preventDefault();
-                        alert(isAr ? 'سيتم تفعيل وإضافة رابط صفحة الفيسبوك قريباً!' : 'Facebook link will be added soon!');
-                      }
-                    }}
-                    className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white/10 hover:bg-blue-600/30 border border-white/10 hover:border-blue-500/50 transition-all active:scale-95 group text-center"
+                    className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white/10 hover:bg-blue-600/30 border border-white/10 hover:border-blue-500/50 transition-all active:scale-95 group text-center cursor-pointer"
                   >
                     <FacebookOfficialBadge className="w-8 h-8 group-hover:scale-110 transition-transform" />
                     <span className="text-[10px] font-bold text-white mt-1.5">{isAr ? 'فيسبوك' : 'Facebook'}</span>
@@ -4229,15 +4205,9 @@ export const StoreTab: React.FC<StoreTabProps> = ({
 
                   {/* Instagram */}
                   <a
-                    href={settings.instagramUrl || '#'}
-                    target={settings.instagramUrl ? '_blank' : '_self'}
+                    href={formatSocialUrl(settings.instagramUrl, 'instagram')}
+                    target="_blank"
                     rel="noopener noreferrer"
-                    onClick={(e) => {
-                      if (!settings.instagramUrl) {
-                        e.preventDefault();
-                        alert(isAr ? 'سيتم تفعيل وإضافة رابط حساب الإنستغرام قريباً!' : 'Instagram link will be added soon!');
-                      }
-                    }}
                     className="w-11 h-11 rounded-2xl overflow-hidden flex items-center justify-center hover:scale-115 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer shrink-0"
                     title="Instagram"
                     aria-label="Instagram"
@@ -4247,15 +4217,9 @@ export const StoreTab: React.FC<StoreTabProps> = ({
 
                   {/* Facebook */}
                   <a
-                    href={settings.facebookUrl || '#'}
-                    target={settings.facebookUrl ? '_blank' : '_self'}
+                    href={formatSocialUrl(settings.facebookUrl, 'facebook')}
+                    target="_blank"
                     rel="noopener noreferrer"
-                    onClick={(e) => {
-                      if (!settings.facebookUrl) {
-                        e.preventDefault();
-                        alert(isAr ? 'سيتم تفعيل وإضافة رابط صفحة الفيسبوك قريباً!' : 'Facebook link will be added soon!');
-                      }
-                    }}
                     className="w-11 h-11 rounded-full flex items-center justify-center hover:scale-115 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer shrink-0"
                     title="Facebook"
                     aria-label="Facebook"

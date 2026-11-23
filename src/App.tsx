@@ -44,7 +44,7 @@ import { CrmCustomersTab } from './components/CrmCustomersTab';
 import { loadCustomerUser, loadCustomerBlends, loadSavingsBundles, saveSavingsBundles } from './utils/storage';
 import { initPixels } from './utils/pixelTracker';
 import { syncInvoiceRealtime } from './utils/supabase';
-import { formatWhatsAppPhone } from './utils/whatsappConcierge';
+import { formatWhatsAppPhone, formatSocialUrl } from './utils/whatsappConcierge';
 import type { CustomerUser, BottleLabelData, SavingsBundle } from './types';
 
 const AppContent: React.FC = () => {
@@ -1146,15 +1146,9 @@ const AppContent: React.FC = () => {
         <div className="fixed bottom-5 start-5 z-40 flex flex-col items-center gap-2.5">
           {/* Secondary Official Badges: Facebook */}
           <a
-            href={settings.facebookUrl || '#'}
-            target={settings.facebookUrl ? '_blank' : '_self'}
+            href={formatSocialUrl(settings.facebookUrl, 'facebook')}
+            target="_blank"
             rel="noopener noreferrer"
-            onClick={(e) => {
-              if (!settings.facebookUrl) {
-                e.preventDefault();
-                alert(language === 'ar' ? 'سيتم تفعيل وإضافة رابط صفحة الفيسبوك قريباً!' : 'Facebook link will be added soon!');
-              }
-            }}
             aria-label="Facebook Page"
             title={language === 'ar' ? 'صفحة فيسبوك الرسمية' : 'Official Facebook Page'}
             className="w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden flex items-center justify-center bg-white hover:scale-115 active:scale-95 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer border border-neutral-200"
@@ -1164,15 +1158,9 @@ const AppContent: React.FC = () => {
 
           {/* Secondary Official Badges: Instagram */}
           <a
-            href={settings.instagramUrl || '#'}
-            target={settings.instagramUrl ? '_blank' : '_self'}
+            href={formatSocialUrl(settings.instagramUrl, 'instagram')}
+            target="_blank"
             rel="noopener noreferrer"
-            onClick={(e) => {
-              if (!settings.instagramUrl) {
-                e.preventDefault();
-                alert(language === 'ar' ? 'سيتم تفعيل وإضافة رابط حساب الإنستغرام قريباً!' : 'Instagram link will be added soon!');
-              }
-            }}
             aria-label="Instagram Profile"
             title={language === 'ar' ? 'حساب إنستغرام الرسمي' : 'Official Instagram Profile'}
             className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl overflow-hidden flex items-center justify-center bg-white hover:scale-115 active:scale-95 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer border border-neutral-200"

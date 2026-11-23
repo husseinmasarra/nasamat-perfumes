@@ -346,8 +346,12 @@ export function loadSettings(): AppSettings {
       storePhone = permPhone || '+961 81 713 408';
     }
 
-    const facebookUrl = permFacebook !== null ? permFacebook : (parsed.facebookUrl || '');
-    const instagramUrl = permInstagram !== null ? permInstagram : (parsed.instagramUrl || '');
+    const facebookUrl = (permFacebook !== null && permFacebook.trim() !== '') 
+      ? permFacebook 
+      : (parsed.facebookUrl?.trim() ? parsed.facebookUrl : INITIAL_SETTINGS.facebookUrl);
+    const instagramUrl = (permInstagram !== null && permInstagram.trim() !== '') 
+      ? permInstagram 
+      : (parsed.instagramUrl?.trim() ? parsed.instagramUrl : INITIAL_SETTINGS.instagramUrl);
     const storeName = permStoreName || parsed.storeName || INITIAL_SETTINGS.storeName;
     const storeLocation = permStoreLocation || parsed.storeLocation || INITIAL_SETTINGS.storeLocation;
     const storeBio = permStoreBio || parsed.storeBio || INITIAL_SETTINGS.storeBio;
@@ -547,8 +551,8 @@ export function resetAllToDefaults(): {
   const preservedSettings: AppSettings = {
     ...INITIAL_SETTINGS,
     storePhone: currentSettings.storePhone || INITIAL_SETTINGS.storePhone,
-    facebookUrl: currentSettings.facebookUrl || '',
-    instagramUrl: currentSettings.instagramUrl || '',
+    facebookUrl: currentSettings.facebookUrl || INITIAL_SETTINGS.facebookUrl,
+    instagramUrl: currentSettings.instagramUrl || INITIAL_SETTINGS.instagramUrl,
     storeName: currentSettings.storeName || INITIAL_SETTINGS.storeName,
     storeLocation: currentSettings.storeLocation || INITIAL_SETTINGS.storeLocation,
     storeBio: currentSettings.storeBio || INITIAL_SETTINGS.storeBio,
