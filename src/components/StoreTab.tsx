@@ -72,6 +72,7 @@ import { syncSingleOrderToGoogleSheetWebhook } from '../utils/googleSheets';
 import { formatWhatsAppPhone, formatDisplayPhone, formatSocialUrl } from '../utils/whatsappConcierge';
 import type { CustomerUser, SavingsBundle } from '../types';
 import { PerfumeDetailsModal } from './PerfumeDetailsModal';
+import { StorePoliciesModal, type PolicyTab } from './StorePoliciesModal';
 
 interface StoreTabProps {
   oils: FragranceOil[];
@@ -142,6 +143,14 @@ export const StoreTab: React.FC<StoreTabProps> = ({
 
   // Off-Canvas Navigation Drawer state
   const [isMenuDrawerOpen, setIsMenuDrawerOpen] = useState(false);
+
+  // Store Policies Modal state
+  const [isPoliciesOpen, setIsPoliciesOpen] = useState(false);
+  const [policyInitialTab, setPolicyInitialTab] = useState<PolicyTab>('privacy');
+  const openPolicies = (tab: PolicyTab = 'privacy') => {
+    setPolicyInitialTab(tab);
+    setIsPoliciesOpen(true);
+  };
 
   // Mix Your Own Perfume from Project Oils & Saved Customer Record
   const [activeBlenderTab, setActiveBlenderTab] = useState<'composer' | 'my-blends'>('composer');
@@ -1817,62 +1826,91 @@ export const StoreTab: React.FC<StoreTabProps> = ({
             </div>
           </div>
 
-          {/* Lebanese Verified Customer Testimonials */}
-          <div className="space-y-4">
-            <div className="text-center max-w-xl mx-auto space-y-1">
-              <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
-                VERIFIED CUSTOMER REVIEWS
+          {/* Lebanese Verified Customer Testimonials & Social Proof */}
+          <div className="space-y-6">
+            <div className="text-center max-w-xl mx-auto space-y-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-900 text-[10px] font-black uppercase tracking-widest">
+                <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                <span>{isAr ? '4.9 / 5.0 • أكثر من 450 تقييم موثق في لبنان' : '4.9 / 5.0 • Over 450 Verified Reviews Across Lebanon'}</span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-black font-serif uppercase tracking-wide">
                 {language === 'ar' ? 'تجارب زبائن نسمات في مختلف المناطق اللبنانية' : 'What Our Customers in Lebanon Say'}
               </h2>
+              <p className="text-xs text-neutral-500 max-w-md mx-auto">
+                {isAr
+                  ? 'شهادات حقيقية من عشاق العطور الذين اختبروا ثبات زيوت نسمات المركزة (Extrait 33%) وسرعة التوصيل'
+                  : 'Genuine testimonials from perfume enthusiasts who experienced our 33% Extrait sillage & fast delivery'}
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div className="bg-white border border-neutral-200 p-6 rounded-2xl shadow-xs space-y-3">
-                <div className="flex text-amber-400 gap-0.5 text-sm">
-                  {'★★★★★'}
+              <div className="bg-white border border-neutral-200 p-6 rounded-2xl shadow-xs space-y-3 flex flex-col justify-between">
+                <div className="space-y-3">
+                  <div className="flex text-amber-400 gap-0.5 text-sm">
+                    {'★★★★★'}
+                  </div>
+                  <p className="text-xs text-neutral-700 leading-relaxed italic">
+                    {language === 'ar'
+                      ? '"عطر نسمات رويال بليند ثباته خيالي! رشيته الصبح وظل فوحانه لليوم الثاني بكل وضوح. التوصيل في بيروت أخذ أقل من 24 ساعة، والعينة المجانية ذوق عالي."'
+                      : '"Nasamat Royal Blend has phenomenal performance. Sillage lasts 24h. Express delivery in Beirut was super fast!"'}
+                  </p>
                 </div>
-                <p className="text-xs text-neutral-700 leading-relaxed italic">
-                  {language === 'ar'
-                    ? '"عطر نسمات رويال بليند ثباته خيالي! رشيته الصبح وظل فوحانه لليوم الثاني بكل وضوح. التوصيل في بيروت أخذ أقل من 24 ساعة، والعينة المجانية ذوق عالي."'
-                    : '"Nasamat Royal Blend has phenomenal performance. Sillage lasts 24h. Express delivery in Beirut was super fast!"'}
-                </p>
                 <div className="pt-2 border-t border-neutral-100 flex items-center justify-between text-xs">
                   <span className="font-bold text-black">{isAr ? 'جورج خوري' : 'Georges Khoury'}</span>
                   <span className="text-neutral-500 font-mono text-[11px]">{isAr ? 'الأشرفية — بيروت' : 'Achrafieh — Beirut'}</span>
                 </div>
               </div>
 
-              <div className="bg-white border border-neutral-200 p-6 rounded-2xl shadow-xs space-y-3">
-                <div className="flex text-amber-400 gap-0.5 text-sm">
-                  {'★★★★★'}
+              <div className="bg-white border border-neutral-200 p-6 rounded-2xl shadow-xs space-y-3 flex flex-col justify-between">
+                <div className="space-y-3">
+                  <div className="flex text-amber-400 gap-0.5 text-sm">
+                    {'★★★★★'}
+                  </div>
+                  <p className="text-xs text-neutral-700 leading-relaxed italic">
+                    {language === 'ar'
+                      ? '"جربت باكارات روج وليبر إنتنس، المقادير والنوتات مطابقة 100% للأصلي وأوفر بكثير. البخاخ ميكرو ناعم جداً ولا يوجد أي تسريب نهائياً."'
+                      : '"Baccarat Rouge and Libre Intense were 100% spot on compared to the boutique flacons. Super premium atomizers."'}
+                  </p>
                 </div>
-                <p className="text-xs text-neutral-700 leading-relaxed italic">
-                  {language === 'ar'
-                    ? '"جربت باكارات روج وليبر إنتنس، المقادير والنوتات مطابقة 100% للأصلي وأوفر بكثير. البخاخ ميكرو ناعم جداً ولا يوجد أي تسريب نهائياً."'
-                    : '"Baccarat Rouge and Libre Intense were 100% spot on compared to the boutique flacons. Super premium atomizers."'}
-                </p>
                 <div className="pt-2 border-t border-neutral-100 flex items-center justify-between text-xs">
                   <span className="font-bold text-black">{isAr ? 'رانيا معوض' : 'Rania Moawad'}</span>
                   <span className="text-neutral-500 font-mono text-[11px]">{isAr ? 'جونيه — جبل لبنان' : 'Jounieh — Mount Lebanon'}</span>
                 </div>
               </div>
 
-              <div className="bg-white border border-neutral-200 p-6 rounded-2xl shadow-xs space-y-3">
-                <div className="flex text-amber-400 gap-0.5 text-sm">
-                  {'★★★★★'}
+              <div className="bg-white border border-neutral-200 p-6 rounded-2xl shadow-xs space-y-3 flex flex-col justify-between">
+                <div className="space-y-3">
+                  <div className="flex text-amber-400 gap-0.5 text-sm">
+                    {'★★★★★'}
+                  </div>
+                  <p className="text-xs text-neutral-700 leading-relaxed italic">
+                    {language === 'ar'
+                      ? '"تعامل في قمة الرقي والاحترافية وسرعة بالتوصيل لطرابلس. الدفع عند الاستلام بالليرة بسعر السوق تماماً بدون أي تعقيد. شكراً لفريق نسمات."'
+                      : '"Flawless customer service and delivery to Tripoli. Cash on Delivery at official market rate. Highly recommended!"'}
+                  </p>
                 </div>
-                <p className="text-xs text-neutral-700 leading-relaxed italic">
-                  {language === 'ar'
-                    ? '"تعامل في قمة الرقي والاحترافية وسرعة بالتوصيل لطرابلس. الدفع عند الاستلام بالليرة بسعر السوق تماماً بدون أي تعقيد. شكراً لفريق نسمات."'
-                    : '"Flawless customer service and delivery to Tripoli. Cash on Delivery at official market rate. Highly recommended!"'}
-                </p>
                 <div className="pt-2 border-t border-neutral-100 flex items-center justify-between text-xs">
                   <span className="font-bold text-black">{isAr ? 'م. طارق علوان' : 'Eng. Tarek Alwan'}</span>
                   <span className="text-neutral-500 font-mono text-[11px]">{isAr ? 'الميناء — طرابلس' : 'El Mina — Tripoli'}</span>
                 </div>
               </div>
+            </div>
+
+            {/* Direct Feedback / WhatsApp Review Prompt */}
+            <div className="text-center pt-1">
+              <a
+                href={`https://wa.me/${formatWhatsAppPhone(settings.storePhone)}?text=${encodeURIComponent(
+                  isAr 
+                    ? 'مرحباً نسمات، أود مشاركة تقييمي وتجربتي مع عطوركم: ⭐⭐⭐⭐⭐' 
+                    : 'Hello Nasamat, I would like to submit my 5-star review and experience: ⭐⭐⭐⭐⭐'
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-bold transition shadow-2xs cursor-pointer"
+              >
+                <span>💬 {isAr ? 'شاركنا تقييمك ورأيك العطري عبر واتساب' : 'Share your fragrance review on WhatsApp'}</span>
+                <span>↗</span>
+              </a>
             </div>
           </div>
         </div>
@@ -4116,6 +4154,16 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                     },
                     active: customerPage === 'delivery',
                   },
+                  {
+                    id: 'policies',
+                    configId: 'policies',
+                    label: language === 'ar' ? 'السياسات والضمانات الملكية' : 'Store Policies & Guarantees',
+                    action: () => {
+                      openPolicies('privacy');
+                      setIsMenuDrawerOpen(false);
+                    },
+                    active: isPoliciesOpen,
+                  },
                 ].map((item) => {
                   const conf = getCategoryConfig(item.configId);
                   return (
@@ -4237,6 +4285,45 @@ export const StoreTab: React.FC<StoreTabProps> = ({
 
               <div className="text-center pt-1 text-[10px] text-neutral-400 font-medium">
                 {isAr ? '🇱🇧 توصيل سريع لجميع المناطق اللبنانية • كاش عند الاستلام' : '🇱🇧 Fast Express Delivery Across Lebanon • Cash on Delivery'}
+              </div>
+
+              {/* Luxury Policy Links (Privacy, Shipping, Returns, Terms) */}
+              <div className="pt-3 border-t border-neutral-200/80 flex items-center justify-center gap-2 sm:gap-5 flex-wrap text-[11px] text-neutral-500 font-bold">
+                <button
+                  type="button"
+                  onClick={() => openPolicies('privacy')}
+                  className="hover:text-black hover:underline cursor-pointer transition"
+                >
+                  {isAr ? 'سياسة الخصوصية' : 'Privacy Policy'}
+                </button>
+                <span className="text-neutral-300">•</span>
+                <button
+                  type="button"
+                  onClick={() => openPolicies('shipping')}
+                  className="hover:text-black hover:underline cursor-pointer transition"
+                >
+                  {isAr ? 'الشحن والتوصيل' : 'Shipping & Delivery'}
+                </button>
+                <span className="text-neutral-300">•</span>
+                <button
+                  type="button"
+                  onClick={() => openPolicies('returns')}
+                  className="hover:text-black hover:underline cursor-pointer transition"
+                >
+                  {isAr ? 'الضمان والاستبدال' : 'Returns & Guarantee'}
+                </button>
+                <span className="text-neutral-300">•</span>
+                <button
+                  type="button"
+                  onClick={() => openPolicies('terms')}
+                  className="hover:text-black hover:underline cursor-pointer transition"
+                >
+                  {isAr ? 'شروط الخدمة' : 'Terms of Service'}
+                </button>
+              </div>
+
+              <div className="text-center pt-1 text-[10px] text-neutral-400">
+                © {new Date().getFullYear()} {isAr ? 'نسمات للعطور الفاخرة • بيروت، لبنان' : 'Nasamat Haute Parfumerie • Beirut, Lebanon'}
               </div>
             </div>
           </div>
@@ -4706,6 +4793,14 @@ export const StoreTab: React.FC<StoreTabProps> = ({
           </div>
         </div>
       )}
+
+      {/* Store Policies Modal (Privacy, Shipping, Returns, Terms) */}
+      <StorePoliciesModal
+        isOpen={isPoliciesOpen}
+        onClose={() => setIsPoliciesOpen(false)}
+        initialTab={policyInitialTab}
+        settings={settings}
+      />
 
     </div>
   );

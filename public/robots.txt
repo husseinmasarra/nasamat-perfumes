@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /*admin*
+
+Sitemap: https://nasamatperfumes.com/sitemap.xml
+Sitemap: https://nasamat-perfumes.vercel.app/sitemap.xml
