@@ -375,6 +375,18 @@ export const Header: React.FC<HeaderProps> = ({
                   </button>
                 )}
 
+                {/* Desktop / Mobile PWA Install Trigger */}
+                <button
+                  type="button"
+                  onClick={() => window.dispatchEvent(new CustomEvent('nasamat_open_pwa_install'))}
+                  className="hidden lg:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border border-neutral-300 hover:border-black bg-white hover:bg-neutral-50 text-black text-xs font-bold transition shadow-2xs cursor-pointer active:scale-95"
+                  title={language === 'ar' ? 'تثبيت تطبيق نسمات على سطح المكتب' : 'Install Nasamat Desktop App'}
+                  aria-label="Install App"
+                >
+                  <Download className="w-3.5 h-3.5 text-black" />
+                  <span>{language === 'ar' ? 'تثبيت التطبيق' : 'Install App'}</span>
+                </button>
+
                 {/* Cart Button (Always visible on Mobile and Desktop with live count) */}
                 {onOpenCart && (
                   <button

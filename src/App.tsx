@@ -36,6 +36,7 @@ import { CustomerAuthModal } from './components/CustomerAuthModal';
 import { BottleLabelModal } from './components/BottleLabelModal';
 import { AdminFinancialStatementModal } from './components/AdminFinancialStatementModal';
 import { AiSommelierModal } from './components/AiSommelierModal';
+import { PwaInstallPrompt } from './components/PwaInstallPrompt';
 import { WhatsAppIcon, WhatsAppOfficialIcon, InstagramOfficialBadge, FacebookOfficialBadge, Sparkles } from './components/icons';
 import { AdminSidebar, type AdminNavTab } from './components/AdminSidebar';
 import { AdminProductsPricingTab } from './components/AdminProductsPricingTab';
@@ -1164,6 +1165,9 @@ const AppContent: React.FC = () => {
         settings={settings}
         onAddToCart={handleAddToCart}
       />
+
+      {/* PWA Install on Desktop & Mobile Manager */}
+      <PwaInstallPrompt />
 
       {/* Floating AI Perfume Sommelier Concierge Trigger (Level 5 Agent) */}
       {portal === 'customer' && (

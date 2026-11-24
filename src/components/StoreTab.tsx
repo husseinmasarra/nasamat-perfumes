@@ -4200,6 +4200,16 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                     },
                     active: isPoliciesOpen,
                   },
+                  {
+                    id: 'install-app',
+                    configId: 'all',
+                    label: language === 'ar' ? '📲 تثبيت تطبيق نسمات (سطح المكتب / الهاتف)' : '📲 Install Nasamat App (Desktop / Mobile)',
+                    action: () => {
+                      setIsMenuDrawerOpen(false);
+                      window.dispatchEvent(new CustomEvent('nasamat_open_pwa_install'));
+                    },
+                    active: false,
+                  },
                 ].map((item) => {
                   const conf = getCategoryConfig(item.configId);
                   return (

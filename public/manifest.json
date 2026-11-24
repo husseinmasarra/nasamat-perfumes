@@ -1,0 +1,63 @@
+{
+  "name": "نسمات | مختبر صياغة وتركيب العطور الفاخرة - NASMAT",
+  "short_name": "نسمات NASMAT",
+  "description": "مختبر صياغة وابتكار العطور الحصرية والزيوت النقية في بيروت. صمم عطرك الملكي الخاص وتصفح تشكيلتنا النادرة.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "any",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["shopping", "lifestyle", "luxury"],
+  "icons": [
+    {
+      "src": "/pwa-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "خزانة العطور",
+      "short_name": "العطور",
+      "description": "تصفح خزانة عطور نسمات الملكية",
+      "url": "/#catalog",
+      "icons": [{ "src": "/pwa-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "خلطات نسمات الحصرية",
+      "short_name": "الخلطات",
+      "description": "وصفات خاصة نادرة تم تعتيقها في بيروت",
+      "url": "/#signatures",
+      "icons": [{ "src": "/pwa-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "مختبر تركيب العطور",
+      "short_name": "المختبر",
+      "description": "ركّب عطرك الخاص بالاسم والنسب",
+      "url": "/#bespoke",
+      "icons": [{ "src": "/pwa-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
