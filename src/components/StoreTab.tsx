@@ -1974,10 +1974,6 @@ export const StoreTab: React.FC<StoreTabProps> = ({
           )}
           {/* Header */}
           <div className="bg-neutral-900 text-white rounded-3xl p-6 sm:p-10 shadow-lg text-center max-w-4xl mx-auto space-y-3 relative overflow-hidden border border-neutral-800">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-300 text-[10px] font-bold tracking-widest uppercase">
-              <Sparkles className="w-3 h-3 text-amber-400" />
-              <span>BEIRUT ATELIER • EXCLUSIVE BLENDS</span>
-            </div>
             <h1 className="text-2xl sm:text-4xl font-black font-serif uppercase tracking-wider">
               {language === 'ar' ? 'مختبر خلطات نسمات الحصرية' : 'Nasamat Signature Formulations'}
             </h1>
