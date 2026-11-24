@@ -1167,23 +1167,23 @@ const AppContent: React.FC = () => {
 
       {/* Floating AI Perfume Sommelier Concierge Trigger (Level 5 Agent) */}
       {portal === 'customer' && (
-        <div className="fixed bottom-24 start-5 z-40">
+        <div className="fixed bottom-6 end-5 z-40">
           <button
             type="button"
             onClick={() => setIsAiSommelierOpen(true)}
-            className="group relative flex items-center gap-2 px-3.5 py-2.5 rounded-full bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 text-black font-black text-xs shadow-xl shadow-amber-500/30 hover:scale-105 active:scale-95 transition-all duration-300 border border-amber-300 cursor-pointer"
+            className="group relative flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-black hover:bg-neutral-900 text-amber-400 font-black text-xs shadow-2xl shadow-black/80 hover:scale-105 active:scale-95 transition-all duration-300 border border-amber-400/60 cursor-pointer"
             title={language === 'ar' ? 'استشر خبير ومستشار نسمات الذكي (AI Sommelier)' : 'Ask Nasamat AI Sommelier'}
             aria-label="AI Perfume Sommelier"
           >
-            <div className="w-6 h-6 rounded-full bg-black/20 flex items-center justify-center shrink-0">
-              <Sparkles className="w-3.5 h-3.5 text-black animate-spin" style={{ animationDuration: '6s' }} />
+            <div className="w-6 h-6 rounded-full bg-amber-400/15 border border-amber-400/30 flex items-center justify-center shrink-0">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin" style={{ animationDuration: '6s' }} />
             </div>
-            <span className="font-extrabold tracking-wide">
+            <span className="font-extrabold tracking-wide text-amber-300">
               {language === 'ar' ? 'خبير نسمات الذكي' : 'AI Sommelier'}
             </span>
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
           </button>
         </div>

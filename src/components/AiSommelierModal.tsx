@@ -111,16 +111,16 @@ export const AiSommelierModal: React.FC<AiSommelierModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="bg-zinc-950 text-white w-full max-w-2xl h-[92vh] max-h-[820px] rounded-3xl border border-amber-500/30 shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
+        className="ai-sommelier-modal-dialog w-full max-w-2xl h-[92vh] max-h-[820px] rounded-3xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-zinc-900 via-black to-zinc-900 border-b border-amber-500/20 px-4 sm:px-6 py-4 flex items-center justify-between shrink-0">
+        <div className="bg-gradient-to-r from-zinc-900 via-black to-zinc-900 border-b border-amber-500/25 px-4 sm:px-6 py-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black shadow-lg shadow-amber-500/20">
-              <Sparkles className="w-5 h-5" />
+              <Sparkles className="w-5 h-5 text-black" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -141,7 +141,7 @@ export const AiSommelierModal: React.FC<AiSommelierModalProps> = ({
             {messages.length > 0 && (
               <button
                 onClick={handleClear}
-                className="p-2 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 text-zinc-400 hover:text-white transition cursor-pointer"
+                className="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white transition cursor-pointer border border-zinc-700/50"
                 title={isAr ? 'مسح المحادثة' : 'Clear Chat'}
               >
                 <RotateCcw className="w-4 h-4" />
@@ -149,7 +149,7 @@ export const AiSommelierModal: React.FC<AiSommelierModalProps> = ({
             )}
             <button
               onClick={onClose}
-              className="p-2 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 text-zinc-400 hover:text-white transition cursor-pointer"
+              className="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white transition cursor-pointer border border-zinc-700/50"
               title={t('close')}
             >
               <X className="w-5 h-5" />
@@ -161,8 +161,8 @@ export const AiSommelierModal: React.FC<AiSommelierModalProps> = ({
         <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
           {messages.length === 0 && (
             <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-4">
-              <div className="w-16 h-16 rounded-3xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                <Sparkles className="w-8 h-8 animate-pulse" />
+              <div className="ai-sommelier-avatar-box w-16 h-16 rounded-3xl flex items-center justify-center shadow-lg">
+                <Sparkles className="w-8 h-8 animate-pulse text-amber-400" />
               </div>
               <div className="max-w-md space-y-1">
                 <h3 className="text-base font-bold text-white">
@@ -176,14 +176,16 @@ export const AiSommelierModal: React.FC<AiSommelierModalProps> = ({
               </div>
 
               {/* Quick Prompts */}
-              <div className="w-full max-w-lg grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
+              <div className="w-full max-w-lg grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
                 {quickPrompts.map((p, idx) => (
                   <button
                     key={idx}
+                    type="button"
                     onClick={() => handleSend(p)}
-                    className="text-start p-3 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-amber-500/40 text-xs text-zinc-300 hover:text-white transition active:scale-98 cursor-pointer"
+                    className="ai-sommelier-prompt-btn p-3.5 rounded-2xl text-xs active:scale-98 flex items-center gap-2.5 shadow-sm"
                   >
-                    ✨ {p}
+                    <span className="prompt-sparkle text-amber-400 shrink-0 font-bold">✨</span>
+                    <span className="text-zinc-200 text-start leading-snug font-medium">{p}</span>
                   </button>
                 ))}
               </div>
@@ -198,8 +200,8 @@ export const AiSommelierModal: React.FC<AiSommelierModalProps> = ({
               <div
                 className={`max-w-[85%] sm:max-w-[78%] px-4 py-3 rounded-2xl text-xs sm:text-sm leading-relaxed ${
                   msg.sender === 'user'
-                    ? 'bg-amber-500 text-black font-semibold rounded-br-xs'
-                    : 'bg-zinc-900 border border-zinc-800 text-zinc-100 rounded-bl-xs'
+                    ? 'ai-msg-bubble-user rounded-br-xs'
+                    : 'ai-msg-bubble-assistant rounded-bl-xs'
                 }`}
               >
                 <div className="whitespace-pre-wrap">{msg.text}</div>
@@ -211,27 +213,27 @@ export const AiSommelierModal: React.FC<AiSommelierModalProps> = ({
                   {msg.recommendations.map((perfume) => (
                     <div
                       key={perfume.id}
-                      className="p-3 rounded-2xl bg-zinc-900/90 border border-amber-500/25 hover:border-amber-500/50 flex flex-col justify-between transition-all shadow-lg"
+                      className="ai-perfume-recommendation-card p-3.5 rounded-2xl flex flex-col justify-between transition-all"
                     >
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between gap-1">
-                          <span className="font-bold text-xs text-amber-400 truncate">
+                          <span className="perfume-title truncate text-xs">
                             {isAr ? perfume.name : perfume.nameEn || perfume.name}
                           </span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono">
+                          <span className="perfume-price-tag text-[10px] px-2 py-0.5 rounded font-mono">
                             ${perfume.priceUsd}
                           </span>
                         </div>
-                        <p className="text-[10px] text-zinc-400 line-clamp-2 leading-relaxed">
+                        <p className="perfume-desc text-[11px] line-clamp-2 leading-relaxed">
                           {perfume.story}
                         </p>
-                        <div className="flex flex-wrap gap-1 pt-1">
+                        <div className="flex flex-wrap gap-1.5 pt-1">
                           {perfume.topNotes.slice(0, 2).map((note, i) => (
-                            <span key={i} className="text-[9px] px-1.5 py-0.2 rounded-full bg-zinc-800 text-zinc-300">
+                            <span key={i} className="perfume-note-chip text-[9px] px-2 py-0.5 rounded-full">
                               {note}
                             </span>
                           ))}
-                          <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                          <span className="perfume-longevity-chip text-[9px] px-2 py-0.5 rounded-full font-bold">
                             {perfume.longevity}
                           </span>
                         </div>
@@ -243,8 +245,8 @@ export const AiSommelierModal: React.FC<AiSommelierModalProps> = ({
                           onClick={() => handleQuickAdd(perfume)}
                           className="flex-1 py-1.5 px-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-black font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow-sm"
                         >
-                          <ShoppingBag className="w-3.5 h-3.5" />
-                          <span>{addedIds[perfume.id] ? (isAr ? 'تمت الإضافة ✓' : 'Added ✓') : (isAr ? 'أضف للسلة' : 'Add to Bag')}</span>
+                          <ShoppingBag className="w-3.5 h-3.5 text-black" />
+                          <span className="text-black">{addedIds[perfume.id] ? (isAr ? 'تمت الإضافة ✓' : 'Added ✓') : (isAr ? 'أضف للسلة' : 'Add to Bag')}</span>
                         </button>
 
                         <a
@@ -253,7 +255,7 @@ export const AiSommelierModal: React.FC<AiSommelierModalProps> = ({
                           )}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-400 transition cursor-pointer"
+                          className="p-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-400 transition cursor-pointer"
                           title="WhatsApp Order"
                         >
                           💬
@@ -277,7 +279,7 @@ export const AiSommelierModal: React.FC<AiSommelierModalProps> = ({
         </div>
 
         {/* Input Bar */}
-        <div className="p-3 sm:p-4 bg-zinc-900 border-t border-zinc-800 shrink-0">
+        <div className="p-3 sm:p-4 bg-zinc-950 border-t border-amber-500/20 shrink-0">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -290,14 +292,14 @@ export const AiSommelierModal: React.FC<AiSommelierModalProps> = ({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={isAr ? 'اطلب عطركم المفضل، أو استشر الخبير العطري...' : 'Ask for scent advice, notes, or formulation...'}
-              className="flex-1 bg-zinc-950 border border-zinc-700 focus:border-amber-400 px-4 py-3 rounded-2xl text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none transition"
+              className="ai-chat-input-field flex-1 px-4 py-3 rounded-2xl text-xs sm:text-sm transition"
             />
             <button
               type="submit"
               disabled={!input.trim() || isTyping}
-              className="px-4 py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-black font-bold transition flex items-center justify-center cursor-pointer active:scale-95"
+              className="ai-chat-send-button px-4 py-3 rounded-2xl disabled:opacity-50 text-black font-bold transition flex items-center justify-center cursor-pointer active:scale-95"
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-4 h-4 text-black" />
             </button>
           </form>
         </div>

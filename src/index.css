@@ -921,4 +921,141 @@ tbody td {
   animation: luxuryHeaderShimmer 4s ease-in-out infinite;
 }
 
+/* ============================================================
+   HAUTE PARFUMERIE AI SOMMELIER MODAL (LEVEL 5 AGENT) STYLES
+   ============================================================ */
+
+.ai-sommelier-modal-dialog {
+  background-color: #0d0d11 !important;
+  color: #f4f4f5 !important;
+  border: 1px solid rgba(251, 191, 36, 0.35) !important;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.95), 0 0 35px rgba(217, 119, 6, 0.2) !important;
+}
+
+/* 1. Avatar Sparkle Box */
+.ai-sommelier-avatar-box {
+  background-color: rgba(251, 191, 36, 0.12) !important;
+  border: 1px solid rgba(251, 191, 36, 0.45) !important;
+}
+
+.ai-sommelier-avatar-box svg {
+  color: #fbbf24 !important;
+  stroke: #fbbf24 !important;
+}
+
+/* 2. Quick Suggestion Prompt Buttons */
+.ai-sommelier-prompt-btn {
+  background-color: #18181b !important;
+  border: 1px solid rgba(251, 191, 36, 0.25) !important;
+  color: #f4f4f5 !important;
+  transition: all 0.2s ease !important;
+  text-align: start !important;
+  cursor: pointer !important;
+}
+
+.ai-sommelier-prompt-btn:hover {
+  background-color: #27272a !important;
+  border-color: rgba(251, 191, 36, 0.75) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+}
+
+.ai-sommelier-prompt-btn span,
+.ai-sommelier-prompt-btn p,
+.ai-sommelier-prompt-btn div {
+  color: #f4f4f5 !important;
+}
+
+.ai-sommelier-prompt-btn .prompt-sparkle {
+  color: #fbbf24 !important;
+}
+
+/* 3. Message Bubbles */
+.ai-msg-bubble-user {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
+  border: 1px solid #fbbf24 !important;
+}
+
+.ai-msg-bubble-user * {
+  color: #000000 !important;
+}
+
+.ai-msg-bubble-assistant {
+  background-color: #18181b !important;
+  border: 1px solid #27272a !important;
+  color: #f4f4f5 !important;
+}
+
+.ai-msg-bubble-assistant * {
+  color: #f4f4f5 !important;
+}
+
+/* 4. Recommendation Perfume Cards */
+.ai-perfume-recommendation-card {
+  background-color: #141417 !important;
+  border: 1px solid rgba(251, 191, 36, 0.3) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7) !important;
+}
+
+.ai-perfume-recommendation-card:hover {
+  border-color: #fbbf24 !important;
+  transform: translateY(-2px) !important;
+}
+
+.ai-perfume-recommendation-card .perfume-title {
+  color: #fbbf24 !important;
+  font-weight: 800 !important;
+}
+
+.ai-perfume-recommendation-card .perfume-desc {
+  color: #a1a1aa !important;
+}
+
+.ai-perfume-recommendation-card .perfume-price-tag {
+  background-color: #27272a !important;
+  color: #fef08a !important;
+  border: 1px solid rgba(251, 191, 36, 0.25) !important;
+}
+
+.ai-perfume-recommendation-card .perfume-note-chip {
+  background-color: #27272a !important;
+  color: #e4e4e7 !important;
+}
+
+.ai-perfume-recommendation-card .perfume-longevity-chip {
+  background-color: rgba(251, 191, 36, 0.15) !important;
+  color: #fcd34d !important;
+  border: 1px solid rgba(251, 191, 36, 0.3) !important;
+}
+
+/* 5. Input Bar & Actions */
+.ai-chat-input-field {
+  background-color: #141417 !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(251, 191, 36, 0.3) !important;
+}
+
+.ai-chat-input-field:focus {
+  border-color: #fbbf24 !important;
+  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.2) !important;
+  outline: none !important;
+}
+
+.ai-chat-input-field::placeholder {
+  color: #71717a !important;
+}
+
+.ai-chat-send-button {
+  background: linear-gradient(135deg, #fbbf24, #d97706) !important;
+  color: #000000 !important;
+  border: none !important;
+}
+
+.ai-chat-send-button svg {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
 
