@@ -1031,20 +1031,25 @@ tbody td {
 }
 
 /* 5. Input Bar & Actions */
-.ai-chat-input-field {
-  background-color: #141417 !important;
+.ai-sommelier-modal-dialog input.ai-chat-input-field,
+.ai-sommelier-modal-dialog input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+input.ai-chat-input-field {
+  background-color: #18181b !important;
   color: #ffffff !important;
-  border: 1px solid rgba(251, 191, 36, 0.3) !important;
+  border: 1px solid rgba(251, 191, 36, 0.35) !important;
 }
 
-.ai-chat-input-field:focus {
+.ai-sommelier-modal-dialog input.ai-chat-input-field:focus,
+.ai-sommelier-modal-dialog input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
+input.ai-chat-input-field:focus {
   border-color: #fbbf24 !important;
-  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.2) !important;
+  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.25) !important;
   outline: none !important;
 }
 
-.ai-chat-input-field::placeholder {
-  color: #71717a !important;
+.ai-sommelier-modal-dialog input.ai-chat-input-field::placeholder,
+input.ai-chat-input-field::placeholder {
+  color: #a1a1aa !important;
 }
 
 .ai-chat-send-button {
