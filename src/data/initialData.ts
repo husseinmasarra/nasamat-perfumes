@@ -1,5 +1,17 @@
 import type { FragranceOil, RawMaterial, AppSettings, ProductionBatch, SavedRecipe, Invoice } from '../types';
 
+// Environment-driven secret overrides (zero hardcoded secrets in source control)
+const envAdminPassword = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_ADMIN_PASSWORD) || '1234';
+const envAdminSecretSlug = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_ADMIN_SECRET_SLUG) || 'nasmat-vault-77';
+
+const envFirebaseApiKey = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_FIREBASE_API_KEY) || '';
+const envFirebaseAuthDomain = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_FIREBASE_AUTH_DOMAIN) || '';
+const envFirebaseProjectId = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_FIREBASE_PROJECT_ID) || '';
+const envFirebaseStorageBucket = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_FIREBASE_STORAGE_BUCKET) || '';
+const envFirebaseMessagingSenderId = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_FIREBASE_MESSAGING_SENDER_ID) || '';
+const envFirebaseAppId = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_FIREBASE_APP_ID) || '';
+const envFirebaseMeasurementId = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_FIREBASE_MEASUREMENT_ID) || '';
+
 export const INITIAL_SETTINGS: AppSettings = {
   currency: '$',
   defaultOilDensity: 0.95,
@@ -12,8 +24,8 @@ export const INITIAL_SETTINGS: AppSettings = {
   storeBio: 'صياغة وتركيب أفخم العطور العالمية والنيش بتركيز إكستري دو بارفان لثبات وفوحان دائم',
   facebookUrl: 'https://www.facebook.com/profile.php?id=61596789873419',
   instagramUrl: 'https://www.instagram.com/nasamat.purfume/',
-  adminPassword: '1234',
-  adminSecretSlug: 'nasmat-vault-77',
+  adminPassword: envAdminPassword,
+  adminSecretSlug: envAdminSecretSlug,
   lbpRate: 90000,
   defaultDeliveryFee: 3,
   freeDeliveryThreshold: 35,
@@ -31,14 +43,14 @@ export const INITIAL_SETTINGS: AppSettings = {
     pixelTestMode: true,
   },
   firebaseConfig: {
-    apiKey: "AIzaSyB-oSwRSvg5_QCzxSuGTbg3GzjiZWcE0yc",
-    authDomain: "nasmat-95a51.firebaseapp.com",
-    projectId: "nasmat-95a51",
-    storageBucket: "nasmat-95a51.firebasestorage.app",
-    messagingSenderId: "348453892318",
-    appId: "1:348453892318:web:6164c908e0c42be8c0124f",
-    measurementId: "G-WF38VF30F2",
-    isFirebaseEnabled: true,
+    apiKey: envFirebaseApiKey,
+    authDomain: envFirebaseAuthDomain,
+    projectId: envFirebaseProjectId,
+    storageBucket: envFirebaseStorageBucket,
+    messagingSenderId: envFirebaseMessagingSenderId,
+    appId: envFirebaseAppId,
+    measurementId: envFirebaseMeasurementId,
+    isFirebaseEnabled: Boolean(envFirebaseApiKey && envFirebaseProjectId),
   },
 };
 

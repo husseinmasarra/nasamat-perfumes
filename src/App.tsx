@@ -35,7 +35,8 @@ import { AdminAuthModal } from './components/AdminAuthModal';
 import { CustomerAuthModal } from './components/CustomerAuthModal';
 import { BottleLabelModal } from './components/BottleLabelModal';
 import { AdminFinancialStatementModal } from './components/AdminFinancialStatementModal';
-import { WhatsAppIcon, WhatsAppOfficialIcon, InstagramOfficialBadge, FacebookOfficialBadge } from './components/icons';
+import { AiSommelierModal } from './components/AiSommelierModal';
+import { WhatsAppIcon, WhatsAppOfficialIcon, InstagramOfficialBadge, FacebookOfficialBadge, Sparkles } from './components/icons';
 import { AdminSidebar, type AdminNavTab } from './components/AdminSidebar';
 import { AdminProductsPricingTab } from './components/AdminProductsPricingTab';
 import { AdminPOSTerminalTab } from './components/AdminPOSTerminalTab';
@@ -145,6 +146,15 @@ const AppContent: React.FC = () => {
   // Manager Daily & Monthly Financial Statement Modal
   const [isFinancialStatementOpen, setIsFinancialStatementOpen] = useState(false);
 
+  // AI Perfume Sommelier & Concierge Modal (Levels 1-5 Architecture)
+  const [isAiSommelierOpen, setIsAiSommelierOpen] = useState(false);
+
+  useEffect(() => {
+    const handleOpenAi = () => setIsAiSommelierOpen(true);
+    window.addEventListener('nasamat_open_ai_sommelier', handleOpenAi);
+    return () => window.removeEventListener('nasamat_open_ai_sommelier', handleOpenAi);
+  }, []);
+
   const handleOpenBottleLabel = (data: BottleLabelData) => {
     setSelectedBottleLabelData(data);
     setIsBottleLabelOpen(true);
@@ -250,6 +260,10 @@ const AppContent: React.FC = () => {
       // HIERARCHICAL ESCAPE (ESC) KEY HANDLER
       if (e.key === 'Escape') {
         // Priority 1: Top-level Modals
+        if (isAiSommelierOpen) {
+          setIsAiSommelierOpen(false);
+          return;
+        }
         if (isAdminAuthModalOpen) {
           setIsAdminAuthModalOpen(false);
           setPendingAdminTab(null);
@@ -1139,6 +1153,40 @@ const AppContent: React.FC = () => {
           settings={settings}
           isAdminAuthenticated={isAdminAuthenticated}
         />
+      )}
+
+      {/* AI Perfume Sommelier & Concierge Modal (Levels 1-5 Architecture) */}
+      <AiSommelierModal
+        isOpen={isAiSommelierOpen}
+        onClose={() => setIsAiSommelierOpen(false)}
+        oils={oils}
+        recipes={recipes}
+        settings={settings}
+        onAddToCart={handleAddToCart}
+      />
+
+      {/* Floating AI Perfume Sommelier Concierge Trigger (Level 5 Agent) */}
+      {portal === 'customer' && (
+        <div className="fixed bottom-24 start-5 z-40">
+          <button
+            type="button"
+            onClick={() => setIsAiSommelierOpen(true)}
+            className="group relative flex items-center gap-2 px-3.5 py-2.5 rounded-full bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 text-black font-black text-xs shadow-xl shadow-amber-500/30 hover:scale-105 active:scale-95 transition-all duration-300 border border-amber-300 cursor-pointer"
+            title={language === 'ar' ? 'استشر خبير ومستشار نسمات الذكي (AI Sommelier)' : 'Ask Nasamat AI Sommelier'}
+            aria-label="AI Perfume Sommelier"
+          >
+            <div className="w-6 h-6 rounded-full bg-black/20 flex items-center justify-center shrink-0">
+              <Sparkles className="w-3.5 h-3.5 text-black animate-spin" style={{ animationDuration: '6s' }} />
+            </div>
+            <span className="font-extrabold tracking-wide">
+              {language === 'ar' ? 'خبير نسمات الذكي' : 'AI Sommelier'}
+            </span>
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
+            </span>
+          </button>
+        </div>
       )}
 
       {/* Floating Official Luxury Social Media Suite (WhatsApp, Instagram, Facebook) */}

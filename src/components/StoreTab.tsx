@@ -3955,6 +3955,16 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                 </div>
                 {[
                   {
+                    id: 'ai-sommelier',
+                    configId: 'ai-sommelier',
+                    label: language === 'ar' ? '✨ مستشار نسمات الذكي (AI Sommelier)' : '✨ AI Perfume Sommelier',
+                    action: () => {
+                      setIsMenuDrawerOpen(false);
+                      window.dispatchEvent(new CustomEvent('nasamat_open_ai_sommelier'));
+                    },
+                    active: false,
+                  },
+                  {
                     id: 'home',
                     configId: 'home',
                     label: language === 'ar' ? 'الرئيسية واكتشف' : 'Home & Discover',
