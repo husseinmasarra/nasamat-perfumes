@@ -149,6 +149,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
   const [policyInitialTab, setPolicyInitialTab] = useState<PolicyTab>('privacy');
   const openPolicies = (tab: PolicyTab = 'privacy') => {
     setPolicyInitialTab(tab);
+    setIsMenuDrawerOpen(false);
     setIsPoliciesOpen(true);
   };
 
@@ -3801,7 +3802,42 @@ export const StoreTab: React.FC<StoreTabProps> = ({
           </div>
         </div>
 
-        <div className="pt-6 border-t border-neutral-100 flex flex-col sm:flex-row items-center justify-center text-center text-xs text-neutral-500 gap-3">
+        <div className="pt-6 border-t border-neutral-100 flex flex-col items-center justify-center text-center text-xs text-neutral-500 gap-3">
+          {/* Main Footer Policy Links (Privacy, Shipping, Returns, Terms) */}
+          <div className="flex items-center justify-center gap-3 sm:gap-6 flex-wrap font-bold text-neutral-600">
+            <button
+              type="button"
+              onClick={() => openPolicies('privacy')}
+              className="hover:text-black hover:underline cursor-pointer transition"
+            >
+              {isAr ? 'سياسة الخصوصية' : 'Privacy Policy'}
+            </button>
+            <span className="text-neutral-300">•</span>
+            <button
+              type="button"
+              onClick={() => openPolicies('shipping')}
+              className="hover:text-black hover:underline cursor-pointer transition"
+            >
+              {isAr ? 'الشحن والتوصيل' : 'Shipping & Delivery'}
+            </button>
+            <span className="text-neutral-300">•</span>
+            <button
+              type="button"
+              onClick={() => openPolicies('returns')}
+              className="hover:text-black hover:underline cursor-pointer transition"
+            >
+              {isAr ? 'الضمان والاستبدال' : 'Returns & Guarantee'}
+            </button>
+            <span className="text-neutral-300">•</span>
+            <button
+              type="button"
+              onClick={() => openPolicies('terms')}
+              className="hover:text-black hover:underline cursor-pointer transition"
+            >
+              {isAr ? 'شروط الخدمة' : 'Terms of Service'}
+            </button>
+          </div>
+
           <p>
             © 2026 {language === 'ar' ? 'نسمات للعطور الفاخرة — بيروت، لبنان. جميع الحقوق محفوظة.' : 'Nasamat Haute Parfumerie — Beirut, Lebanon. All rights reserved.'}
           </p>

@@ -27,7 +27,7 @@ export const StorePoliciesModal: React.FC<StorePoliciesModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-3 sm:p-5 animate-in fade-in duration-200"
+      className="fixed inset-0 z-[75] flex items-center justify-center bg-black/75 backdrop-blur-md p-3 sm:p-5 animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
