@@ -45,11 +45,15 @@ let isGoogleInitialized = false;
  * Initializes or updates tracking pixels based on AppSettings
  */
 export function initPixels(settings?: TrackingPixelSettings) {
-  if (!settings) return;
-  currentSettings = settings;
+  const metaPixelId = (settings?.metaPixelId && settings.metaPixelId.trim()) || '2242721343793550';
+  currentSettings = {
+    metaPixelId,
+    isMetaPixelEnabled: true,
+    ...(settings || {}),
+  };
 
-  // 1. Meta Pixel
-  if (settings.isMetaPixelEnabled && settings.metaPixelId && !isMetaInitialized) {
+  // 1. Meta Pixel (Facebook & Instagram)
+  if (!isMetaInitialized) {
     try {
       (function (f: any, b: any, e: any, v: any, n?: any, t?: any, s?: any) {
         if (f.fbq) return;
@@ -69,7 +73,7 @@ export function initPixels(settings?: TrackingPixelSettings) {
       })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
 
       if (window.fbq) {
-        window.fbq('init', settings.metaPixelId.trim());
+        window.fbq('init', metaPixelId);
         window.fbq('track', 'PageView');
         isMetaInitialized = true;
       }
@@ -164,10 +168,18 @@ export function trackPixelEvent(eventName: PixelStandardEvent, payload: PixelEve
   // Always log to internal diagnostic memory so merchant sees live conversion events
   recordPixelEventLog(eventName, payload);
 
-  // Meta Pixel
-  if (window.fbq && currentSettings?.isMetaPixelEnabled) {
+  // Meta Pixel (Always fire if fbq exists)
+  if (typeof window !== 'undefined' && window.fbq) {
     try {
-      window.fbq('track', eventName, payload);
+      let metaPayload = { ...payload };
+      try {
+        const searchParams = new URLSearchParams(window.location.search);
+        const testCode = searchParams.get('test_event_code') || searchParams.get('fb_test_event_code');
+        if (testCode) {
+          metaPayload.test_event_code = testCode;
+        }
+      } catch (_) {}
+      window.fbq('track', eventName, metaPayload);
     } catch (_) {}
   }
 

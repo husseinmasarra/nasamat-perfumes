@@ -129,6 +129,10 @@ export const StoreTab: React.FC<StoreTabProps> = ({
   const { language, toggleLanguage, t } = useLanguage();
   const isAr = language === 'ar';
 
+  useEffect(() => {
+    trackPixelEvent('PageView');
+  }, []);
+
   // Customer Boutique Pages: 'home' (الرئيسية واكتشف), 'catalog' (الكتالوج وكل العطور), 'signatures' (خلطات نسمات الحصرية), 'mix-perfume' (ركّب عطرك الخاص), 'bundles' (باقات التوفير), 'atelier' (قصة الدار والمختبر), 'delivery' (التوصيل والدفع في لبنان)
   const [customerPage, setCustomerPage] = useState<'home' | 'catalog' | 'signatures' | 'mix-perfume' | 'bundles' | 'atelier' | 'delivery'>('home');
   const [selectedSizeFilter, setSelectedSizeFilter] = useState<number>(0);

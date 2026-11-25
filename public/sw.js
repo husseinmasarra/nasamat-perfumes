@@ -1,5 +1,5 @@
 // Nasamat Haute Parfumerie PWA Service Worker
-const CACHE_NAME = 'nasamat-cache-v1';
+const CACHE_NAME = 'nasamat-cache-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
