@@ -12,7 +12,10 @@ import type {
   TrackingPixelSettings,
   CRMActivityLog,
   SavingsBundle,
-  CrmLeadRecord
+  CrmLeadRecord,
+  StaffMember,
+  StaffRole,
+  StaffPermissions
 } from '../types';
 import { INITIAL_OILS, INITIAL_RAW_MATERIALS, INITIAL_BATCHES, INITIAL_SETTINGS, INITIAL_RECIPES, INITIAL_INVOICES } from '../data/initialData';
 
@@ -35,6 +38,8 @@ const STORAGE_KEYS = {
   CRM_DELETED_LEADS: 'nasamat_crm_deleted_leads_v1',
   PIXEL_SETTINGS: 'nasamat_pixel_settings_v1',
   PIXEL_EVENTS_LOG: 'nasamat_pixel_events_log_v1',
+  STAFF_MEMBERS: 'nasamat_staff_members_v1',
+  CURRENT_STAFF_ID: 'nasamat_current_staff_id_v1',
 };
 
 export const INITIAL_NAV_CATEGORIES: CategoryNavConfig[] = [
@@ -346,6 +351,8 @@ export const PERMANENT_KEYS = {
   FREE_DELIVERY_THRESHOLD: 'nasamat_permanent_free_delivery_threshold',
   IS_FREE_DELIVERY_ENABLED: 'nasamat_permanent_is_free_delivery_enabled',
   DELIVERY_NOTES: 'nasamat_permanent_delivery_notes',
+  STAFF_MEMBERS: 'nasamat_permanent_staff_members',
+  CURRENT_STAFF_ID: 'nasamat_permanent_current_staff_id',
 };
 
 export function loadSettings(): AppSettings {
@@ -1226,5 +1233,162 @@ export function addCrmDeletedLeadKey(keyOrName: string): void {
     }
   } catch (e) {
     console.error('Failed to add deleted CRM lead key', e);
+  }
+}
+
+// ================= INITIAL & PERSISTENT STAFF MEMBERS =================
+
+export const INITIAL_STAFF_MEMBERS: StaffMember[] = [
+  {
+    id: 'staff-owner',
+    name: 'المدير العام (Owner)',
+    phone: '+961 70 000 000',
+    email: 'admin@nasamat.com',
+    role: 'owner',
+    pinCode: '0000',
+    isActive: true,
+    allowedTabs: [
+      'pos',
+      'orders',
+      'products',
+      'coupons',
+      'overview',
+      'categories',
+      'hero-banner',
+      'brands',
+      'menu-builder',
+      'customers',
+      'pixel',
+      'staff',
+      'suppliers',
+      'calculator',
+      'recipes',
+      'batches',
+      'settings',
+    ],
+    permissions: {
+      canChangePrices: true,
+      canGiveDiscounts: true,
+      canViewFinancials: true,
+      canExportData: true,
+      canManageStaff: true,
+      canAccessSettings: true,
+    },
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'staff-cashier',
+    name: 'كاشير صالة العرض (POS Cashier)',
+    phone: '+961 71 111 111',
+    role: 'cashier',
+    pinCode: '1111',
+    isActive: true,
+    allowedTabs: ['pos', 'orders'],
+    permissions: {
+      canChangePrices: false,
+      canGiveDiscounts: true,
+      canViewFinancials: false,
+      canExportData: false,
+      canManageStaff: false,
+      canAccessSettings: false,
+    },
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'staff-perfumer',
+    name: 'خبير ومصمم العطور (Master Perfumer)',
+    phone: '+961 76 222 222',
+    role: 'perfumer',
+    pinCode: '2222',
+    isActive: true,
+    allowedTabs: ['calculator', 'recipes', 'batches', 'products'],
+    permissions: {
+      canChangePrices: false,
+      canGiveDiscounts: false,
+      canViewFinancials: false,
+      canExportData: true,
+      canManageStaff: false,
+      canAccessSettings: false,
+    },
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'staff-inventory',
+    name: 'مسؤول المخزون والموردين (Warehouse & Inventory)',
+    phone: '+961 78 333 333',
+    role: 'inventory',
+    pinCode: '3333',
+    isActive: true,
+    allowedTabs: ['products', 'suppliers', 'batches'],
+    permissions: {
+      canChangePrices: true,
+      canGiveDiscounts: false,
+      canViewFinancials: false,
+      canExportData: true,
+      canManageStaff: false,
+      canAccessSettings: false,
+    },
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+];
+
+export function loadStaffMembers(): StaffMember[] {
+  try {
+    const raw = localStorage.getItem(PERMANENT_KEYS.STAFF_MEMBERS) || localStorage.getItem(STORAGE_KEYS.STAFF_MEMBERS);
+    if (!raw) {
+      saveStaffMembers(INITIAL_STAFF_MEMBERS);
+      return INITIAL_STAFF_MEMBERS;
+    }
+    const parsed: StaffMember[] = JSON.parse(raw);
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      saveStaffMembers(INITIAL_STAFF_MEMBERS);
+      return INITIAL_STAFF_MEMBERS;
+    }
+    // Ensure owner always exists
+    const hasOwner = parsed.some((s) => s.role === 'owner');
+    if (!hasOwner) {
+      parsed.unshift(INITIAL_STAFF_MEMBERS[0]);
+      saveStaffMembers(parsed);
+    }
+    return parsed;
+  } catch (e) {
+    console.error('Failed to load staff members', e);
+    return INITIAL_STAFF_MEMBERS;
+  }
+}
+
+export function saveStaffMembers(staff: StaffMember[]): void {
+  try {
+    const json = JSON.stringify(staff);
+    localStorage.setItem(STORAGE_KEYS.STAFF_MEMBERS, json);
+    localStorage.setItem(PERMANENT_KEYS.STAFF_MEMBERS, json);
+  } catch (e) {
+    console.error('Failed to save staff members', e);
+  }
+}
+
+export function loadCurrentStaff(): StaffMember {
+  try {
+    const staffList = loadStaffMembers();
+    const currentId = localStorage.getItem(PERMANENT_KEYS.CURRENT_STAFF_ID) || localStorage.getItem(STORAGE_KEYS.CURRENT_STAFF_ID);
+    if (currentId) {
+      const match = staffList.find((s) => s.id === currentId && s.isActive);
+      if (match) return match;
+    }
+    // Default to owner
+    const owner = staffList.find((s) => s.role === 'owner') || staffList[0];
+    return owner;
+  } catch (e) {
+    console.error('Failed to load current staff', e);
+    return INITIAL_STAFF_MEMBERS[0];
+  }
+}
+
+export function saveCurrentStaffId(staffId: string): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.CURRENT_STAFF_ID, staffId);
+    localStorage.setItem(PERMANENT_KEYS.CURRENT_STAFF_ID, staffId);
+  } catch (e) {
+    console.error('Failed to save current staff id', e);
   }
 }

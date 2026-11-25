@@ -181,6 +181,31 @@ export interface FirebaseConfigSettings {
   isFirebaseEnabled?: boolean;
 }
 
+export type StaffRole = 'owner' | 'cashier' | 'perfumer' | 'inventory' | 'marketing' | 'custom';
+
+export interface StaffPermissions {
+  canChangePrices: boolean; // Can modify fragrance & retail prices
+  canGiveDiscounts: boolean; // Can apply discounts in POS/orders
+  canViewFinancials: boolean; // Can see profit, revenue and financial statements
+  canExportData: boolean; // Can export CSV / Excel files
+  canManageStaff: boolean; // Can manage users & roles
+  canAccessSettings: boolean; // Can modify master store settings
+}
+
+export interface StaffMember {
+  id: string;
+  name: string;
+  phone?: string;
+  email?: string;
+  role: StaffRole;
+  pinCode: string; // 4-digit PIN for quick cashier login & terminal unlock
+  isActive: boolean;
+  allowedTabs: string[]; // List of AdminNavTab IDs allowed
+  permissions: StaffPermissions;
+  createdAt: string;
+  lastLoginAt?: string;
+}
+
 export interface CustomerUser {
   id: string;
   name: string;

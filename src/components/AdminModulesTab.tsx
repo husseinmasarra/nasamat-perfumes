@@ -11,8 +11,10 @@ import type {
   CRMActivityLog,
   FirebaseConfigSettings,
   BottleLabelData,
-  SavingsBundle
+  SavingsBundle,
+  StaffMember
 } from '../types';
+import { StaffPermissionsTab } from './StaffPermissionsTab';
 import { 
   Percent, 
   Folder, 
@@ -113,6 +115,10 @@ interface AdminModulesTabProps {
   onOpenBottleLabel?: (data: BottleLabelData) => void;
   savingsBundles?: SavingsBundle[];
   onUpdateSavingsBundles?: (bundles: SavingsBundle[]) => void;
+  currentStaff?: StaffMember;
+  onUpdateCurrentStaff?: (staff: StaffMember) => void;
+  staffMembers?: StaffMember[];
+  onUpdateStaffMembers?: (staffList: StaffMember[]) => void;
 }
 
 export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
@@ -128,6 +134,10 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
   onOpenBottleLabel,
   savingsBundles: propSavingsBundles,
   onUpdateSavingsBundles,
+  currentStaff,
+  onUpdateCurrentStaff,
+  staffMembers,
+  onUpdateStaffMembers,
 }) => {
   const { language, setLanguage } = useLanguage();
   const isAr = language === 'ar';
@@ -4028,46 +4038,29 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
 
       {/* ================= 8. STAFF & ROLES ================= */}
       {module === 'staff' && (
-        <div className="space-y-6">
-          <div className="bg-white border border-neutral-200 p-6 rounded-3xl shadow-xs">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-neutral-900 text-white flex items-center justify-center font-bold">
-                <UserCheck className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h2 className="text-xl font-black font-serif uppercase tracking-wider">
-                  {isAr ? 'فريق العمل والصلاحيات' : 'Staff & Roles'}
-                </h2>
-                <p className="text-xs text-neutral-500 font-medium">
-                  {isAr ? 'إدارة المستخدمين وصلاحيات الوصول للوحة القيادة' : 'Manage user permissions and security access'}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-white border border-neutral-200 p-5 rounded-2xl shadow-xs space-y-2">
-              <span className="text-2xl">👑</span>
-              <h4 className="font-bold text-sm text-black">{isAr ? 'المدير العام (Owner)' : 'Store Owner / Admin'}</h4>
-              <p className="text-xs text-neutral-500">{isAr ? 'صلاحيات كاملة على الأسعار، الفواتير، المخزون، وكلمة السر' : 'Full access to all modules and pricing'}</p>
-              <div className="pt-2 border-t border-neutral-100 text-emerald-600 font-bold text-xs">{isAr ? '● نشط حالياً' : 'Active'}</div>
-            </div>
-
-            <div className="bg-white border border-neutral-200 p-5 rounded-2xl shadow-xs space-y-2">
-              <span className="text-2xl">🧪</span>
-              <h4 className="font-bold text-sm text-black">{isAr ? 'خبير ومصمم العطور (Perfumer)' : 'Master Perfumer'}</h4>
-              <p className="text-xs text-neutral-500">{isAr ? 'صلاحيات على حاسبة التركيب، الوصفات، ودفعات الإنتاج' : 'Formulation, calculator & batch production'}</p>
-              <div className="pt-2 border-t border-neutral-100 text-neutral-400 font-medium text-xs">{isAr ? 'متاح للربط' : 'Enabled'}</div>
-            </div>
-
-            <div className="bg-white border border-neutral-200 p-5 rounded-2xl shadow-xs space-y-2">
-              <span className="text-2xl">🛍️</span>
-              <h4 className="font-bold text-sm text-black">{isAr ? 'كاشير الصالة (POS Cashier)' : 'POS Cashier'}</h4>
-              <p className="text-xs text-neutral-500">{isAr ? 'صلاحيات لنقطة البيع الفورية وإصدار فواتير المبيعات' : 'Point of sale and sales invoices only'}</p>
-              <div className="pt-2 border-t border-neutral-100 text-neutral-400 font-medium text-xs">{isAr ? 'متاح للربط' : 'Enabled'}</div>
-            </div>
-          </div>
-        </div>
+        <StaffPermissionsTab
+          currentStaff={currentStaff || {
+            id: 'staff-owner',
+            name: 'المدير العام',
+            role: 'owner',
+            pinCode: '0000',
+            isActive: true,
+            allowedTabs: ['pos', 'orders', 'products', 'coupons', 'overview', 'categories', 'hero-banner', 'brands', 'menu-builder', 'customers', 'pixel', 'staff', 'suppliers', 'calculator', 'recipes', 'batches', 'settings'],
+            permissions: {
+              canChangePrices: true,
+              canGiveDiscounts: true,
+              canViewFinancials: true,
+              canExportData: true,
+              canManageStaff: true,
+              canAccessSettings: true
+            },
+            createdAt: new Date().toISOString()
+          }}
+          onUpdateCurrentStaff={onUpdateCurrentStaff || (() => {})}
+          staffMembers={staffMembers || []}
+          onUpdateStaffMembers={onUpdateStaffMembers || (() => {})}
+          onSelectTab={onSelectTab}
+        />
       )}
 
       {/* ================= 8. SETTINGS & SYSTEM ================= */}

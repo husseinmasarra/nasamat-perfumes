@@ -23,6 +23,7 @@ import {
   Printer
 } from './icons';
 import { useLanguage } from '../context/LanguageContext';
+import type { StaffMember } from '../types';
 
 export type AdminNavTab = 
   | 'pos' 
@@ -55,6 +56,8 @@ interface AdminSidebarProps {
   customersCount?: number;
   isMobileOpen?: boolean;
   onCloseMobile?: () => void;
+  currentStaff?: StaffMember;
+  onSwitchUser?: () => void;
 }
 
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({
@@ -69,6 +72,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   customersCount = 0,
   isMobileOpen = false,
   onCloseMobile,
+  currentStaff,
+  onSwitchUser,
 }) => {
   const { language } = useLanguage();
   const isAr = language === 'ar';
@@ -239,9 +244,42 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           </button>
         </div>
 
+        {/* Current Active User & Switch Profile Badge */}
+        {currentStaff && (
+          <div className="mx-3 my-2 p-2.5 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-center justify-between shadow-xs">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-base shrink-0">
+                {currentStaff.role === 'owner' ? '👑' : currentStaff.role === 'cashier' ? '🛍️' : currentStaff.role === 'perfumer' ? '🧪' : currentStaff.role === 'inventory' ? '📦' : '👤'}
+              </span>
+              <div className="min-w-0">
+                <div className="text-xs font-bold text-white truncate">{currentStaff.name}</div>
+                <div className="text-[10px] text-amber-300 font-mono">
+                  {currentStaff.role === 'owner' ? (isAr ? 'المدير العام' : 'Owner') : currentStaff.role === 'cashier' ? (isAr ? 'كاشير' : 'Cashier') : currentStaff.role === 'perfumer' ? (isAr ? 'خبير عطور' : 'Perfumer') : (isAr ? 'مستخدم' : 'Staff')}
+                </div>
+              </div>
+            </div>
+            {onSwitchUser && (
+              <button
+                type="button"
+                onClick={onSwitchUser}
+                className="p-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-amber-300 hover:text-white transition cursor-pointer shrink-0"
+                title={isAr ? 'تبديل المستخدم (رمز PIN)' : 'Switch User'}
+              >
+                <UserCheck className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Navigation Items (Exact styling from media_1795121443094_2b8f2dff.png) */}
         <div className="flex-1 overflow-y-auto p-2.5 space-y-1.5 scrollbar-thin scrollbar-thumb-neutral-800">
-          {navItems.map((item) => {
+          {navItems
+            .filter((item) => {
+              if (!currentStaff) return true;
+              if (currentStaff.role === 'owner') return true;
+              return currentStaff.allowedTabs.includes(item.id);
+            })
+            .map((item) => {
             const Icon = item.icon;
             const isActive = currentTab === item.id;
 
@@ -301,7 +339,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         {/* View Storefront & Security Footer */}
         <div className="p-3 border-t border-neutral-800 space-y-2 bg-[#09090b]">
           {/* Executive Financial Statement Trigger (Manager Only) */}
-          {onOpenFinancialStatement && (
+          {onOpenFinancialStatement && (!currentStaff || currentStaff.permissions.canViewFinancials) && (
             <button
               onClick={onOpenFinancialStatement}
               className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition text-xs font-bold cursor-pointer group border border-amber-500/40 bg-neutral-900 hover:bg-black text-amber-400 shadow-md hover:border-amber-400 hover:brightness-110"

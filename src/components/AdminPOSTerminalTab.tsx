@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import type { FragranceOil, SavedRecipe, Invoice, AppSettings, BottleLabelData } from '../types';
+import type { FragranceOil, SavedRecipe, Invoice, AppSettings, BottleLabelData, StaffMember } from '../types';
 import { 
   ShoppingBag, 
   Search, 
@@ -36,6 +36,7 @@ interface AdminPOSTerminalTabProps {
   onOpenBottleLabel?: (data: BottleLabelData) => void;
   isSidebarCollapsed?: boolean;
   onToggleSidebar?: () => void;
+  currentStaff?: StaffMember;
 }
 
 interface PosCartItem {
@@ -58,6 +59,7 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
   onOpenBottleLabel,
   isSidebarCollapsed = false,
   onToggleSidebar,
+  currentStaff,
 }) => {
   const { language } = useLanguage();
   const isAr = language === 'ar';
@@ -252,8 +254,8 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
               <h1 className="text-base sm:text-lg font-black font-serif text-black uppercase tracking-wider">
                 {isAr ? 'نقطة البيع الفورية (POS Terminal)' : 'POS Terminal / Counter Cashier'}
               </h1>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold uppercase shrink-0">
-                {isAr ? '● الكاشير نشط' : '● Live'}
+              <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold uppercase shrink-0">
+                ● {currentStaff ? `${currentStaff.name} (${currentStaff.role === 'cashier' ? (isAr ? 'الكاشير' : 'Cashier') : currentStaff.role === 'owner' ? (isAr ? 'المدير' : 'Owner') : currentStaff.role})` : (isAr ? 'الكاشير نشط' : 'Live')}
               </span>
               <span className="hidden sm:inline-flex items-center text-[10px] px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600 font-mono font-bold shrink-0">
                 ⏰ {currentTime}

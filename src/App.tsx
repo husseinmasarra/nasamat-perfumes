@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { FragranceOil, RawMaterial, ProductionBatch, AppSettings, SavedRecipe, Invoice, CartItem } from './types';
+import type { FragranceOil, RawMaterial, ProductionBatch, AppSettings, SavedRecipe, Invoice, CartItem, StaffMember } from './types';
 import { 
   loadOils, 
   saveOils, 
@@ -15,7 +15,11 @@ import {
   saveInvoices,
   loadCart,
   saveCart,
-  resetAllToDefaults
+  resetAllToDefaults,
+  loadStaffMembers,
+  loadCurrentStaff,
+  saveStaffMembers,
+  saveCurrentStaffId
 } from './utils/storage';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { Header } from './components/Header';
@@ -111,6 +115,28 @@ const AppContent: React.FC = () => {
   // Customer User Auth State (Google / Apple account)
   const [customerUser, setCustomerUser] = useState<CustomerUser | null>(loadCustomerUser);
   const [isCustomerAuthOpen, setIsCustomerAuthOpen] = useState(false);
+
+  // Staff Roles & Permissions System State
+  const [staffMembers, setStaffMembers] = useState<StaffMember[]>(loadStaffMembers);
+  const [currentStaff, setCurrentStaff] = useState<StaffMember>(loadCurrentStaff);
+
+  const handleSwitchStaff = (staff: StaffMember) => {
+    setCurrentStaff(staff);
+    saveCurrentStaffId(staff.id);
+    if (staff.role !== 'owner' && !staff.allowedTabs.includes(adminTab)) {
+      const fallbackTab = (staff.allowedTabs[0] || 'pos') as AdminNavTab;
+      setAdminTab(fallbackTab);
+    }
+  };
+
+  const handleUpdateStaffMembers = (updatedList: StaffMember[]) => {
+    setStaffMembers(updatedList);
+    saveStaffMembers(updatedList);
+    const updatedCurrent = updatedList.find((s) => s.id === currentStaff.id);
+    if (updatedCurrent) {
+      setCurrentStaff(updatedCurrent);
+    }
+  };
 
   // Initialize Tracking Pixels (Meta, TikTok, Google Tag)
   useEffect(() => {
@@ -825,6 +851,8 @@ const AppContent: React.FC = () => {
               customersCount={invoices.length}
               isMobileOpen={isMobileAdminSidebarOpen}
               onCloseMobile={() => setIsMobileAdminSidebarOpen(false)}
+              currentStaff={currentStaff}
+              onSwitchUser={() => setAdminTab('staff')}
             />
           )}
 
@@ -893,6 +921,7 @@ const AppContent: React.FC = () => {
                   onOpenBottleLabel={handleOpenBottleLabel}
                   isSidebarCollapsed={isPosSidebarCollapsed}
                   onToggleSidebar={() => setIsPosSidebarCollapsed((prev) => !prev)}
+                  currentStaff={currentStaff}
                 />
               )}
 
@@ -1018,6 +1047,10 @@ const AppContent: React.FC = () => {
                   onOpenBottleLabel={handleOpenBottleLabel}
                   savingsBundles={savingsBundles}
                   onUpdateSavingsBundles={handleUpdateSavingsBundles}
+                  currentStaff={currentStaff}
+                  onUpdateCurrentStaff={handleSwitchStaff}
+                  staffMembers={staffMembers}
+                  onUpdateStaffMembers={handleUpdateStaffMembers}
                 />
               )}
 
