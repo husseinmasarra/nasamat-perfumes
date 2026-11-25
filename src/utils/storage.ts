@@ -325,6 +325,8 @@ export const PERMANENT_KEYS = {
   STORE_NAME: 'nasamat_permanent_store_name',
   STORE_LOCATION: 'nasamat_permanent_store_location',
   STORE_BIO: 'nasamat_permanent_store_bio',
+  CRM_SHEET_URL: 'nasamat_permanent_crm_sheet_url',
+  CRM_SHEET_WEBHOOK: 'nasamat_permanent_crm_sheet_webhook',
 };
 
 export function loadSettings(): AppSettings {
@@ -339,6 +341,8 @@ export function loadSettings(): AppSettings {
     const permStoreName = localStorage.getItem(PERMANENT_KEYS.STORE_NAME);
     const permStoreLocation = localStorage.getItem(PERMANENT_KEYS.STORE_LOCATION);
     const permStoreBio = localStorage.getItem(PERMANENT_KEYS.STORE_BIO);
+    const permSheetUrl = localStorage.getItem(PERMANENT_KEYS.CRM_SHEET_URL);
+    const permSheetWebhook = localStorage.getItem(PERMANENT_KEYS.CRM_SHEET_WEBHOOK);
 
     // Resolve storePhone: if permPhone exists, use it. If parsed has old placeholder, upgrade to permPhone or real phone
     let storePhone = permPhone || parsed.storePhone || INITIAL_SETTINGS.storePhone;
@@ -355,6 +359,12 @@ export function loadSettings(): AppSettings {
     const storeName = permStoreName || parsed.storeName || INITIAL_SETTINGS.storeName;
     const storeLocation = permStoreLocation || parsed.storeLocation || INITIAL_SETTINGS.storeLocation;
     const storeBio = permStoreBio || parsed.storeBio || INITIAL_SETTINGS.storeBio;
+    const crmGoogleSheetUrl = (permSheetUrl !== null && permSheetUrl.trim() !== '')
+      ? permSheetUrl
+      : (parsed.crmGoogleSheetUrl?.trim() ? parsed.crmGoogleSheetUrl : INITIAL_SETTINGS.crmGoogleSheetUrl);
+    const crmGoogleSheetWebhookUrl = (permSheetWebhook !== null && permSheetWebhook.trim() !== '')
+      ? permSheetWebhook
+      : (parsed.crmGoogleSheetWebhookUrl?.trim() ? parsed.crmGoogleSheetWebhookUrl : INITIAL_SETTINGS.crmGoogleSheetWebhookUrl);
 
     return {
       ...INITIAL_SETTINGS,
@@ -365,6 +375,8 @@ export function loadSettings(): AppSettings {
       storeBio,
       facebookUrl,
       instagramUrl,
+      crmGoogleSheetUrl,
+      crmGoogleSheetWebhookUrl,
       theme: parsed.theme || 'light',
       adminPassword: parsed.adminPassword || '1234',
       adminSecretSlug: parsed.adminSecretSlug || 'nasmat-vault-77',
@@ -398,6 +410,12 @@ export function saveSettings(settings: AppSettings) {
     }
     if (settings.storeBio) {
       localStorage.setItem(PERMANENT_KEYS.STORE_BIO, settings.storeBio.trim());
+    }
+    if (settings.crmGoogleSheetUrl !== undefined) {
+      localStorage.setItem(PERMANENT_KEYS.CRM_SHEET_URL, settings.crmGoogleSheetUrl.trim());
+    }
+    if (settings.crmGoogleSheetWebhookUrl !== undefined) {
+      localStorage.setItem(PERMANENT_KEYS.CRM_SHEET_WEBHOOK, settings.crmGoogleSheetWebhookUrl.trim());
     }
 
     // Broadcast update event so all open views / components re-render immediately

@@ -52,6 +52,8 @@ export const INITIAL_SETTINGS: AppSettings = {
     measurementId: envFirebaseMeasurementId,
     isFirebaseEnabled: Boolean(envFirebaseApiKey && envFirebaseProjectId),
   },
+  crmGoogleSheetUrl: 'https://docs.google.com/spreadsheets/d/1YWzl9042oZUaNezkVvqP0L7aRbsLyC6b2zXS-wjeNaM/edit',
+  crmGoogleSheetWebhookUrl: 'https://script.google.com/macros/s/AKfycbyU-qcinf20D4TB7mAEUQFSluop2E8shOLA78VClBnERF7h1J7CC2wIne2OrEA_l4P6Pg/exec',
 };
 
 // 100 Top Fragrance Oils for the Lebanese Market
