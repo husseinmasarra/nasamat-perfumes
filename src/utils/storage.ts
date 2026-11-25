@@ -202,6 +202,19 @@ export function saveNavCategories(categories: CategoryNavConfig[]): void {
   }
 }
 
+export function generatePerfumeBarcode(code: string, prefix = '6281'): string {
+  if (!code) return `${prefix}${Date.now().toString().slice(-8)}`;
+  const digits = code.replace(/\D/g, '');
+  if (digits) {
+    return `${prefix}${digits.padStart(8, '0').slice(-8)}`;
+  }
+  let hash = 0;
+  for (let i = 0; i < code.length; i++) {
+    hash = (hash * 31 + code.charCodeAt(i)) % 100000000;
+  }
+  return `${prefix}${String(Math.abs(hash)).padStart(8, '0')}`;
+}
+
 export function loadOils(): FragranceOil[] {
   try {
     const rawV5 = localStorage.getItem(STORAGE_KEYS.OILS);
@@ -222,6 +235,8 @@ export function loadOils(): FragranceOil[] {
         return {
           ...o,
           imageUrl: img,
+          barcode: o.barcode || generatePerfumeBarcode(o.code, '6281'),
+          availableSizes: o.availableSizes && o.availableSizes.length > 0 ? o.availableSizes : [30, 50, 100],
           retailPrice30ml: o.retailPrice30ml !== undefined ? Number(o.retailPrice30ml) : 5,
           retailPrice50ml: o.retailPrice50ml !== undefined ? Number(o.retailPrice50ml) : 7,
           retailPrice100ml: o.retailPrice100ml !== undefined ? Number(o.retailPrice100ml) : 12,
@@ -476,6 +491,8 @@ export function loadRecipes(): SavedRecipe[] {
       return {
         ...r,
         imageUrl: img,
+        barcode: r.barcode || generatePerfumeBarcode(r.code, '6282'),
+        availableSizes: r.availableSizes && r.availableSizes.length > 0 ? r.availableSizes : [30, 50, 100],
         suggestedRetailPrice: r.suggestedRetailPrice !== undefined ? Number(r.suggestedRetailPrice) : 7,
         retailPrice30ml: r.retailPrice30ml !== undefined ? Number(r.retailPrice30ml) : 5,
         retailPrice50ml: r.retailPrice50ml !== undefined ? Number(r.retailPrice50ml) : (r.suggestedRetailPrice || 7),

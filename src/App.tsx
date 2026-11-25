@@ -80,7 +80,7 @@ const AppContent: React.FC = () => {
     return 'customer';
   });
 
-  const [adminTab, setAdminTab] = useState<AdminNavTab>('products');
+  const [adminTab, setAdminTab] = useState<AdminNavTab>('pos');
   const [isMobileAdminSidebarOpen, setIsMobileAdminSidebarOpen] = useState(false);
 
   const [activeTab, setActiveTab] = useState<ActiveTab>(() => {
@@ -687,12 +687,12 @@ const AppContent: React.FC = () => {
   const handleSelectPortal = (newPortal: 'customer' | 'admin') => {
     if (newPortal === 'admin') {
       if (!isAdminAuthenticated) {
-        setPendingAdminTab('dashboard');
+        setPendingAdminTab('pos');
         setIsAdminAuthModalOpen(true);
         return;
       }
       setPortal('admin');
-      setAdminTab('products');
+      setAdminTab('pos');
     } else {
       setPortal('customer');
       setActiveTab('store');
@@ -726,7 +726,7 @@ const AppContent: React.FC = () => {
       if (pendingAdminTab) {
         setAdminTab(pendingAdminTab as AdminNavTab);
       } else {
-        setAdminTab('products');
+        setAdminTab('pos');
       }
       setPendingAdminTab(null);
       return true;
@@ -844,14 +844,14 @@ const AppContent: React.FC = () => {
             {/* Admin Workspace Navigation & Back Controls Bar */}
             <div className="bg-white border-b border-neutral-200 px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-2 shadow-2xs">
               <div className="flex items-center gap-2">
-                {adminTab !== 'overview' && (
+                {adminTab !== 'pos' && (
                   <button
-                    onClick={() => setAdminTab('overview')}
+                    onClick={() => setAdminTab('pos')}
                     className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 hover:bg-black text-white text-xs font-bold transition shadow-xs cursor-pointer"
-                    title={language === 'ar' ? 'الرجوع إلى لوحة القيادة العامة' : 'Back to Overview'}
+                    title={language === 'ar' ? 'الرجوع إلى نقطة البيع (POS)' : 'Back to POS Terminal'}
                   >
                     <span className="text-sm transition-transform group-hover:-translate-x-1">←</span>
-                    <span>{language === 'ar' ? 'الرجوع لنظرة عامة' : 'Back to Overview'}</span>
+                    <span>{language === 'ar' ? 'الرجوع لنقطة البيع (POS)' : 'Back to POS'}</span>
                   </button>
                 )}
                 <button

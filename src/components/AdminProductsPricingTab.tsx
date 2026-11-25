@@ -22,7 +22,7 @@ import {
   X
 } from './icons';
 import { useLanguage } from '../context/LanguageContext';
-import { LUXURY_PRESET_IMAGES } from '../utils/storage';
+import { LUXURY_PRESET_IMAGES, generatePerfumeBarcode } from '../utils/storage';
 import {
   PERFUME_PRESETS_DATABASE,
   POPULAR_DATABASE_BRANDS,
@@ -92,6 +92,8 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
 
   // Local draft prices for unsaved inputs { [productId]: { p30, p50, p100, wholesale } }
   const [priceDrafts, setPriceDrafts] = useState<Record<string, { p30: number; p50: number; p100: number; wholesale: number }>>({});
+  const [barcodeDrafts, setBarcodeDrafts] = useState<Record<string, string>>({});
+  const [sizeDrafts, setSizeDrafts] = useState<Record<string, number[]>>({});
   const [savedFeedback, setSavedFeedback] = useState<string | null>(null);
 
   // Batch Pricing Modal state
@@ -169,6 +171,8 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
     brand: 'نسمات',
     family: 'oriental' as FragranceFamily,
     targetGender: 'unisex' as 'men' | 'women' | 'unisex',
+    barcode: '',
+    availableSizes: [30, 50, 100] as number[],
     retailPrice30ml: '5',
     retailPrice50ml: '7',
     retailPrice100ml: '12',
@@ -250,6 +254,8 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
       name: '',
       nameEn: '',
       code: autoCode,
+      barcode: generatePerfumeBarcode(autoCode, '6281'),
+      availableSizes: [30, 50, 100],
       brand: 'نسمات',
       family: 'oriental',
       targetGender: 'unisex',
@@ -338,6 +344,8 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
       retailPrice50ml: p50,
       retailPrice100ml: p100,
       wholesalePrice50ml: wholesale,
+      barcode: newFragrance.barcode.trim() || generatePerfumeBarcode(code, '6281'),
+      availableSizes: newFragrance.availableSizes && newFragrance.availableSizes.length > 0 ? newFragrance.availableSizes : [30, 50, 100],
       notes: finalNotes,
       imageUrl: newFragrance.imageUrl.trim() || LUXURY_PRESET_IMAGES[0]?.url,
       createdAt: new Date().toISOString(),
@@ -379,6 +387,8 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
       name: string;
       nameEn?: string;
       code: string;
+      barcode: string;
+      availableSizes: number[];
       brand: string;
       family: string;
       imageUrl?: string;
@@ -410,6 +420,8 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
         type: 'oil',
         name: oil.name,
         code: oil.code,
+        barcode: oil.barcode || generatePerfumeBarcode(oil.code, '6281'),
+        availableSizes: oil.availableSizes && oil.availableSizes.length > 0 ? oil.availableSizes : [30, 50, 100],
         brand: oil.brand,
         family: oil.family,
         imageUrl: oil.imageUrl,
@@ -440,6 +452,8 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
         name: rec.name,
         nameEn: rec.nameEn,
         code: rec.code,
+        barcode: rec.barcode || generatePerfumeBarcode(rec.code, '6282'),
+        availableSizes: rec.availableSizes && rec.availableSizes.length > 0 ? rec.availableSizes : [30, 50, 100],
         brand: isAr ? 'خلطة نسمات الملكية' : 'Nasamat Signature',
         family: rec.category,
         imageUrl: rec.imageUrl,
@@ -469,7 +483,8 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
         const matchEn = p.nameEn ? p.nameEn.toLowerCase().includes(query) : false;
         const matchBrand = p.brand.toLowerCase().includes(query);
         const matchCode = p.code.toLowerCase().includes(query);
-        if (!matchName && !matchEn && !matchBrand && !matchCode) return false;
+        const matchBarcode = p.barcode ? p.barcode.toLowerCase().includes(query) : false;
+        if (!matchName && !matchEn && !matchBrand && !matchCode && !matchBarcode) return false;
       }
 
       return true;
@@ -513,10 +528,14 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
       p100: item.p100,
       wholesale: item.wholesale,
     };
+    const draftBarcode = barcodeDrafts[item.id] !== undefined ? barcodeDrafts[item.id].trim() : item.barcode;
+    const draftSizes = sizeDrafts[item.id] || item.availableSizes || [30, 50, 100];
 
     if (item.type === 'oil' && item.rawOil) {
       const updated: FragranceOil = {
         ...item.rawOil,
+        barcode: draftBarcode,
+        availableSizes: draftSizes,
         retailPrice30ml: Number(draft.p30),
         retailPrice50ml: Number(draft.p50),
         retailPrice100ml: Number(draft.p100),
@@ -527,6 +546,8 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
     } else if (item.type === 'recipe' && item.rawRecipe && onUpdateRecipe) {
       const updated: SavedRecipe = {
         ...item.rawRecipe,
+        barcode: draftBarcode,
+        availableSizes: draftSizes,
         suggestedRetailPrice: Number(draft.p50),
         retailPrice30ml: Number(draft.p30),
         retailPrice50ml: Number(draft.p50),
@@ -771,7 +792,8 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
           <table className="w-full text-start border-collapse text-xs">
             <thead>
               <tr className="bg-neutral-100 border-b-2 border-neutral-300 text-black font-black uppercase tracking-wider text-xs">
-                <th className="py-3.5 px-4 text-start font-black text-black">{isAr ? 'المنتج / العطر' : 'Fragrance / Product'}</th>
+                <th className="py-3.5 px-4 text-start font-black text-black">{isAr ? 'المنتج / العطر والأحجام' : 'Fragrance & Sizes'}</th>
+                <th className="py-3.5 px-3 text-center font-black text-black">{isAr ? 'الباركود (Barcode)' : 'Barcode'}</th>
                 <th className="py-3.5 px-3 text-center font-black text-black">{isAr ? 'التكلفة المقدرة (50ml)' : 'Est. Cost (50ml)'}</th>
                 <th className="py-3.5 px-3 text-center bg-amber-100/90 text-amber-950 font-black border-x border-amber-300">
                   {isAr ? 'سعر 30ml ($)' : '30ml Price ($)'}
@@ -794,7 +816,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                 const profit50 = Number((p.p50 - p.estimatedBottleCost50).toFixed(2));
                 const marginPercent = p.p50 > 0 ? Math.round((profit50 / p.p50) * 100) : 0;
                 const isSaved = savedFeedback === p.id;
-                const isDraftModified = priceDrafts[p.id] !== undefined;
+                const isDraftModified = priceDrafts[p.id] !== undefined || barcodeDrafts[p.id] !== undefined || sizeDrafts[p.id] !== undefined;
 
                 return (
                   <tr key={p.key} className="hover:bg-neutral-50/80 transition-colors">
@@ -837,7 +859,62 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                             <span>•</span>
                             <span className="text-neutral-700 font-bold capitalize">{p.family}</span>
                           </div>
+
+                          {/* Available Sizes Pills */}
+                          <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                            <span className="text-[10px] text-neutral-500 font-bold">{isAr ? 'الأحجام:' : 'Sizes:'}</span>
+                            {[30, 50, 100].map((sz) => {
+                              const currentSizes = sizeDrafts[p.id] || p.availableSizes || [30, 50, 100];
+                              const isAvail = currentSizes.includes(sz);
+                              return (
+                                <button
+                                  key={sz}
+                                  type="button"
+                                  onClick={() => {
+                                    const next = isAvail ? currentSizes.filter((s) => s !== sz) : [...currentSizes, sz].sort((a, b) => a - b);
+                                    setSizeDrafts((prev) => ({ ...prev, [p.id]: next }));
+                                  }}
+                                  className={`px-1.5 py-0.2 rounded text-[10px] font-bold transition border cursor-pointer ${
+                                    isAvail
+                                      ? 'bg-neutral-900 text-amber-300 border-neutral-900 shadow-2xs'
+                                      : 'bg-neutral-100 text-neutral-400 border-dashed border-neutral-300 line-through'
+                                  }`}
+                                  title={isAr ? `تبديل توفر حجم ${sz} مل (مفعّل: ${isAvail ? 'نعم' : 'لا'})` : `Toggle ${sz}ml`}
+                                >
+                                  {sz}ml
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
+                      </div>
+                    </td>
+
+                    {/* Barcode Cell */}
+                    <td className="py-3.5 px-3 text-center">
+                      <div className="inline-flex items-center gap-1 bg-white border border-neutral-300 rounded-xl px-2 py-1 shadow-2xs">
+                        <span className="text-neutral-400 font-mono text-xs" title="رمز الباركود">📊</span>
+                        <input
+                          type="text"
+                          value={barcodeDrafts[p.id] !== undefined ? barcodeDrafts[p.id] : p.barcode}
+                          onChange={(e) => {
+                            const val = e.target.value.trim();
+                            setBarcodeDrafts((prev) => ({ ...prev, [p.id]: val }));
+                          }}
+                          placeholder="Barcode"
+                          className="w-24 font-mono text-xs font-bold text-neutral-900 text-center focus:outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const auto = generatePerfumeBarcode(p.code);
+                            setBarcodeDrafts((prev) => ({ ...prev, [p.id]: auto }));
+                          }}
+                          title={isAr ? 'توليد باركود تلقائي' : 'Auto-generate barcode'}
+                          className="text-neutral-400 hover:text-black font-bold text-xs p-0.5 cursor-pointer"
+                        >
+                          ⚡
+                        </button>
                       </div>
                     </td>
 
@@ -1466,7 +1543,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
                     <label className="block font-bold text-neutral-700 mb-1">
                       {isAr ? 'كود العطر (SKU) *:' : 'Perfume Code (SKU) *:'}
@@ -1476,6 +1553,31 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                       required
                       value={newFragrance.code}
                       onChange={(e) => setNewFragrance({ ...newFragrance, code: e.target.value.toUpperCase() })}
+                      className="w-full p-2.5 rounded-xl border border-neutral-300 font-mono font-bold text-xs focus:outline-none focus:border-black bg-neutral-50"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block font-bold text-neutral-700">
+                        {isAr ? 'الباركود (Barcode):' : 'Barcode:'}
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const auto = generatePerfumeBarcode(newFragrance.code || 'NAS-NEW');
+                          setNewFragrance({ ...newFragrance, barcode: auto });
+                        }}
+                        className="text-[10px] text-amber-700 hover:underline font-bold cursor-pointer"
+                      >
+                        ⚡ {isAr ? 'توليد تلقائي' : 'Auto'}
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      value={newFragrance.barcode}
+                      onChange={(e) => setNewFragrance({ ...newFragrance, barcode: e.target.value.trim() })}
+                      placeholder="e.g. 62810001001"
                       className="w-full p-2.5 rounded-xl border border-neutral-300 font-mono font-bold text-xs focus:outline-none focus:border-black bg-neutral-50"
                     />
                   </div>
@@ -1492,7 +1594,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                       className="w-full p-2.5 rounded-xl border border-neutral-300 font-bold text-xs focus:outline-none focus:border-black"
                     />
                     <div className="flex flex-wrap gap-1 mt-1.5">
-                      {POPULAR_BRANDS.slice(0, 7).map((b) => (
+                      {POPULAR_BRANDS.slice(0, 5).map((b) => (
                         <button
                           key={b}
                           type="button"
@@ -1621,6 +1723,38 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                       onChange={(e) => setNewFragrance({ ...newFragrance, wholesalePrice50ml: e.target.value })}
                       className="w-full p-1.5 rounded-lg border border-neutral-300 font-mono font-bold text-center text-xs bg-white"
                     />
+                  </div>
+                </div>
+
+                {/* Available Sizes Selector */}
+                <div className="bg-neutral-50 p-3 rounded-xl border border-neutral-200">
+                  <label className="block font-bold text-neutral-800 text-xs mb-1.5">
+                    {isAr ? 'الأحجام المتوفرة للبيع في المتجر والكاشير:' : 'Available Bottle Sizes:'}
+                  </label>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {[30, 50, 100].map((sz) => {
+                      const isSelected = newFragrance.availableSizes.includes(sz);
+                      return (
+                        <button
+                          key={sz}
+                          type="button"
+                          onClick={() => {
+                            const updated = isSelected
+                              ? newFragrance.availableSizes.filter((s) => s !== sz)
+                              : [...newFragrance.availableSizes, sz].sort((a, b) => a - b);
+                            setNewFragrance({ ...newFragrance, availableSizes: updated });
+                          }}
+                          className={`px-3 py-1.5 rounded-xl font-bold text-xs transition border cursor-pointer flex items-center gap-1.5 ${
+                            isSelected
+                              ? 'bg-black text-amber-300 border-black shadow-xs'
+                              : 'bg-white text-neutral-500 border-neutral-300'
+                          }`}
+                        >
+                          <span>{isSelected ? '✓' : '+'}</span>
+                          <span>{sz}ml</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 

@@ -66,6 +66,8 @@ export interface FragranceOil {
   retailPrice50ml?: number; // Retail selling price 50ml ($7)
   retailPrice100ml?: number; // Retail selling price 100ml ($12)
   wholesalePrice50ml?: number; // Wholesale price 50ml ($4.5)
+  barcode?: string; // Barcode for scanner / inventory
+  availableSizes?: number[]; // Available bottle sizes [30, 50, 100]
   notes?: string;
   olfactoryProfile?: PerfumeOlfactoryProfile;
   createdAt: string;
@@ -311,6 +313,8 @@ export interface SavedRecipe {
   retailPrice50ml?: number; // Selling price for 50ml
   retailPrice100ml?: number; // Selling price for 100ml
   wholesalePrice50ml?: number; // Wholesale price for 50ml
+  barcode?: string; // Barcode for scanner / inventory
+  availableSizes?: number[]; // Available bottle sizes [30, 50, 100]
   targetGender?: 'unisex' | 'men' | 'women';
   season?: 'all' | 'summer' | 'winter' | 'autumn' | 'spring';
   scentNotes?: string; // Olfactory pyramid

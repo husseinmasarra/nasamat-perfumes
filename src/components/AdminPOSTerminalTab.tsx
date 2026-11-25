@@ -70,7 +70,12 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
   const filteredOils = oils.filter((o) => {
     if (!searchTerm.trim()) return true;
     const q = searchTerm.toLowerCase();
-    return o.name.toLowerCase().includes(q) || o.code.toLowerCase().includes(q) || o.brand.toLowerCase().includes(q);
+    return (
+      o.name.toLowerCase().includes(q) ||
+      o.code.toLowerCase().includes(q) ||
+      o.brand.toLowerCase().includes(q) ||
+      (o.barcode && o.barcode.toLowerCase().includes(q))
+    );
   });
 
   const getPriceForSize = (item: FragranceOil | SavedRecipe, size: number) => {
@@ -227,7 +232,24 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder={isAr ? 'ابحث عن العطر لإضافته فوراً للسلة (اسم أو كود)...' : 'Quick search by name or code...'}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  const q = searchTerm.trim().toLowerCase();
+                  if (!q) return;
+                  const exact = oils.find(
+                    (o) =>
+                      (o.barcode && o.barcode.toLowerCase() === q) ||
+                      o.code.toLowerCase() === q ||
+                      o.name.toLowerCase() === q
+                  );
+                  if (exact) {
+                    handleAddItemToPosCart(exact, selectedSize);
+                    setSearchTerm('');
+                  }
+                }
+              }}
+              placeholder={isAr ? 'ابحث بالاسم، الكود، أو امسح الباركود بالـ Scanner...' : 'Search by name, SKU, or scan barcode...'}
               className="w-full ps-9 pe-4 py-2.5 rounded-2xl bg-white border border-neutral-300 text-xs text-black focus:outline-none focus:border-black font-medium shadow-xs"
             />
           </div>
@@ -257,8 +279,15 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
                   </div>
 
                   <div className="flex items-center justify-between pt-1 border-t border-neutral-100">
-                    <span className="text-[10px] font-mono text-neutral-400">{selectedSize}ml</span>
-                    <span className="font-mono font-black text-xs text-black">${currentPrice.toFixed(2)}</span>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="text-[10px] font-mono text-neutral-400 shrink-0">{selectedSize}ml</span>
+                      {oil.barcode && (
+                        <span className="text-[9px] font-mono font-bold text-neutral-600 bg-neutral-100 px-1 py-0.2 rounded border border-neutral-200 truncate" title={`باركود: ${oil.barcode}`}>
+                          📊 {oil.barcode.slice(-5)}
+                        </span>
+                      )}
+                    </div>
+                    <span className="font-mono font-black text-xs text-black shrink-0">${currentPrice.toFixed(2)}</span>
                   </div>
                 </div>
               );
