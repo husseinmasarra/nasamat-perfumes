@@ -327,6 +327,10 @@ export const PERMANENT_KEYS = {
   STORE_BIO: 'nasamat_permanent_store_bio',
   CRM_SHEET_URL: 'nasamat_permanent_crm_sheet_url',
   CRM_SHEET_WEBHOOK: 'nasamat_permanent_crm_sheet_webhook',
+  DELIVERY_FEE: 'nasamat_permanent_delivery_fee',
+  FREE_DELIVERY_THRESHOLD: 'nasamat_permanent_free_delivery_threshold',
+  IS_FREE_DELIVERY_ENABLED: 'nasamat_permanent_is_free_delivery_enabled',
+  DELIVERY_NOTES: 'nasamat_permanent_delivery_notes',
 };
 
 export function loadSettings(): AppSettings {
@@ -343,6 +347,10 @@ export function loadSettings(): AppSettings {
     const permStoreBio = localStorage.getItem(PERMANENT_KEYS.STORE_BIO);
     const permSheetUrl = localStorage.getItem(PERMANENT_KEYS.CRM_SHEET_URL);
     const permSheetWebhook = localStorage.getItem(PERMANENT_KEYS.CRM_SHEET_WEBHOOK);
+    const permDeliveryFee = localStorage.getItem(PERMANENT_KEYS.DELIVERY_FEE);
+    const permFreeThreshold = localStorage.getItem(PERMANENT_KEYS.FREE_DELIVERY_THRESHOLD);
+    const permIsFreeDeliveryEnabled = localStorage.getItem(PERMANENT_KEYS.IS_FREE_DELIVERY_ENABLED);
+    const permDeliveryNotes = localStorage.getItem(PERMANENT_KEYS.DELIVERY_NOTES);
 
     // Resolve storePhone: if permPhone exists, use it. If parsed has old placeholder, upgrade to permPhone or real phone
     let storePhone = permPhone || parsed.storePhone || INITIAL_SETTINGS.storePhone;
@@ -365,6 +373,18 @@ export function loadSettings(): AppSettings {
     const crmGoogleSheetWebhookUrl = (permSheetWebhook !== null && permSheetWebhook.trim() !== '')
       ? permSheetWebhook
       : (parsed.crmGoogleSheetWebhookUrl?.trim() ? parsed.crmGoogleSheetWebhookUrl : INITIAL_SETTINGS.crmGoogleSheetWebhookUrl);
+    const defaultDeliveryFee = permDeliveryFee !== null 
+      ? Number(permDeliveryFee) 
+      : (parsed.defaultDeliveryFee !== undefined ? parsed.defaultDeliveryFee : INITIAL_SETTINGS.defaultDeliveryFee);
+    const freeDeliveryThreshold = permFreeThreshold !== null 
+      ? Number(permFreeThreshold) 
+      : (parsed.freeDeliveryThreshold !== undefined ? parsed.freeDeliveryThreshold : INITIAL_SETTINGS.freeDeliveryThreshold);
+    const isFreeDeliveryEnabled = permIsFreeDeliveryEnabled !== null 
+      ? permIsFreeDeliveryEnabled === 'true' 
+      : (parsed.isFreeDeliveryEnabled !== undefined ? parsed.isFreeDeliveryEnabled : INITIAL_SETTINGS.isFreeDeliveryEnabled);
+    const deliveryNotes = (permDeliveryNotes !== null && permDeliveryNotes.trim() !== '')
+      ? permDeliveryNotes
+      : (parsed.deliveryNotes !== undefined ? parsed.deliveryNotes : INITIAL_SETTINGS.deliveryNotes);
 
     return {
       ...INITIAL_SETTINGS,
@@ -377,6 +397,10 @@ export function loadSettings(): AppSettings {
       instagramUrl,
       crmGoogleSheetUrl,
       crmGoogleSheetWebhookUrl,
+      defaultDeliveryFee,
+      freeDeliveryThreshold,
+      isFreeDeliveryEnabled,
+      deliveryNotes,
       theme: parsed.theme || 'light',
       adminPassword: parsed.adminPassword || '1234',
       adminSecretSlug: parsed.adminSecretSlug || 'nasmat-vault-77',
@@ -416,6 +440,18 @@ export function saveSettings(settings: AppSettings) {
     }
     if (settings.crmGoogleSheetWebhookUrl !== undefined) {
       localStorage.setItem(PERMANENT_KEYS.CRM_SHEET_WEBHOOK, settings.crmGoogleSheetWebhookUrl.trim());
+    }
+    if (settings.defaultDeliveryFee !== undefined) {
+      localStorage.setItem(PERMANENT_KEYS.DELIVERY_FEE, String(settings.defaultDeliveryFee));
+    }
+    if (settings.freeDeliveryThreshold !== undefined) {
+      localStorage.setItem(PERMANENT_KEYS.FREE_DELIVERY_THRESHOLD, String(settings.freeDeliveryThreshold));
+    }
+    if (settings.isFreeDeliveryEnabled !== undefined) {
+      localStorage.setItem(PERMANENT_KEYS.IS_FREE_DELIVERY_ENABLED, String(settings.isFreeDeliveryEnabled));
+    }
+    if (settings.deliveryNotes !== undefined) {
+      localStorage.setItem(PERMANENT_KEYS.DELIVERY_NOTES, settings.deliveryNotes.trim());
     }
 
     // Broadcast update event so all open views / components re-render immediately
