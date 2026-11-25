@@ -32,8 +32,8 @@ export const INITIAL_SETTINGS: AppSettings = {
   isFreeDeliveryEnabled: true,
   deliveryNotes: 'توصيل سريع لكافة الأراضي اللبنانية خلال 24 - 48 ساعة والدفع كاش عند الاستلام',
   trackingPixels: {
-    metaPixelId: '',
-    isMetaPixelEnabled: false,
+    metaPixelId: '2242721343793550',
+    isMetaPixelEnabled: true,
     tiktokPixelId: '',
     isTiktokPixelEnabled: false,
     snapchatPixelId: '',

@@ -408,9 +408,21 @@ export function loadSettings(): AppSettings {
       ? permDeliveryNotes
       : (parsed.deliveryNotes !== undefined ? parsed.deliveryNotes : INITIAL_SETTINGS.deliveryNotes);
 
+    const trackingPixels: TrackingPixelSettings = {
+      ...INITIAL_SETTINGS.trackingPixels,
+      ...(parsed.trackingPixels || {}),
+      metaPixelId: (parsed.trackingPixels?.metaPixelId && parsed.trackingPixels.metaPixelId.trim())
+        ? parsed.trackingPixels.metaPixelId.trim()
+        : '2242721343793550',
+      isMetaPixelEnabled: parsed.trackingPixels?.isMetaPixelEnabled !== undefined
+        ? parsed.trackingPixels.isMetaPixelEnabled
+        : true,
+    };
+
     return {
       ...INITIAL_SETTINGS,
       ...parsed,
+      trackingPixels,
       storeName,
       storePhone,
       storeLocation,
