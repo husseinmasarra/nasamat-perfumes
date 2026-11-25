@@ -82,6 +82,7 @@ const AppContent: React.FC = () => {
 
   const [adminTab, setAdminTab] = useState<AdminNavTab>('pos');
   const [isMobileAdminSidebarOpen, setIsMobileAdminSidebarOpen] = useState(false);
+  const [isPosSidebarCollapsed, setIsPosSidebarCollapsed] = useState(false);
 
   const [activeTab, setActiveTab] = useState<ActiveTab>(() => {
     try {
@@ -811,19 +812,21 @@ const AppContent: React.FC = () => {
       {portal === 'admin' && (
         <div className="flex-1 flex w-full min-h-[calc(100vh-64px)]">
           {/* Vertical Admin Sidebar matching media_1795121443094_2b8f2dff.png */}
-          <AdminSidebar
-            currentTab={adminTab}
-            onSelectTab={(tab) => setAdminTab(tab)}
-            onViewStorefront={() => handleSelectPortal('customer')}
-            onLogout={handleAdminLogout}
-            onOpenFinancialStatement={() => setIsFinancialStatementOpen(true)}
-            lowStockCount={lowStockCount}
-            ordersCount={invoices.length}
-            productsCount={oils.length + recipes.length}
-            customersCount={invoices.length}
-            isMobileOpen={isMobileAdminSidebarOpen}
-            onCloseMobile={() => setIsMobileAdminSidebarOpen(false)}
-          />
+          {(!isPosSidebarCollapsed || adminTab !== 'pos') && (
+            <AdminSidebar
+              currentTab={adminTab}
+              onSelectTab={(tab) => setAdminTab(tab)}
+              onViewStorefront={() => handleSelectPortal('customer')}
+              onLogout={handleAdminLogout}
+              onOpenFinancialStatement={() => setIsFinancialStatementOpen(true)}
+              lowStockCount={lowStockCount}
+              ordersCount={invoices.length}
+              productsCount={oils.length + recipes.length}
+              customersCount={invoices.length}
+              isMobileOpen={isMobileAdminSidebarOpen}
+              onCloseMobile={() => setIsMobileAdminSidebarOpen(false)}
+            />
+          )}
 
           {/* Admin Main Workspace Area */}
           <div className="flex-1 min-w-0 bg-[#fafafa] flex flex-col">
@@ -873,7 +876,11 @@ const AppContent: React.FC = () => {
             </div>
 
             {/* Dynamic Content Body based on selected Sidebar item */}
-            <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto max-w-7xl w-full mx-auto">
+            <div className={`flex-1 overflow-y-auto ${
+              adminTab === 'pos' 
+                ? 'p-2 sm:p-3 lg:p-4 w-full max-w-none' 
+                : 'p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto'
+            }`}>
               
               {/* 1. POS Terminal (Item 1 in Sidebar) */}
               {adminTab === 'pos' && (
@@ -884,6 +891,8 @@ const AppContent: React.FC = () => {
                   onSaveInvoice={handleSaveInvoice}
                   onViewInvoiceReceipt={(inv) => setSelectedReceiptInvoice(inv)}
                   onOpenBottleLabel={handleOpenBottleLabel}
+                  isSidebarCollapsed={isPosSidebarCollapsed}
+                  onToggleSidebar={() => setIsPosSidebarCollapsed((prev) => !prev)}
                 />
               )}
 

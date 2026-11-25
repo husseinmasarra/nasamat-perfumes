@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { FragranceOil, SavedRecipe, Invoice, AppSettings, BottleLabelData } from '../types';
 import { 
   ShoppingBag, 
@@ -13,7 +13,9 @@ import {
   UserCheck,
   Droplet,
   Truck,
-  Tag
+  Tag,
+  Maximize2,
+  Minimize2
 } from './icons';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -32,6 +34,8 @@ interface AdminPOSTerminalTabProps {
   ) => void;
   onViewInvoiceReceipt?: (invoice: Invoice) => void;
   onOpenBottleLabel?: (data: BottleLabelData) => void;
+  isSidebarCollapsed?: boolean;
+  onToggleSidebar?: () => void;
 }
 
 interface PosCartItem {
@@ -52,6 +56,8 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
   onSaveInvoice,
   onViewInvoiceReceipt,
   onOpenBottleLabel,
+  isSidebarCollapsed = false,
+  onToggleSidebar,
 }) => {
   const { language } = useLanguage();
   const isAr = language === 'ar';
@@ -65,6 +71,54 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
   const [discountAmount, setDiscountAmount] = useState(0);
   const [deliveryFee, setDeliveryFee] = useState(0);
   const [lastIssuedInvoice, setLastIssuedInvoice] = useState<Invoice | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [currentTime, setCurrentTime] = useState(() =>
+    new Date().toLocaleTimeString(isAr ? 'ar-LB' : 'en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    })
+  );
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(
+        new Date().toLocaleTimeString(isAr ? 'ar-LB' : 'en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        })
+      );
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isAr]);
+
+  useEffect(() => {
+    const onFsChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', onFsChange);
+    return () => document.removeEventListener('fullscreenchange', onFsChange);
+  }, []);
+
+  const handleToggleFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        if (document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+        }
+        setIsFullscreen(true);
+      } else {
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        }
+        setIsFullscreen(false);
+      }
+    } catch (err) {
+      console.warn('Fullscreen request failed, using in-app overlay:', err);
+      setIsFullscreen((prev) => !prev);
+    }
+  };
 
   // Filter products for quick POS grid
   const filteredOils = oils.filter((o) => {
@@ -182,50 +236,90 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn text-black">
+    <div className={`transition-all duration-200 text-black flex flex-col ${
+      isFullscreen
+        ? 'fixed inset-0 z-[100] bg-[#f8f9fa] p-3 sm:p-5 overflow-hidden h-screen w-screen animate-fadeIn'
+        : 'space-y-4 w-full flex-1'
+    }`}>
       {/* POS Top Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white border border-neutral-200 p-5 rounded-3xl shadow-xs">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 bg-white border border-neutral-200 p-3 sm:p-4 rounded-3xl shadow-xs">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-neutral-900 text-white flex items-center justify-center font-bold">
+          <div className="w-10 h-10 rounded-2xl bg-black text-white flex items-center justify-center font-bold shadow-sm shrink-0">
             <ShoppingBag className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-black font-serif text-black uppercase tracking-wider flex items-center gap-2">
-              <span>{isAr ? 'نقطة البيع الفورية (POS Terminal)' : 'POS Terminal / Counter Cashier'}</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold uppercase">
+            <div className="flex items-center gap-2">
+              <h1 className="text-base sm:text-lg font-black font-serif text-black uppercase tracking-wider">
+                {isAr ? 'نقطة البيع الفورية (POS Terminal)' : 'POS Terminal / Counter Cashier'}
+              </h1>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold uppercase shrink-0">
                 {isAr ? '● الكاشير نشط' : '● Live'}
               </span>
-            </h1>
-            <p className="text-xs text-neutral-500 font-medium">
+              <span className="hidden sm:inline-flex items-center text-[10px] px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600 font-mono font-bold shrink-0">
+                ⏰ {currentTime}
+              </span>
+            </div>
+            <p className="text-[11px] text-neutral-500 font-medium">
               {isAr ? 'تسجيل فوري لطلبيات الزبائن بالصالة وإصدار فواتير بيع مع خصم المخزون' : 'Fast counter orders with instant receipt issuing'}
             </p>
           </div>
         </div>
 
-        {/* Global size pill selector for fast adding */}
-        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs font-bold">
-          <span className="text-neutral-500 px-2">{isAr ? 'الحجم الافتراضي:' : 'Default Size:'}</span>
-          {([30, 50, 100] as const).map((s) => (
+        {/* Action Controls: Sizes, Wide View, Fullscreen */}
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
+          {/* Global size pill selector for fast adding */}
+          <div className="flex items-center gap-1 p-1 rounded-2xl bg-neutral-100 border border-neutral-200 text-xs font-bold">
+            <span className="text-neutral-500 px-1 text-[11px]">{isAr ? 'الافتراضي:' : 'Default:'}</span>
+            {([30, 50, 100] as const).map((s) => (
+              <button
+                key={s}
+                onClick={() => setSelectedSize(s)}
+                className={`px-2.5 py-1 rounded-xl text-xs transition cursor-pointer ${
+                  selectedSize === s
+                    ? 'bg-black text-white shadow-xs font-black'
+                    : 'text-neutral-600 hover:text-black font-semibold'
+                }`}
+              >
+                {s}ml
+              </button>
+            ))}
+          </div>
+
+          {/* Toggle Sidebar Wide View button */}
+          {onToggleSidebar && !isFullscreen && (
             <button
-              key={s}
-              onClick={() => setSelectedSize(s)}
-              className={`px-3 py-1 rounded-xl transition cursor-pointer ${
-                selectedSize === s
-                  ? 'bg-black text-white shadow-xs font-black'
-                  : 'text-neutral-600 hover:text-black'
-              }`}
+              type="button"
+              onClick={onToggleSidebar}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-bold border border-neutral-200 transition cursor-pointer shadow-2xs"
+              title={isAr ? 'توسيع الشاشة وإخفاء القائمة الجانبية' : 'Toggle Wide View'}
             >
-              {s}ml
+              <span>{isSidebarCollapsed ? '⇥' : '⇤'}</span>
+              <span className="hidden sm:inline">{isSidebarCollapsed ? (isAr ? 'إظهار القائمة' : 'Show Menu') : (isAr ? 'ملء العرض' : 'Wide View')}</span>
             </button>
-          ))}
+          )}
+
+          {/* Fullscreen Mode Button (Square / Clover / Toast POS Style) */}
+          <button
+            type="button"
+            onClick={handleToggleFullscreen}
+            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl text-xs font-black transition-all cursor-pointer border shadow-xs ${
+              isFullscreen
+                ? 'bg-amber-400 text-black border-amber-500 hover:bg-amber-300 ring-2 ring-amber-300'
+                : 'bg-black text-white border-black hover:bg-neutral-800'
+            }`}
+            title={isAr ? 'تشغيل وضع ملء الشاشة الكامل مثل برامج الكاشير العالمية' : 'Toggle Fullscreen Mode'}
+          >
+            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            <span>{isFullscreen ? (isAr ? 'الخروج من ملء الشاشة' : 'Exit Fullscreen') : (isAr ? '⛶ ملء الشاشة (POS Mode)' : '⛶ Fullscreen')}</span>
+          </button>
         </div>
       </div>
 
       {/* POS Layout: 2 Columns (Products grid on start, Cart/Ticket on end) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className={`grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 min-h-0 ${isFullscreen ? 'h-[calc(100vh-100px)]' : ''}`}>
         
-        {/* Products Grid (7 Cols) */}
-        <div className="lg:col-span-7 space-y-4">
+        {/* Products Grid (7 Cols on desktop, 8 Cols on xl) */}
+        <div className="lg:col-span-7 xl:col-span-8 flex flex-col space-y-3 min-h-0">
           <div className="relative">
             <Search className="w-4 h-4 text-neutral-400 absolute start-3 top-1/2 -translate-y-1/2" />
             <input
@@ -254,7 +348,9 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
             />
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-[640px] overflow-y-auto p-1">
+          <div className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2.5 overflow-y-auto p-1 flex-1 ${
+            isFullscreen ? 'max-h-[calc(100vh-170px)]' : 'max-h-[calc(100vh-230px)] min-h-[480px]'
+          }`}>
             {filteredOils.slice(0, 100).map((oil) => {
               const currentPrice = getPriceForSize(oil, selectedSize);
               const oilSizes = (oil.availableSizes && oil.availableSizes.length > 0)
@@ -330,19 +426,33 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
           </div>
         </div>
 
-        {/* POS Cart / Current Ticket (5 Cols) */}
-        <div className="lg:col-span-5 bg-white border border-neutral-200 rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-5">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+        {/* POS Cart / Current Ticket (5 Cols on desktop, 4 Cols on xl) */}
+        <div className={`lg:col-span-5 xl:col-span-4 bg-white border border-neutral-200 rounded-3xl p-4 sm:p-5 shadow-xs flex flex-col justify-between min-h-0 ${
+          isFullscreen ? 'h-full overflow-hidden' : 'sticky top-3'
+        }`}>
+          <div className="space-y-3 flex-1 flex flex-col min-h-0">
+            <div className="flex items-center justify-between border-b border-neutral-100 pb-2.5">
               <div className="flex items-center gap-2">
                 <Receipt className="w-4 h-4 text-black" />
                 <h3 className="font-bold text-sm text-black">
                   {isAr ? 'فاتورة البيع الحالية' : 'Current Ticket'}
                 </h3>
               </div>
-              <span className="text-xs font-mono font-bold text-neutral-500">
-                {posCart.reduce((s, it) => s + it.quantity, 0)} {isAr ? 'قطع' : 'items'}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-bold text-neutral-500">
+                  {posCart.reduce((s, it) => s + it.quantity, 0)} {isAr ? 'قطع' : 'items'}
+                </span>
+                {posCart.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setPosCart([])}
+                    className="text-[10px] text-rose-500 hover:text-rose-700 font-bold px-2 py-0.5 rounded bg-rose-50 hover:bg-rose-100 transition cursor-pointer"
+                    title={isAr ? 'تفريغ السلة بالكامل' : 'Clear Ticket'}
+                  >
+                    {isAr ? 'تفريغ' : 'Clear'}
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Customer Inputs */}
@@ -369,7 +479,7 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
             </div>
 
             {/* Ticket Items List */}
-            <div className="space-y-2 max-h-[300px] overflow-y-auto">
+            <div className={`space-y-2 overflow-y-auto flex-1 ${isFullscreen ? 'max-h-[calc(100vh-450px)]' : 'max-h-[300px] min-h-[140px]'}`}>
               {posCart.length === 0 ? (
                 <div className="p-8 text-center text-neutral-400 text-xs">
                   {isAr ? 'السلة فارغة، اضغط على أي عطر لإضافته' : 'Ticket is empty. Tap any perfume to add.'}
