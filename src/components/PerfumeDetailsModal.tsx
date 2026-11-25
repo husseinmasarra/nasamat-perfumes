@@ -175,7 +175,8 @@ export const PerfumeDetailsModal: React.FC<PerfumeDetailsModalProps> = ({
   const lineTotal = price * quantity;
   const lbpTotal = Math.round(lineTotal * lbpRate);
 
-  // Standard bottle options
+  // Standard bottle options filtered by product availability
+  const productAvailableSizes = (product?.data as any)?.availableSizes;
   const sizes = [
     {
       size: 30,
@@ -198,7 +199,9 @@ export const PerfumeDetailsModal: React.FC<PerfumeDetailsModalProps> = ({
       price: getPriceInfo(product, 100).price,
       popular: false,
     },
-  ];
+  ].filter((s) => {
+    return !productAvailableSizes || !Array.isArray(productAvailableSizes) || productAvailableSizes.length === 0 || productAvailableSizes.includes(s.size);
+  });
 
   // Dynamic Ratings & Review metrics
   const productKey = product ? product.key : '';

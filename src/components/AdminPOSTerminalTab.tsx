@@ -254,17 +254,20 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
             />
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[640px] overflow-y-auto p-1">
-            {filteredOils.slice(0, 48).map((oil) => {
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-[640px] overflow-y-auto p-1">
+            {filteredOils.slice(0, 100).map((oil) => {
               const currentPrice = getPriceForSize(oil, selectedSize);
+              const oilSizes = (oil.availableSizes && oil.availableSizes.length > 0)
+                ? oil.availableSizes
+                : [30, 50, 100];
 
               return (
                 <div
                   key={oil.id}
                   onClick={() => handleAddItemToPosCart(oil, selectedSize)}
-                  className="bg-white border border-neutral-200 hover:border-black rounded-2xl p-3 shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col justify-between space-y-2 group"
+                  className="bg-white border border-neutral-200 hover:border-black rounded-2xl p-2.5 shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col justify-between space-y-2 group"
                 >
-                  <div className="flex items-center gap-2.5">
+                  <div className="flex items-center gap-2">
                     <div className="w-9 h-9 rounded-xl overflow-hidden bg-neutral-100 shrink-0 border border-neutral-200">
                       <img
                         src={oil.imageUrl || 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=150&q=80'}
@@ -272,18 +275,50 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform"
                       />
                     </div>
-                    <div className="min-w-0">
-                      <h4 className="font-bold text-xs text-black truncate">{oil.name}</h4>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-bold text-xs text-black truncate" title={oil.name}>{oil.name}</h4>
                       <p className="text-[10px] text-neutral-500 truncate">{oil.brand}</p>
                     </div>
                   </div>
 
+                  {/* Available Bottle Sizes - Direct Click to Add Size to Cart */}
+                  <div className="grid grid-cols-3 gap-1 pt-0.5">
+                    {oilSizes.map((sz) => {
+                      const szPrice = getPriceForSize(oil, sz);
+                      const isDefaultSelected = selectedSize === sz;
+                      return (
+                        <button
+                          key={sz}
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddItemToPosCart(oil, sz as 30 | 50 | 100);
+                          }}
+                          className={`py-1 px-0.5 rounded-lg text-center transition-all duration-150 border flex flex-col items-center justify-center cursor-pointer ${
+                            isDefaultSelected
+                              ? 'bg-black text-white border-black shadow-xs ring-1 ring-black'
+                              : 'bg-neutral-50 hover:bg-neutral-900 hover:text-white text-neutral-700 border-neutral-200'
+                          }`}
+                          title={`${isAr ? 'إضافة حجم' : 'Add'} ${sz}ml ($${szPrice.toFixed(0)})`}
+                        >
+                          <span className="text-[10px] font-mono font-black leading-none">{sz}ml</span>
+                          <span className={`text-[8.5px] font-mono font-bold mt-0.5 leading-none ${isDefaultSelected ? 'text-amber-300' : 'text-neutral-500'}`}>
+                            ${szPrice.toFixed(0)}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
                   <div className="flex items-center justify-between pt-1 border-t border-neutral-100">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="text-[10px] font-mono text-neutral-400 shrink-0">{selectedSize}ml</span>
-                      {oil.barcode && (
+                    <div className="flex items-center gap-1 min-w-0">
+                      {oil.barcode ? (
                         <span className="text-[9px] font-mono font-bold text-neutral-600 bg-neutral-100 px-1 py-0.2 rounded border border-neutral-200 truncate" title={`باركود: ${oil.barcode}`}>
                           📊 {oil.barcode.slice(-5)}
+                        </span>
+                      ) : (
+                        <span className="text-[9px] font-mono text-neutral-400">
+                          #{oil.code || oil.id.slice(-4)}
                         </span>
                       )}
                     </div>

@@ -1485,7 +1485,10 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                 { size: 30, label: '30ml' },
                 { size: 50, label: '50ml', popular: true },
                 { size: 100, label: '100ml' },
-              ].map((s) => {
+              ].filter((s) => {
+                const avail = (item.data as any)?.availableSizes;
+                return !avail || !Array.isArray(avail) || avail.length === 0 || avail.includes(s.size);
+              }).map((s) => {
                 const isSelected = currentSize === s.size;
                 const sInfo = isRecipe ? getRecipeInfo(rec!, s.size) : getOilInfo(oil!, s.size);
                 return (
