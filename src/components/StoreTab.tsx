@@ -1681,7 +1681,9 @@ export const StoreTab: React.FC<StoreTabProps> = ({
               { id: 'bundles', page: 'bundles', conf: getCategoryConfig('bundles') },
               { id: 'atelier', page: 'atelier', conf: getCategoryConfig('atelier') },
               { id: 'delivery', page: 'delivery', conf: getCategoryConfig('delivery') },
-            ].map(({ id, page, conf }) => (
+            ]
+              .filter(({ id }) => id === 'home' || id === 'catalog' || navCategories.some((c) => c.id === id))
+              .map(({ id, page, conf }) => (
               <button
                 key={id}
                 onClick={() => navigateToCustomerPage(page as any)}
@@ -4185,7 +4187,9 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                     },
                     active: customerPage === 'bundles',
                   },
-                ].map((item) => {
+                ]
+                  .filter((item) => item.id === 'home' || item.id === 'catalog' || item.configId === 'ai-sommelier' || navCategories.some((c) => c.id === item.id))
+                  .map((item) => {
                   const conf = getCategoryConfig(item.configId);
                   return (
                     <button

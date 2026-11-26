@@ -66,6 +66,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { 
   loadNavCategories, 
   saveNavCategories, 
+  recordDeletedNavCategoryId,
+  unrecordDeletedNavCategoryId,
   INITIAL_NAV_CATEGORIES, 
   LUXURY_PRESET_IMAGES,
   loadCustomerBlends,
@@ -624,7 +626,8 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
   };
 
   const deleteAdminCategory = (id: string, label: string) => {
-    if (confirm(isAr ? `هل أنت متأكد من حذف قسم "${label}"؟` : `Are you sure you want to delete category "${label}"?`)) {
+    if (confirm(isAr ? `هل أنت متأكد من حذف قسم "${label}" نهائياً من المتجر؟` : `Are you sure you want to permanently delete category "${label}"?`)) {
+      recordDeletedNavCategoryId(id);
       const updated = adminNavCategories.filter((c) => c.id !== id);
       setAdminNavCategories(updated);
       saveNavCategories(updated);
@@ -639,8 +642,10 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
         alert(isAr ? 'يرجى كتابة اسم القسم بالعربية' : 'Please enter category name in Arabic');
         return;
       }
+      const newCatId = (modalEditId.trim() || 'cat_' + Date.now().toString().slice(-4)).toLowerCase().replace(/\s+/g, '_');
+      unrecordDeletedNavCategoryId(newCatId);
       const newCat: CategoryNavConfig = {
-        id: (modalEditId.trim() || 'cat_' + Date.now().toString().slice(-4)).toLowerCase().replace(/\s+/g, '_'),
+        id: newCatId,
         labelAr: modalEditLabelAr.trim(),
         labelEn: modalEditLabelEn.trim() || modalEditLabelAr.trim(),
         imageUrl: modalEditImageUrl.trim() || 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=300&q=80',

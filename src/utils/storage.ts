@@ -36,6 +36,7 @@ const STORAGE_KEYS = {
   CRM_ACTIVITY: 'nasamat_crm_activity_v1',
   CRM_LEADS: 'nasamat_crm_leads_v2',
   CRM_DELETED_LEADS: 'nasamat_crm_deleted_leads_v1',
+  DELETED_NAV_CATEGORIES: 'nasamat_deleted_nav_categories_v2',
   PIXEL_SETTINGS: 'nasamat_pixel_settings_v1',
   PIXEL_EVENTS_LOG: 'nasamat_pixel_events_log_v1',
   STAFF_MEMBERS: 'nasamat_staff_members_v1',
@@ -180,27 +181,63 @@ export const LUXURY_PRESET_IMAGES = [
   { name: 'بخاخ ذهبي أنتيك', nameEn: 'Antique Gold Sprayer', url: 'https://images.unsplash.com/photo-1590736969955-71cc94801759?auto=format&fit=crop&w=600&q=80' },
 ];
 
+export function loadDeletedNavCategoryIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.DELETED_NAV_CATEGORIES);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+export function recordDeletedNavCategoryId(id: string): void {
+  try {
+    const set = loadDeletedNavCategoryIds();
+    set.add(id);
+    localStorage.setItem(STORAGE_KEYS.DELETED_NAV_CATEGORIES, JSON.stringify(Array.from(set)));
+  } catch (e) {
+    console.error('Failed to record deleted nav category', e);
+  }
+}
+
+export function unrecordDeletedNavCategoryId(id: string): void {
+  try {
+    const set = loadDeletedNavCategoryIds();
+    if (set.has(id)) {
+      set.delete(id);
+      localStorage.setItem(STORAGE_KEYS.DELETED_NAV_CATEGORIES, JSON.stringify(Array.from(set)));
+    }
+  } catch (e) {
+    console.error('Failed to unrecord deleted nav category', e);
+  }
+}
+
 export function loadNavCategories(): CategoryNavConfig[] {
   try {
+    const deletedIds = loadDeletedNavCategoryIds();
     const raw = localStorage.getItem(STORAGE_KEYS.NAV_CATEGORIES);
     if (raw) {
       const saved: CategoryNavConfig[] = JSON.parse(raw);
+      // Strictly exclude any category explicitly deleted by the merchant
+      const filtered = saved.filter((c) => !deletedIds.has(c.id));
+
       // Auto-strip product count numbers from countAr / countEn for clean luxury UI
-      saved.forEach((c) => {
+      filtered.forEach((c) => {
         if (c.countAr && /\d+/.test(c.countAr)) c.countAr = '';
         if (c.countEn && /\d+/.test(c.countEn)) c.countEn = '';
       });
-      // Auto-merge any missing default categories while preserving custom edits
-      const existingIds = new Set(saved.map((c) => c.id));
-      const missing = INITIAL_NAV_CATEGORIES.filter((c) => !existingIds.has(c.id));
-      if (missing.length > 0) {
-        const merged = [...saved, ...missing];
-        saveNavCategories(merged);
-        return merged;
+
+      // Never auto-resurrect deleted categories! Persist clean list
+      if (filtered.length !== saved.length) {
+        saveNavCategories(filtered);
       }
-      return saved;
+      return filtered;
     }
-    return INITIAL_NAV_CATEGORIES;
+
+    // First time initializing: exclude any previously marked deleted categories
+    const initialList = INITIAL_NAV_CATEGORIES.filter((c) => !deletedIds.has(c.id));
+    saveNavCategories(initialList);
+    return initialList;
   } catch (e) {
     console.error('Failed to load nav categories', e);
     return INITIAL_NAV_CATEGORIES;
