@@ -862,6 +862,26 @@ export const StoreTab: React.FC<StoreTabProps> = ({
 
   // Calculate pricing & stock for an oil (supports custom sizes & sizePrices)
   const getOilInfo = (oil: FragranceOil, size: number) => {
+    // Original Packaged Perfume (عطور أصلية معلبة وجاهزة بالعلبة الرسمية)
+    if (oil.isOriginalPackaged) {
+      const price = oil.singleBottlePrice || 85;
+      const count = oil.packageStockCount !== undefined 
+        ? oil.packageStockCount 
+        : Math.floor(oil.currentQuantity / (oil.singleBottleSizeMl || 100));
+      let stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock' = 'in_stock';
+      if (count <= 0) {
+        stockStatus = 'out_of_stock';
+      } else if (count <= 2) {
+        stockStatus = 'low_stock';
+      }
+      return { 
+        price, 
+        oilNeededMl: oil.singleBottleSizeMl || 100, 
+        maxBottlesPossible: count, 
+        stockStatus 
+      };
+    }
+
     let price = 7;
     if (oil.sizePrices && oil.sizePrices[size] !== undefined) {
       price = oil.sizePrices[size];
@@ -981,6 +1001,9 @@ export const StoreTab: React.FC<StoreTabProps> = ({
       filtered = filtered.filter((item) => {
         if (selectedCategory === 'signatures') {
           return item.type === 'recipe' || (item.type === 'oil' && parseInt(item.data.code.replace(/\D/g, ''), 10) >= 91);
+        }
+        if (selectedCategory === 'original') {
+          return item.type === 'oil' && !!(item.data as FragranceOil).isOriginalPackaged;
         }
         if (selectedCategory === 'men') {
           if (item.type === 'recipe') return item.data.targetGender === 'men';
@@ -1421,19 +1444,25 @@ export const StoreTab: React.FC<StoreTabProps> = ({
 
           {/* Badges top-start & top-end (Nasamat Signature) */}
           <div className="absolute top-2 start-2 flex flex-col gap-1 items-start">
-            <span className="px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded sm:rounded-md bg-black text-white text-[8px] sm:text-[10px] font-black uppercase tracking-wider shadow-sm">
+            <span className={`px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded sm:rounded-md text-[8px] sm:text-[10px] font-black uppercase tracking-wider shadow-sm ${
+              oil?.isOriginalPackaged
+                ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-black border border-amber-300'
+                : 'bg-black text-white'
+            }`}>
               {badgeOverride
                 ? (isAr ? badgeOverride : (badgeOverride.includes('أكثر') ? '★ Best Seller' : (!/[\u0600-\u06FF]/.test(badgeOverride) ? badgeOverride : '★ Special Offer')))
-                : (isRecipe ? (isAr ? '★ خلطة ملكية' : '★ Royal Blend') : (isAr ? '★ الأكثر طلباً' : '★ Best Seller'))}
+                : (oil?.isOriginalPackaged 
+                    ? (isAr ? '💎 عطر أصلي معلب' : '💎 100% Original Boxed') 
+                    : (isRecipe ? (isAr ? '★ خلطة ملكية' : '★ Royal Blend') : (isAr ? '★ الأكثر طلباً' : '★ Best Seller')))}
             </span>
           </div>
 
           <div className="absolute top-2 end-2 flex flex-col gap-1 items-end">
             <span className="px-1.5 sm:px-2 py-0.5 rounded sm:rounded-md bg-rose-600 text-white text-[8px] sm:text-[10px] font-black uppercase tracking-wider shadow-sm">
-              {isAr ? `وفّر $${originalPrice - price}` : `Save $${originalPrice - price}`}
+              {isAr ? `وفّر $${Math.max(1, originalPrice - price)}` : `Save $${Math.max(1, originalPrice - price)}`}
             </span>
             <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-white/95 backdrop-blur-xs text-neutral-900 border border-neutral-300 text-[9px] font-mono font-bold shadow-xs">
-              EXTRAIT DE PARFUM
+              {oil?.isOriginalPackaged ? (oil.concentration || 'OFFICIAL RETAIL') : 'EXTRAIT DE PARFUM'}
             </span>
           </div>
 
@@ -1505,55 +1534,88 @@ export const StoreTab: React.FC<StoreTabProps> = ({
 
           {/* Pricing & Size Selection */}
           <div className="space-y-1.5 sm:space-y-2 pt-1 border-t border-neutral-100">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-black font-extrabold text-[10px] sm:text-xs uppercase tracking-wider">
-                {language === 'ar' ? 'اختر الحجم:' : 'Select Size:'}
-              </span>
-              <div className="flex items-baseline gap-1.5 sm:gap-2">
-                <span className="text-[10px] sm:text-xs text-neutral-500 line-through font-mono font-bold">
-                  ${originalPrice}
-                </span>
-                <span className="text-black font-mono font-black text-sm sm:text-lg">
-                  ${price.toFixed(2)}
-                </span>
-              </div>
-            </div>
-
-            {/* Size pills (Dynamic based on perfume's availableSizes) */}
-            <div className={`grid gap-1 sm:gap-2 ${
-              productSizes.length <= 2 ? 'grid-cols-2' : productSizes.length === 3 ? 'grid-cols-3' : 'grid-cols-4'
-            }`}>
-              {productSizes.map((sz) => {
-                const isSelected = currentSize === sz;
-                const sInfo = isRecipe ? getRecipeInfo(rec!, sz) : getOilInfo(oil!, sz);
-                const isPopular = sz === 50 || (productSizes.length === 1);
-                return (
-                  <button
-                    key={sz}
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSize(key, sz);
-                    }}
-                    className={`relative py-1 sm:py-2 px-0.5 sm:px-1 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black transition-all flex flex-col items-center justify-center cursor-pointer ${
-                      isSelected
-                        ? 'size-pill-selected bg-black text-white border-2 border-black shadow-md scale-[1.02]'
-                        : 'size-pill-unselected bg-white hover:bg-neutral-50 text-black border-2 border-neutral-300'
-                    }`}
-                  >
-                    <span className="text-[9px] sm:text-xs font-black uppercase tracking-wider">{sz}ml</span>
-                    <span className={`text-[9px] sm:text-xs font-mono font-bold mt-0.5 ${isSelected ? 'text-amber-300' : 'price-subtext text-neutral-700'}`}>
-                      ${sInfo.price}
+            {oil?.isOriginalPackaged ? (
+              <div className="p-2 sm:p-2.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-500/5 border border-amber-300 flex items-center justify-between gap-2 shadow-2xs">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs">💎</span>
+                    <span className="text-[10px] sm:text-xs font-black text-amber-950 font-mono truncate">
+                      {oil.singleBottleSizeMl || 100}ml • {oil.concentration || 'Eau de Parfum'}
                     </span>
-                    {isPopular && (
-                      <span className="badge-top absolute -top-1.5 -end-1 bg-amber-400 text-black text-[7px] sm:text-[8px] font-black px-1 sm:px-1.5 py-0.2 rounded-full uppercase shadow-xs">
-                        {isAr ? 'توب' : 'TOP'}
+                  </div>
+                  <span className="text-[9px] sm:text-[10px] text-neutral-600 block truncate font-bold mt-0.5">
+                    {oil.countryOfOrigin ? `${oil.countryOfOrigin} • ` : ''}{oil.boxCondition === 'sealed' ? (isAr ? 'مغلف بالسولوفان' : 'Sealed Box') : (oil.boxCondition === 'tester' ? (isAr ? 'تستر أصلي' : 'Tester Box') : (isAr ? 'علبة رسمية' : 'Retail Box'))}
+                  </span>
+                </div>
+                <div className="text-end shrink-0">
+                  <div className="flex items-baseline justify-end gap-1">
+                    {oil.originalRetailPrice && (
+                      <span className="text-[9px] sm:text-[10px] text-neutral-400 line-through font-mono">
+                        ${oil.originalRetailPrice}
                       </span>
                     )}
-                  </button>
-                );
-              })}
-            </div>
+                    <span className="text-black font-mono font-black text-xs sm:text-base">
+                      ${price.toFixed(2)}
+                    </span>
+                  </div>
+                  <span className="text-[8px] sm:text-[9px] font-black text-emerald-700 bg-emerald-100 px-1 py-0.2 rounded font-mono">
+                    {oil.packageStockCount !== undefined ? `${oil.packageStockCount} ${isAr ? 'علب' : 'pcs'}` : (isAr ? 'متوفر' : 'In Stock')}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-black font-extrabold text-[10px] sm:text-xs uppercase tracking-wider">
+                    {language === 'ar' ? 'اختر الحجم:' : 'Select Size:'}
+                  </span>
+                  <div className="flex items-baseline gap-1.5 sm:gap-2">
+                    <span className="text-[10px] sm:text-xs text-neutral-500 line-through font-mono font-bold">
+                      ${originalPrice}
+                    </span>
+                    <span className="text-black font-mono font-black text-sm sm:text-lg">
+                      ${price.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Size pills (Dynamic based on perfume's availableSizes) */}
+                <div className={`grid gap-1 sm:gap-2 ${
+                  productSizes.length <= 2 ? 'grid-cols-2' : productSizes.length === 3 ? 'grid-cols-3' : 'grid-cols-4'
+                }`}>
+                  {productSizes.map((sz) => {
+                    const isSelected = currentSize === sz;
+                    const sInfo = isRecipe ? getRecipeInfo(rec!, sz) : getOilInfo(oil!, sz);
+                    const isPopular = sz === 50 || (productSizes.length === 1);
+                    return (
+                      <button
+                        key={sz}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSize(key, sz);
+                        }}
+                        className={`relative py-1 sm:py-2 px-0.5 sm:px-1 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black transition-all flex flex-col items-center justify-center cursor-pointer ${
+                          isSelected
+                            ? 'size-pill-selected bg-black text-white border-2 border-black shadow-md scale-[1.02]'
+                            : 'size-pill-unselected bg-white hover:bg-neutral-50 text-black border-2 border-neutral-300'
+                        }`}
+                      >
+                        <span className="text-[9px] sm:text-xs font-black uppercase tracking-wider">{sz}ml</span>
+                        <span className={`text-[9px] sm:text-xs font-mono font-bold mt-0.5 ${isSelected ? 'text-amber-300' : 'price-subtext text-neutral-700'}`}>
+                          ${sInfo.price}
+                        </span>
+                        {isPopular && (
+                          <span className="badge-top absolute -top-1.5 -end-1 bg-amber-400 text-black text-[7px] sm:text-[8px] font-black px-1 sm:px-1.5 py-0.2 rounded-full uppercase shadow-xs">
+                            {isAr ? 'توب' : 'TOP'}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
           </div>
 
           {/* Add to Cart Action */}

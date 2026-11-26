@@ -92,6 +92,14 @@ export const INITIAL_NAV_CATEGORIES: CategoryNavConfig[] = [
     countEn: '',
   },
   {
+    id: 'original',
+    labelAr: 'عطور أصلية معلبة',
+    labelEn: 'Original Boxed Perfumes',
+    imageUrl: 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=300&q=80',
+    countAr: 'أصلي 100%',
+    countEn: '100% Authentic',
+  },
+  {
     id: 'oriental',
     labelAr: 'عطور شرقية وعود',
     labelEn: 'Oriental & Royal Oud',

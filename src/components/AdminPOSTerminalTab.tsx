@@ -135,6 +135,9 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
   });
 
   const getPriceForSize = (item: FragranceOil | SavedRecipe, size: number) => {
+    if ((item as FragranceOil).isOriginalPackaged) {
+      return (item as FragranceOil).singleBottlePrice || 85;
+    }
     if (item.sizePrices && item.sizePrices[size] !== undefined) return item.sizePrices[size];
     if (size === 30) return item.retailPrice30ml || 5;
     if (size === 100) return item.retailPrice100ml || 12;
@@ -190,7 +193,10 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
 
     const invoiceNumber = `POS-${Date.now().toString().slice(-6)}`;
     const oilDeductions = posCart.map((it) => {
-      const mlPerBottle = it.sizeMl === 30 ? 7.5 : it.sizeMl === 50 ? 12.5 : 25;
+      const matchOil = oils.find((o) => o.id === it.productId);
+      const mlPerBottle = matchOil?.isOriginalPackaged
+        ? (matchOil.singleBottleSizeMl || 100)
+        : (it.sizeMl === 30 ? 7.5 : it.sizeMl === 50 ? 12.5 : 25);
       return {
         id: it.productId,
         amount: Number((mlPerBottle * it.quantity).toFixed(2)),

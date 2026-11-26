@@ -6,6 +6,7 @@ import { LUXURY_PRESET_IMAGES } from '../utils/storage';
 import { formatWhatsAppPhone } from '../utils/whatsappConcierge';
 import { useLanguage } from '../context/LanguageContext';
 import { getLocalizedOilName, getLocalizedFamily, getLocalizedBrand, getLocalizedNotes } from '../utils/i18n';
+import { trackPixelEvent } from '../utils/pixelTracker';
 import { 
   X, 
   ShoppingBag, 
@@ -127,12 +128,22 @@ export const PerfumeDetailsModal: React.FC<PerfumeDetailsModalProps> = ({
   const [reviewComment, setReviewComment] = useState('');
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
-  // Sync reviews when product changes
+  // Sync reviews and fire Meta Pixel ViewContent when product changes
   React.useEffect(() => {
-    if (isOpen) {
+    if (isOpen && product) {
       setReviewsList(loadReviews());
       setShowAddReviewForm(false);
       setReviewSubmitted(false);
+
+      const prodName = product.type === 'recipe' ? (product.data as SavedRecipe).name : (product.data as FragranceOil).name;
+      const initialPriceInfo = getPriceInfo(product, selectedSize);
+      trackPixelEvent('ViewContent', {
+        content_ids: [product.data.id],
+        content_name: prodName,
+        content_type: product.type,
+        value: initialPriceInfo?.price || 7,
+        currency: 'USD',
+      });
     }
   }, [isOpen, product]);
 
@@ -860,6 +871,49 @@ export const PerfumeDetailsModal: React.FC<PerfumeDetailsModalProps> = ({
                     </div>
                   ))
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* Original Packaged Perfume Authenticity Guarantee Card */}
+          {oil?.isOriginalPackaged && (
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-500/5 border-2 border-amber-400 space-y-2.5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">💎</span>
+                  <div>
+                    <h4 className="font-black text-xs sm:text-sm text-neutral-900">
+                      {isAr ? 'عطر أصلي 100% معلب بكرتونته الرسمية' : '100% Official Packaged Perfume'}
+                    </h4>
+                    <p className="text-[10px] sm:text-xs text-neutral-600">
+                      {isAr ? 'منتج جاهز مستورد بالعلبة والباركود الأصلي غير مجزأ أو مسكوب' : 'Original sealed retail packaging with authentic batch code'}
+                    </p>
+                  </div>
+                </div>
+                <span className="px-2.5 py-1 rounded-full bg-black text-amber-300 font-mono text-[10px] font-black uppercase tracking-wider">
+                  ORIGINAL
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 border-t border-amber-300/60 text-xs">
+                <div className="bg-white/80 p-2 rounded-xl border border-amber-200">
+                  <span className="text-[9px] text-neutral-500 block font-bold">{isAr ? 'التركيز:' : 'Concentration:'}</span>
+                  <span className="font-black text-neutral-900 text-[11px] truncate block">{oil.concentration || 'Eau de Parfum'}</span>
+                </div>
+                <div className="bg-white/80 p-2 rounded-xl border border-amber-200">
+                  <span className="text-[9px] text-neutral-500 block font-bold">{isAr ? 'بلد الصنع:' : 'Origin:'}</span>
+                  <span className="font-black text-neutral-900 text-[11px] truncate block">{oil.countryOfOrigin || 'فرنسا (France)'}</span>
+                </div>
+                <div className="bg-white/80 p-2 rounded-xl border border-amber-200">
+                  <span className="text-[9px] text-neutral-500 block font-bold">{isAr ? 'حالة التغليف:' : 'Condition:'}</span>
+                  <span className="font-black text-neutral-900 text-[11px] truncate block">
+                    {oil.boxCondition === 'sealed' ? (isAr ? 'مغلف بالسولوفان' : 'Sealed') : (oil.boxCondition === 'tester' ? (isAr ? 'علبة تستر' : 'Tester') : (isAr ? 'بدون كرتونة' : 'Unboxed'))}
+                  </span>
+                </div>
+                <div className="bg-white/80 p-2 rounded-xl border border-amber-200">
+                  <span className="text-[9px] text-neutral-500 block font-bold">{isAr ? 'باتش كود العبوة:' : 'Batch Code:'}</span>
+                  <span className="font-mono font-black text-neutral-900 text-[11px] truncate block">{oil.batchCode || 'NAS-BATCH'}</span>
+                </div>
               </div>
             </div>
           )}

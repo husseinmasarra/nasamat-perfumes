@@ -73,6 +73,16 @@ export interface FragranceOil {
   availableSizes?: number[]; // Available bottle sizes (e.g. [12, 30, 50, 100])
   notes?: string;
   olfactoryProfile?: PerfumeOlfactoryProfile;
+  // Original Packaged Perfume attributes (عطور أصلية معلبة وجاهزة)
+  isOriginalPackaged?: boolean; // عطر أصلي معلب بكرتونته الرسمية
+  packageStockCount?: number; // عدد العبوات الجاهزة المتوفرة بالمخزون (حبة)
+  singleBottleSizeMl?: number; // سعة العبوة الأصلية بالملل (e.g. 100)
+  singleBottlePrice?: number; // سعر بيع العبوة الأصلية ($)
+  originalRetailPrice?: number; // السعر قبل الخصم ($)
+  concentration?: string; // تركيز العبوة (Eau de Parfum, Parfum, EDT, Extrait)
+  batchCode?: string; // باتش كود لضمان الأصالة
+  countryOfOrigin?: string; // بلد الصنع (فرنسا، إيطاليا، عمان، بريطانيا...)
+  boxCondition?: 'sealed' | 'tester' | 'unboxed'; // حالة العلبة
   createdAt: string;
   updatedAt: string;
 }
