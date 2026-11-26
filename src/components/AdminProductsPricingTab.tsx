@@ -16,14 +16,18 @@ import {
   Camera,
   Upload,
   Droplet,
+  Droplets,
   FlaskConical,
   Package,
   Database,
   Trash2,
-  X
+  X,
+  Flame,
+  Layers,
+  ShoppingBag
 } from './icons';
 import { useLanguage } from '../context/LanguageContext';
-import { LUXURY_PRESET_IMAGES, generatePerfumeBarcode, recordDeletedProductId } from '../utils/storage';
+import { LUXURY_PRESET_IMAGES, generatePerfumeBarcode, recordDeletedProductId, unrecordDeletedProductId } from '../utils/storage';
 import {
   PERFUME_PRESETS_DATABASE,
   POPULAR_DATABASE_BRANDS,
@@ -48,7 +52,7 @@ export const PRODUCT_DEPARTMENTS: {
     id: 'perfume',
     labelAr: 'عطورات فاخرة وتولات',
     labelEn: 'Luxury Perfumes & Attars',
-    icon: '🧴',
+    icon: 'droplets',
     codePrefix: 'NAS',
     descAr: 'عطور سكب وتركيب، بخاخ EDP/Extrait، دهن عود وتولات نقية، أو عطور أصلية معلبة',
     subCategories: ['عطر رجالي', 'عطر نسائي', 'عطر للجنسين', 'دهن عود ومسك', 'عطر نيش فاخر'],
@@ -57,7 +61,7 @@ export const PRODUCT_DEPARTMENTS: {
     id: 'makeup',
     labelAr: 'مكياج ومستحضرات تجميل',
     labelEn: 'Makeup & Cosmetics',
-    icon: '💄',
+    icon: 'sparkles',
     codePrefix: 'MKP',
     descAr: 'أحمر شفاه، كحل وماسكارا، ظلال عيون، فاونديشن وبودرة، عناية شخصية',
     subCategories: ['أحمر شفاه وروج', 'ماسكارا وكحل', 'باليت وظلال عيون', 'كريم أساس وفاونديشن', 'بودرة وبلاشر', 'محددات وفرش'],
@@ -66,7 +70,7 @@ export const PRODUCT_DEPARTMENTS: {
     id: 'accessories',
     labelAr: 'إكسسوارات وهدايا ومباخر',
     labelEn: 'Accessories & Gifts',
-    icon: '💍',
+    icon: 'award',
     codePrefix: 'ACC',
     descAr: 'مباخر كريستال ملكية، سلاسل وأساور، أطقم هدايا، زجاجات عطور كريستال فارغة',
     subCategories: ['مباخر كريستال فاخرة', 'أطقم هدايا وتوزيعات', 'سلاسل وأساور ومجوهرات', 'زجاجات تعبئة كريستال', 'إكسسوارات شخصية'],
@@ -75,7 +79,7 @@ export const PRODUCT_DEPARTMENTS: {
     id: 'bakhoor',
     labelAr: 'بخور ومعطرات جو',
     labelEn: 'Bakhoor & Home Scents',
-    icon: '🪔',
+    icon: 'flame',
     codePrefix: 'BKH',
     descAr: 'بخور خشب طبيعي، معمول دوسري وملكي، معطرات مفارش وأجواء 500مل',
     subCategories: ['بخور خشب مروكي وسيلاني', 'معمول ومبثوث ملكي', 'معطر مفارش وأجواء 500مل', 'لبان حوجري معطر'],
@@ -84,11 +88,56 @@ export const PRODUCT_DEPARTMENTS: {
     id: 'other',
     labelAr: 'منتجات متنوعة أخرى',
     labelEn: 'General Boutique Items',
-    icon: '📦',
+    icon: 'package',
     codePrefix: 'PRD',
     descAr: 'أي منتجات كماليات أو معروضات أخرى تباع في البوتيك بالقطعة',
     subCategories: ['منتجات عامة', 'أطقم موسمية', 'عروض خاصة'],
   },
+];
+
+export const PRESET_COLOR_SWATCHES = [
+  { name: 'أسود', nameEn: 'Black', hex: '#000000', border: false },
+  { name: 'أبيض', nameEn: 'White', hex: '#ffffff', border: true },
+  { name: 'كحلي', nameEn: 'Navy', hex: '#1e3a8a', border: false },
+  { name: 'أزرق ملكي', nameEn: 'Royal Blue', hex: '#2563eb', border: false },
+  { name: 'أحمر كلاسيكي', nameEn: 'Classic Red', hex: '#dc2626', border: false },
+  { name: 'عنابي', nameEn: 'Burgundy', hex: '#881337', border: false },
+  { name: 'وردي', nameEn: 'Rose Pink', hex: '#ec4899', border: false },
+  { name: 'أخضر زمردي', nameEn: 'Emerald Green', hex: '#16a34a', border: false },
+  { name: 'زيتي', nameEn: 'Olive', hex: '#65a30d', border: false },
+  { name: 'أصفر ذهبي', nameEn: 'Gold / Yellow', hex: '#eab308', border: false },
+  { name: 'برتقالي عنبري', nameEn: 'Amber / Orange', hex: '#f97316', border: false },
+  { name: 'بنفسجي', nameEn: 'Purple', hex: '#9333ea', border: false },
+  { name: 'ليلكي', nameEn: 'Lavender', hex: '#c084fc', border: false },
+  { name: 'فضي', nameEn: 'Silver', hex: '#94a3b8', border: false },
+  { name: 'رصاصي داكن', nameEn: 'Charcoal', hex: '#334155', border: false },
+  { name: 'بني شوكولا', nameEn: 'Brown', hex: '#78350f', border: false },
+  { name: 'برونزي نحاسي', nameEn: 'Bronze', hex: '#b45309', border: false },
+];
+
+export const PRESET_SIZES_CHIPS = [
+  '10 مل',
+  '30 مل',
+  '50 مل',
+  '75 مل',
+  '100 مل',
+  '200 مل',
+  'ربع تولة (3 مل)',
+  'نصف تولة (6 مل)',
+  'تولة كاملة (12 مل)',
+  '10 غرام',
+  '25 غرام',
+  '50 غرام',
+  '100 غرام',
+  'قطعة واحدة',
+  'طقم قطعتين',
+  'طقم 3 قطع',
+  'علبة هدايا',
+  'S (صغير)',
+  'M (وسط)',
+  'L (كبير)',
+  'XL (كبير جداً)',
+  'مقاس موحد (Free Size)',
 ];
 
 export interface SizePriceEntry {
@@ -107,7 +156,7 @@ export const PERFUME_TYPE_CONFIG: Record<
   spray: {
     labelAr: 'عطر بخاخ فاخر (Extrait / EDP)',
     labelEn: 'Luxury Spray Perfume',
-    icon: '🧴',
+    icon: 'spray',
     descAr: 'أحجام رذاذ فواحة شائعة: 30مل، 50مل، 100مل',
     defaultSizes: [
       { size: 30, price: 5, label: '30ml' },
@@ -118,7 +167,7 @@ export const PERFUME_TYPE_CONFIG: Record<
   oil_attar: {
     labelAr: 'دهن عود ومسك وتولات نقية',
     labelEn: 'Pure Oud, Attar & Tolas',
-    icon: '🛢️',
+    icon: 'droplet',
     descAr: 'مقاسات التولات التراثية: ربع تولة (3مل)، نصف تولة (6مل)، تولة كاملة (12مل)',
     defaultSizes: [
       { size: 3, price: 6, label: 'ربع تولة (3ml)' },
@@ -129,7 +178,7 @@ export const PERFUME_TYPE_CONFIG: Record<
   sample: {
     labelAr: 'عينات وتوزيعات وتجربة وسفر',
     labelEn: 'Discovery & Travel Vials',
-    icon: '🧪',
+    icon: 'sample',
     descAr: 'مقاسات مصغرة للحقيبة والتجربة: 5مل، 10مل، 15مل',
     defaultSizes: [
       { size: 5, price: 2, label: '5ml' },
@@ -140,7 +189,7 @@ export const PERFUME_TYPE_CONFIG: Record<
   custom: {
     labelAr: 'مقاسات وأسعار مخصصة يدوياً',
     labelEn: 'Custom Defined Sizes',
-    icon: '👑',
+    icon: 'custom',
     descAr: 'أدخل أي مقاس بالملل وسعر مخصص بحرية تامة',
     defaultSizes: [
       { size: 50, price: 7, label: '50ml', isDefault: true },
@@ -329,6 +378,51 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
   const [selectedDbBrand, setSelectedDbBrand] = useState<string>('الكل');
   const [isDbSectionExpanded, setIsDbSectionExpanded] = useState(true);
   const [autofillSuccessNotice, setAutofillSuccessNotice] = useState<string | null>(null);
+  const [isAddInlineOpen, setIsAddInlineOpen] = useState(Boolean(autoOpenAddModal));
+  const [availableColors, setAvailableColors] = useState<string[]>([]);
+  const [customColorHex, setCustomColorHex] = useState('#000000');
+  const [customColorName, setCustomColorName] = useState('');
+  const [selectedSizesList, setSelectedSizesList] = useState<string[]>(['50 مل', '100 مل']);
+  const [customVariants, setCustomVariants] = useState<{ name: string; price: number; stock: number }[]>([]);
+  const [customSizeName, setCustomSizeName] = useState('');
+  const [customSizePrice, setCustomSizePrice] = useState('');
+  const [customSizeStock, setCustomSizeStock] = useState('');
+  const [unitMeasurement, setUnitMeasurement] = useState('50 مل');
+  const [statusAvailability, setStatusAvailability] = useState<'available' | 'out_of_stock'>('available');
+
+  const toggleColor = (colorName: string) => {
+    setAvailableColors((prev) =>
+      prev.includes(colorName) ? prev.filter((c) => c !== colorName) : [...prev, colorName]
+    );
+  };
+
+  const handleAddCustomColor = () => {
+    const name = customColorName.trim() || customColorHex;
+    if (!availableColors.includes(name)) {
+      setAvailableColors((prev) => [...prev, name]);
+    }
+    setCustomColorName('');
+  };
+
+  const toggleSize = (sizeChip: string) => {
+    setSelectedSizesList((prev) =>
+      prev.includes(sizeChip) ? prev.filter((s) => s !== sizeChip) : [...prev, sizeChip]
+    );
+  };
+
+  const handleAddCustomVariant = () => {
+    if (!customSizeName.trim()) return;
+    const name = customSizeName.trim();
+    const price = parseFloat(customSizePrice) || parseFloat(newFragrance.directPrice) || 25;
+    const stock = parseInt(customSizeStock, 10) || parseInt(newFragrance.stockCount, 10) || 10;
+    setCustomVariants((prev) => [...prev, { name, price, stock }]);
+    if (!selectedSizesList.includes(name)) {
+      setSelectedSizesList((prev) => [...prev, name]);
+    }
+    setCustomSizeName('');
+    setCustomSizePrice('');
+    setCustomSizeStock('');
+  };
 
   const [newFragrance, setNewFragrance] = useState({
     // Multi-department attributes
@@ -532,8 +626,8 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
     }));
     setAutofillSuccessNotice(
       isAr
-        ? `✨ تم جلب مواصفات "${cleanName}" (${preset.brand}) والهرم العطري والتصنيف بنجاح!`
-        : `✨ Specifications for "${preset.nameEn}" (${preset.brand}) successfully auto-filled!`
+        ? `تم جلب مواصفات "${cleanName}" (${preset.brand}) والهرم العطري والتصنيف بنجاح!`
+        : `Specifications for "${preset.nameEn}" (${preset.brand}) successfully auto-filled!`
     );
     setTimeout(() => setAutofillSuccessNotice(null), 5500);
   };
@@ -677,6 +771,98 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
     } finally {
       setIsCompressingImage(false);
     }
+  };
+
+  const handleSaveUniversalProduct = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newFragrance.name.trim()) {
+      alert(isAr ? 'يرجى كتابة اسم المنتج' : 'Please enter product name');
+      return;
+    }
+
+    const newOilId = `oil-${Date.now()}`;
+    const code = newFragrance.code.trim() || `NAS-${String(oils.length + 1).padStart(3, '0')}`;
+    const directPrice = parseFloat(newFragrance.directPrice.trim()) || 25;
+    const compareAt = parseFloat(newFragrance.compareAtPrice.trim()) || Number((directPrice * 1.35).toFixed(1));
+    const costPrice = parseFloat(newFragrance.costPriceInput.trim()) || Number((directPrice * 0.45).toFixed(1));
+    const stockCount = parseInt(newFragrance.stockCount.trim(), 10) || 10;
+
+    // Unblacklist ID and Code
+    unrecordDeletedProductId(newOilId);
+    unrecordDeletedProductId(code);
+
+    const colorsList = availableColors;
+    const sizesList = selectedSizesList;
+
+    const mappedCustomSizes = sizesList.map((sz, idx) => ({
+      size: parseInt(sz.replace(/\D/g, ''), 10) || (idx + 1) * 30,
+      price: directPrice,
+      label: sz
+    }));
+
+    const newProductItem: FragranceOil = {
+      id: newOilId,
+      code,
+      name: newFragrance.name.trim(),
+      nameEn: newFragrance.nameEn.trim() || newFragrance.name.trim(),
+      company: newFragrance.brand.trim() || 'نسمات',
+      brand: newFragrance.brand.trim() || 'نسمات',
+      family: newFragrance.department === 'perfume' ? newFragrance.family : 'other',
+      targetGender: newFragrance.targetGender,
+      density: 1,
+      costPrice: Number((costPrice * stockCount).toFixed(2)),
+      initialQuantity: stockCount,
+      currentQuantity: stockCount,
+      stockMl: stockCount,
+      reorderLevelMl: 2,
+      lowStockThreshold: 2,
+      isAvailable: statusAvailability === 'available',
+      unit: newFragrance.department === 'perfume' ? 'ml' : 'piece',
+      costPerGram: costPrice,
+      costPerMl: costPrice,
+      unitCost: costPrice,
+      retailPrice30ml: directPrice,
+      retailPrice50ml: directPrice,
+      retailPrice100ml: directPrice,
+      wholesalePrice50ml: directPrice * 0.75,
+      sizePrices: { 50: directPrice },
+      customSizes: mappedCustomSizes.length > 0 ? mappedCustomSizes : [{ size: 50, price: directPrice, label: unitMeasurement || '50ml' }],
+      perfumeType: newFragrance.department === 'perfume' ? newFragrance.perfumeType : 'custom',
+      barcode: newFragrance.barcode.trim() || generatePerfumeBarcode(code, '6281'),
+      availableSizes: [30, 50, 100],
+      notes: newFragrance.description.trim() || (isAr ? 'منتج فاخر من دار نسمات' : 'Luxury boutique product by Nasamat'),
+      imageUrl: newFragrance.imageUrl.trim() || LUXURY_PRESET_IMAGES[0]?.url,
+      productNature: newFragrance.department === 'perfume' ? 'perfume_crafted' : newFragrance.department,
+      department: newFragrance.department,
+      category: newFragrance.subCategory.trim() || undefined,
+      colorOrShade: colorsList.length > 0 ? colorsList.join(', ') : (newFragrance.colorOrShade.trim() || undefined),
+      colors: colorsList,
+      selectedSizes: sizesList,
+      specification: newFragrance.specification.trim() || (sizesList.length > 0 ? `الأحجام: ${sizesList.join(' • ')}` : undefined),
+      isOriginalPackaged: newFragrance.department !== 'perfume',
+      packageStockCount: stockCount,
+      singleBottleSizeMl: parseInt(unitMeasurement.replace(/\D/g, ''), 10) || 50,
+      singleBottlePrice: directPrice,
+      originalRetailPrice: compareAt,
+      concentration: newFragrance.department === 'makeup' ? 'COSMETICS' :
+                     newFragrance.department === 'accessories' ? 'ACCESSORY' :
+                     newFragrance.department === 'bakhoor' ? 'BAKHOOR' : 'EXTRAIT',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (onAddOil) {
+      onAddOil(newProductItem);
+    }
+
+    setIsAddInlineOpen(false);
+    setIsAddModalOpen(false);
+    setAddSuccessToast(
+      isAr
+        ? `تم حفظ ونشر المنتج "${newProductItem.name}" (${newProductItem.code}) بنجاح في الكتالوج والمتجر`
+        : `Product "${newProductItem.name}" (${newProductItem.code}) added & published successfully!`
+    );
+    setTimeout(() => setAddSuccessToast(''), 4500);
   };
 
   const handleSaveNewFragrance = (e: React.FormEvent) => {
@@ -1176,7 +1362,12 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
           </button>
 
           <button
-            onClick={() => handleOpenAddModal('perfume')}
+            onClick={() => {
+              setIsAddInlineOpen((prev) => !prev);
+              if (!isAddInlineOpen) {
+                handleOpenAddModal('perfume');
+              }
+            }}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black hover:bg-neutral-800 text-white text-xs font-black shadow-md border border-black transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4 text-amber-400 stroke-[3]" />
@@ -1206,6 +1397,488 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
           >
             ✕
           </button>
+        </div>
+      )}
+
+      {/* ================= INLINE ADD NEW PRODUCT FORM (MATCHING REFERENCE IMAGE) ================= */}
+      {isAddInlineOpen && (
+        <div className="bg-white border-2 border-neutral-300 rounded-3xl p-6 sm:p-7 shadow-lg space-y-6 animate-fadeIn">
+          {/* Header */}
+          <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-black text-amber-400 flex items-center justify-center font-bold shadow-xs">
+                <Plus className="w-5 h-5 text-amber-400 stroke-[3]" />
+              </div>
+              <div>
+                <h3 className="text-base sm:text-lg font-black text-neutral-900 font-serif">
+                  {isAr ? 'اضافة منتج جديد' : 'Add New Product'}
+                </h3>
+                <p className="text-xs text-neutral-500 font-medium">
+                  {isAr
+                    ? 'إدخال مباشر وشامل لبيانات المنتج مع خيارات الألوان والمقاسات ورفع الصورة من جهاز الكمبيوتر'
+                    : 'Direct product entry with color swatches, sizes, variants and PC image upload'}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleOpenAddModal('perfume')}
+                className="px-3 py-1.5 rounded-xl border border-neutral-300 hover:border-black text-neutral-700 text-xs font-bold transition"
+              >
+                {isAr ? 'تفريغ الحقول' : 'Reset'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsAddInlineOpen(false)}
+                className="w-8 h-8 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center transition cursor-pointer"
+                title={isAr ? 'إغلاق' : 'Close'}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <form onSubmit={handleSaveUniversalProduct} className="space-y-6 text-xs">
+            {/* 1. HORIZONTAL BASIC PRODUCT INFO ROW (MATCHING CROP 1) */}
+            <div className="space-y-1.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-9 gap-3 items-end">
+                {/* اسم المنتج */}
+                <div className="space-y-1 lg:col-span-2">
+                  <label className="block text-[11px] font-black text-neutral-800">
+                    {isAr ? 'اسم المنتج' : 'Product Name'} <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={newFragrance.name}
+                    onChange={(e) => setNewFragrance({ ...newFragrance, name: e.target.value })}
+                    placeholder={isAr ? 'مثال: عطر ليالي الشرق أو أحمر شفاه' : 'e.g. Royal Oud or Lipstick'}
+                    className="w-full p-2.5 rounded-xl border border-neutral-300 bg-neutral-50 focus:bg-white focus:outline-none focus:border-black font-bold text-xs"
+                    required
+                  />
+                </div>
+
+                {/* كود المنتج */}
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-black text-neutral-800">
+                    {isAr ? 'كود المنتج' : 'SKU / Code'}
+                  </label>
+                  <input
+                    type="text"
+                    value={newFragrance.code}
+                    onChange={(e) => setNewFragrance({ ...newFragrance, code: e.target.value })}
+                    placeholder="NAS-001"
+                    className="w-full p-2.5 rounded-xl border border-neutral-300 bg-neutral-50 focus:bg-white focus:outline-none focus:border-black font-mono font-bold text-xs"
+                  />
+                </div>
+
+                {/* القسم / التصنيف */}
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-black text-neutral-800">
+                    {isAr ? 'القسم / التصنيف' : 'Department'}
+                  </label>
+                  <select
+                    value={newFragrance.department}
+                    onChange={(e) => handleSelectDepartment(e.target.value as ProductDepartment)}
+                    className="w-full p-2.5 rounded-xl border border-neutral-300 bg-neutral-50 focus:bg-white focus:outline-none focus:border-black font-bold text-xs cursor-pointer"
+                  >
+                    {PRODUCT_DEPARTMENTS.map((dept) => (
+                      <option key={dept.id} value={dept.id}>
+                        {isAr ? dept.labelAr : dept.labelEn}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* السعر ($) */}
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-black text-neutral-800">
+                    {isAr ? 'السعر ($)' : 'Price ($)'} <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    value={newFragrance.directPrice}
+                    onChange={(e) => setNewFragrance({ ...newFragrance, directPrice: e.target.value })}
+                    placeholder="25"
+                    className="w-full p-2.5 rounded-xl border border-neutral-300 bg-neutral-50 focus:bg-white focus:outline-none focus:border-black font-black text-xs text-emerald-700"
+                    required
+                  />
+                </div>
+
+                {/* سعر التكلفة ($) */}
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-black text-neutral-800">
+                    {isAr ? 'التكلفة ($)' : 'Cost ($)'}
+                  </label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    value={newFragrance.costPriceInput}
+                    onChange={(e) => setNewFragrance({ ...newFragrance, costPriceInput: e.target.value })}
+                    placeholder="10"
+                    className="w-full p-2.5 rounded-xl border border-neutral-300 bg-neutral-50 focus:bg-white focus:outline-none focus:border-black font-bold text-xs"
+                  />
+                </div>
+
+                {/* سعر الخصم / العرض ($) */}
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-black text-neutral-800">
+                    {isAr ? 'سعر الخصم ($)' : 'Compare At ($)'}
+                  </label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    value={newFragrance.compareAtPrice}
+                    onChange={(e) => setNewFragrance({ ...newFragrance, compareAtPrice: e.target.value })}
+                    placeholder="35"
+                    className="w-full p-2.5 rounded-xl border border-neutral-300 bg-neutral-50 focus:bg-white focus:outline-none focus:border-black font-bold text-xs line-through text-neutral-500"
+                  />
+                </div>
+
+                {/* الكمية في المخزون */}
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-black text-neutral-800">
+                    {isAr ? 'المخزون' : 'Stock'}
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={newFragrance.stockCount}
+                    onChange={(e) => setNewFragrance({ ...newFragrance, stockCount: e.target.value })}
+                    placeholder="10"
+                    className="w-full p-2.5 rounded-xl border border-neutral-300 bg-neutral-50 focus:bg-white focus:outline-none focus:border-black font-bold text-xs"
+                  />
+                </div>
+
+                {/* الوحدة / السعة */}
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-black text-neutral-800">
+                    {isAr ? 'الوحدة / السعة' : 'Unit'}
+                  </label>
+                  <select
+                    value={unitMeasurement}
+                    onChange={(e) => setUnitMeasurement(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-neutral-300 bg-neutral-50 focus:bg-white focus:outline-none focus:border-black font-bold text-xs cursor-pointer"
+                  >
+                    <option value="100 مل">100 مل</option>
+                    <option value="50 مل">50 مل</option>
+                    <option value="30 مل">30 مل</option>
+                    <option value="12 مل (تولة)">12 مل (تولة)</option>
+                    <option value="6 مل (نصف تولة)">6 مل (نصف تولة)</option>
+                    <option value="3 مل (ربع تولة)">3 مل (ربع تولة)</option>
+                    <option value="غرام">غرام</option>
+                    <option value="حبة / قطعة">حبة / قطعة</option>
+                    <option value="طقم كامل">طقم كامل</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. COLORS SELECTION ROW (MATCHING CROP 2) */}
+            <div className="space-y-2 pt-2 border-t border-neutral-100">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <span className="font-black text-xs text-neutral-900 block">
+                    {isAr ? 'الألوان المتوفرة للمنتج' : 'Available Product Colors'}
+                  </span>
+                  <span className="text-[11px] text-neutral-500 font-medium">
+                    {isAr ? 'انقر على الدوائر لاختيار الألوان المتاحة أو أضف لوناً مخصصاً' : 'Select color swatches or add a custom color'}
+                  </span>
+                </div>
+                {availableColors.length > 0 && (
+                  <span className="text-[11px] font-bold text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded-md">
+                    {isAr ? `${availableColors.length} ألوان محددة` : `${availableColors.length} colors selected`}
+                  </span>
+                )}
+              </div>
+
+              {/* Swatches List */}
+              <div className="flex flex-wrap items-center gap-2 py-1">
+                {PRESET_COLOR_SWATCHES.map((swatch) => {
+                  const isSelected = availableColors.includes(swatch.name);
+                  return (
+                    <button
+                      key={swatch.name}
+                      type="button"
+                      onClick={() => toggleColor(swatch.name)}
+                      className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 transition-all cursor-pointer relative shadow-2xs flex items-center justify-center ${
+                        isSelected ? 'ring-2 ring-black ring-offset-2 scale-110 border-black' : 'border-neutral-300 hover:scale-105'
+                      } ${swatch.border ? 'border-neutral-400' : ''}`}
+                      style={{ backgroundColor: swatch.hex }}
+                      title={isAr ? swatch.name : swatch.nameEn}
+                    >
+                      {isSelected && (
+                        <Check className={`w-3.5 h-3.5 ${swatch.hex === '#ffffff' || swatch.hex === '#eab308' ? 'text-black' : 'text-white'} stroke-[3]`} />
+                      )}
+                    </button>
+                  );
+                })}
+
+                {/* Custom color input */}
+                <div className="flex items-center gap-1.5 ms-2 ps-2 border-s border-neutral-200">
+                  <input
+                    type="color"
+                    value={customColorHex}
+                    onChange={(e) => setCustomColorHex(e.target.value)}
+                    className="w-7 h-7 rounded-lg cursor-pointer border border-neutral-300 p-0.5 bg-white"
+                    title={isAr ? 'اختر لون مخصص' : 'Custom color'}
+                  />
+                  <input
+                    type="text"
+                    value={customColorName}
+                    onChange={(e) => setCustomColorName(e.target.value)}
+                    placeholder={isAr ? 'اسم اللون' : 'Color name'}
+                    className="w-24 p-1.5 rounded-lg border border-neutral-300 text-[11px] bg-white focus:outline-none focus:border-black font-medium"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddCustomColor}
+                    className="px-2.5 py-1.5 rounded-lg bg-neutral-900 hover:bg-black text-white text-[11px] font-bold transition cursor-pointer"
+                  >
+                    {isAr ? 'إضافة' : 'Add'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Selected colors badges */}
+              {availableColors.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  {availableColors.map((colName) => (
+                    <span
+                      key={colName}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-neutral-100 border border-neutral-300 text-[11px] font-bold text-neutral-800"
+                    >
+                      <span>{colName}</span>
+                      <button
+                        type="button"
+                        onClick={() => toggleColor(colName)}
+                        className="hover:text-red-600 transition cursor-pointer"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 3. SIZES & VARIATIONS ROW (MATCHING CROP 3) */}
+            <div className="space-y-2 pt-2 border-t border-neutral-100">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <span className="font-black text-xs text-neutral-900 block">
+                    {isAr ? 'المقاسات والأحجام والخيارات' : 'Sizes, Volumes & Options'}
+                  </span>
+                  <span className="text-[11px] text-neutral-500 font-medium">
+                    {isAr ? 'حدد الأحجام الجاهزة أو أضف مقاساً مخصصاً بالكمية والسعر' : 'Select quick sizes or add a custom variant'}
+                  </span>
+                </div>
+                {selectedSizesList.length > 0 && (
+                  <span className="text-[11px] font-bold text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded-md">
+                    {isAr ? `${selectedSizesList.length} مقاسات محددة` : `${selectedSizesList.length} sizes selected`}
+                  </span>
+                )}
+              </div>
+
+              {/* Preset Chips */}
+              <div className="flex flex-wrap items-center gap-1.5 py-1">
+                {PRESET_SIZES_CHIPS.map((sizeChip) => {
+                  const isSelected = selectedSizesList.includes(sizeChip);
+                  return (
+                    <button
+                      key={sizeChip}
+                      type="button"
+                      onClick={() => toggleSize(sizeChip)}
+                      className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
+                        isSelected
+                          ? 'bg-black text-white border-black shadow-2xs'
+                          : 'bg-neutral-50 text-neutral-700 border-neutral-200 hover:border-black hover:bg-white'
+                      }`}
+                    >
+                      <span>{sizeChip}</span>
+                      {isSelected && <Check className="w-3 h-3 text-amber-400 stroke-[3]" />}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Custom Variant Row */}
+              <div className="p-3 rounded-2xl bg-neutral-50 border border-neutral-200 flex flex-wrap items-center gap-2">
+                <span className="text-[11px] font-bold text-neutral-700 shrink-0">
+                  {isAr ? 'إضافة خيار مخصص:' : 'Add Custom Variant:'}
+                </span>
+                <input
+                  type="text"
+                  value={customSizeName}
+                  onChange={(e) => setCustomSizeName(e.target.value)}
+                  placeholder={isAr ? 'اسم المقاس (مثال: عبوة 75 مل)' : 'Variant name (e.g. 75ml)'}
+                  className="flex-1 min-w-[140px] p-2 rounded-xl border border-neutral-300 text-xs bg-white focus:outline-none focus:border-black font-medium"
+                />
+                <input
+                  type="number"
+                  step="0.5"
+                  value={customSizePrice}
+                  onChange={(e) => setCustomSizePrice(e.target.value)}
+                  placeholder={isAr ? 'السعر ($)' : 'Price ($)'}
+                  className="w-24 p-2 rounded-xl border border-neutral-300 text-xs bg-white focus:outline-none focus:border-black font-bold"
+                />
+                <input
+                  type="number"
+                  value={customSizeStock}
+                  onChange={(e) => setCustomSizeStock(e.target.value)}
+                  placeholder={isAr ? 'الكمية' : 'Stock'}
+                  className="w-20 p-2 rounded-xl border border-neutral-300 text-xs bg-white focus:outline-none focus:border-black font-medium"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddCustomVariant}
+                  className="px-4 py-2 rounded-xl bg-neutral-900 hover:bg-black text-white text-xs font-bold transition cursor-pointer flex items-center gap-1"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>{isAr ? 'إضافة خيار' : 'Add Option'}</span>
+                </button>
+              </div>
+
+              {/* Selected variants badges */}
+              {selectedSizesList.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  {selectedSizesList.map((sz) => (
+                    <span
+                      key={sz}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-neutral-100 border border-neutral-300 text-xs font-bold text-neutral-800"
+                    >
+                      <span>{sz}</span>
+                      <button
+                        type="button"
+                        onClick={() => toggleSize(sz)}
+                        className="hover:text-red-600 transition cursor-pointer"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 4. COMPUTER PHOTO UPLOAD ROW (MATCHING CROP 4) */}
+            <div className="space-y-2 pt-2 border-t border-neutral-100">
+              <div>
+                <span className="font-black text-xs text-neutral-900 block">
+                  {isAr ? 'صورة المنتج الرئيسية (رفع مباشر وسريع من الكمبيوتر)' : 'Product Image (Upload from Computer)'}
+                </span>
+                <span className="text-[11px] text-neutral-500 font-medium">
+                  {isAr ? 'اختر صورة من ملفات جهازك — يتم ضغطها وتحسينها تلقائياً لأعلى نقاوة وسرعة' : 'Upload photo from your PC or choose a luxury preset'}
+                </span>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-neutral-50 border-2 border-dashed border-neutral-300 hover:border-black transition-all flex flex-col md:flex-row items-center gap-4">
+                {/* Live Preview Box */}
+                <div className="relative w-28 h-28 rounded-2xl overflow-hidden border-2 border-neutral-800 bg-white shadow-md shrink-0">
+                  <img
+                    src={newFragrance.imageUrl || LUXURY_PRESET_IMAGES[0]?.url}
+                    alt="Product Preview"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = LUXURY_PRESET_IMAGES[0]?.url;
+                    }}
+                  />
+                  {isCompressingImage && (
+                    <div className="absolute inset-0 bg-black/75 flex flex-col items-center justify-center text-white text-[10px] font-bold">
+                      <span className="text-xs font-bold">{isAr ? 'جاري التحسين...' : 'Compressing...'}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1 w-full space-y-2.5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black hover:bg-neutral-800 text-white font-black text-xs cursor-pointer shadow-sm transition active:scale-95">
+                      <Upload className="w-4 h-4 text-amber-400 stroke-[2.5]" />
+                      <span>{isAr ? 'اختيار صورة من جهاز الكمبيوتر' : 'Choose Photo from Computer'}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleNewFragranceImageUpload}
+                        className="hidden"
+                      />
+                    </label>
+
+                    {uploadedImageMeta && (
+                      <span className="text-[11px] font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 rounded-md">
+                        {uploadedImageMeta.name} (~{uploadedImageMeta.sizeKb}KB)
+                      </span>
+                    )}
+
+                    {newFragrance.imageUrl && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewFragrance((prev) => ({ ...prev, imageUrl: '' }));
+                          setUploadedImageMeta(null);
+                        }}
+                        className="px-3 py-1.5 rounded-xl border border-neutral-300 hover:border-rose-400 hover:bg-rose-50 text-neutral-600 hover:text-rose-700 text-xs font-bold transition cursor-pointer"
+                      >
+                        {isAr ? 'إزالة الصورة' : 'Remove'}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Direct URL input */}
+                  <input
+                    type="url"
+                    value={newFragrance.imageUrl}
+                    onChange={(e) => setNewFragrance({ ...newFragrance, imageUrl: e.target.value })}
+                    placeholder="https://... (رابط صورة مباشر)"
+                    className="w-full p-2.5 rounded-xl border border-neutral-300 bg-white font-mono text-[11px] focus:outline-none focus:border-black"
+                  />
+
+                  {/* Quick Luxury Presets */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-0.5 scrollbar-thin">
+                    <span className="text-[10px] font-bold text-neutral-500 shrink-0">
+                      {isAr ? 'أو صور فاخرة جاهزة:' : 'Presets:'}
+                    </span>
+                    {LUXURY_PRESET_IMAGES.map((preset, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setNewFragrance({ ...newFragrance, imageUrl: preset.url })}
+                        className={`w-7 h-7 rounded-lg overflow-hidden border shrink-0 transition cursor-pointer ${
+                          newFragrance.imageUrl === preset.url ? 'ring-2 ring-black border-black' : 'border-neutral-300 hover:border-black'
+                        }`}
+                        title={preset.name}
+                      >
+                        <img src={preset.url} alt={preset.name} className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 5. ACTION BUTTONS (MATCHING CROP 5) */}
+            <div className="flex items-center justify-between pt-4 border-t border-neutral-200">
+              <div className="flex items-center gap-3">
+                <button
+                  type="submit"
+                  className="px-8 py-3 rounded-xl bg-black hover:bg-neutral-800 text-white font-black text-xs shadow-md transition cursor-pointer flex items-center gap-2"
+                >
+                  <Check className="w-4 h-4 text-emerald-400 stroke-[3]" />
+                  <span>{isAr ? 'حفظ ونشر المنتج' : 'Save & Publish Product'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsAddInlineOpen(false)}
+                  className="px-5 py-3 rounded-xl border border-neutral-300 hover:bg-neutral-100 text-neutral-700 font-bold text-xs transition cursor-pointer"
+                >
+                  {isAr ? 'إلغاء' : 'Cancel'}
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
       )}
 
@@ -1283,12 +1956,12 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
             className="px-3 py-2 rounded-xl bg-neutral-50 border border-neutral-200 text-xs text-black font-bold focus:outline-none cursor-pointer"
           >
             <option value="all">{isAr ? 'كل الأقسام والمنتجات' : 'All Departments'}</option>
-            <option value="oil">{isAr ? 'عطورات وزيوت فاخرة 🧴' : 'Perfumes & Oils'}</option>
-            <option value="makeup">{isAr ? 'مكياج ومستحضرات 💄' : 'Makeup & Cosmetics'}</option>
-            <option value="accessories">{isAr ? 'إكسسوارات وهدايا 💍' : 'Accessories & Gifts'}</option>
-            <option value="bakhoor">{isAr ? 'بخور ومعطرات جو 🪔' : 'Bakhoor & Scents'}</option>
+            <option value="oil">{isAr ? 'عطورات وزيوت فاخرة' : 'Perfumes & Oils'}</option>
+            <option value="makeup">{isAr ? 'مكياج ومستحضرات' : 'Makeup & Cosmetics'}</option>
+            <option value="accessories">{isAr ? 'إكسسوارات وهدايا' : 'Accessories & Gifts'}</option>
+            <option value="bakhoor">{isAr ? 'بخور ومعطرات جو' : 'Bakhoor & Scents'}</option>
             <option value="recipe">{isAr ? 'خلطات نسمات الملكية ★' : 'Signature Blends'}</option>
-            <option value="other">{isAr ? 'منتجات عامة ومتنوعة 📦' : 'Other Products'}</option>
+            <option value="other">{isAr ? 'منتجات عامة ومتنوعة' : 'Other Products'}</option>
           </select>
 
           {/* Brand Filter */}
@@ -1394,31 +2067,31 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                             <span className="text-black font-black text-sm tracking-wide">{p.name}</span>
                             {p.productNature === 'makeup' && (
                               <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-100 text-rose-900 border border-rose-300 font-black flex items-center gap-1">
-                                <span>💄</span>
+                                <Sparkles className="w-3.5 h-3.5 text-neutral-600" />
                                 <span>{isAr ? `مكياج (${p.packageStockCount || 0} حبة)` : `Cosmetics (${p.packageStockCount || 0})`}</span>
                               </span>
                             )}
                             {p.productNature === 'accessories' && (
                               <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-900 border border-indigo-300 font-black flex items-center gap-1">
-                                <span>💍</span>
+                                <Award className="w-3.5 h-3.5 text-neutral-600" />
                                 <span>{isAr ? `إكسسوار (${p.packageStockCount || 0} حبة)` : `Accessory (${p.packageStockCount || 0})`}</span>
                               </span>
                             )}
                             {p.productNature === 'bakhoor' && (
                               <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 font-black flex items-center gap-1">
-                                <span>🪔</span>
+                                <Flame className="w-3.5 h-3.5 text-neutral-600" />
                                 <span>{isAr ? `بخور ومعطر (${p.packageStockCount || 0} علبة)` : `Bakhoor (${p.packageStockCount || 0})`}</span>
                               </span>
                             )}
                             {p.productNature === 'other' && (
                               <span className="text-[10px] px-2 py-0.5 rounded-full bg-neutral-200 text-neutral-900 border border-neutral-300 font-black flex items-center gap-1">
-                                <span>📦</span>
+                                <Package className="w-3.5 h-3.5 text-neutral-600" />
                                 <span>{isAr ? `منتج (${p.packageStockCount || 0} حبة)` : `Item (${p.packageStockCount || 0})`}</span>
                               </span>
                             )}
                             {p.isOriginalPackaged && (!p.productNature || p.productNature === 'perfume_original') && (
                               <span className="text-[10px] px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-black font-black shadow-2xs border border-amber-400 flex items-center gap-1">
-                                <span>💎</span>
+                                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                                 <span>{isAr ? `عطر أصلي معلب (${p.packageStockCount || 0} حبة)` : `Original Boxed (${p.packageStockCount || 0})`}</span>
                               </span>
                             )}
@@ -1496,7 +2169,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                     {/* Barcode Cell */}
                     <td className="py-3.5 px-3 text-center">
                       <div className="inline-flex items-center gap-1 bg-white border border-neutral-300 rounded-xl px-2 py-1 shadow-2xs">
-                        <span className="text-neutral-400 font-mono text-xs" title="رمز الباركود">📊</span>
+                        <span className="text-neutral-400 font-mono text-xs" title="رمز الباركود"><Tag className="w-3.5 h-3.5 text-neutral-400 inline" /></span>
                         <input
                           type="text"
                           value={barcodeDrafts[p.id] !== undefined ? barcodeDrafts[p.id] : p.barcode}
@@ -1618,7 +2291,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                           {isSaved ? (
                             <>
                               <Check className="w-3.5 h-3.5 text-white" />
-                              <span>{isAr ? 'تم الحفظ ✅' : 'Saved'}</span>
+                              <span>{isAr ? 'تم الحفظ' : 'Saved'}</span>
                             </>
                           ) : (
                             <>
@@ -1692,8 +2365,8 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                   setProductToDelete(null);
                   setSavedFeedback(
                     isAr
-                      ? `🗑️ تم حذف عطر "${p.name}" وحظره نهائياً من المتجر`
-                      : `🗑️ Permanently deleted "${p.name}"`
+                      ? `تم حذف عطر "${p.name}" وحظره نهائياً من المتجر`
+                      : `Permanently deleted "${p.name}"`
                   );
                   setTimeout(() => setSavedFeedback(null), 3500);
                 }}
@@ -2019,7 +2692,13 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                         }`}
                       >
                         <div className="flex items-center justify-between w-full mb-1">
-                          <span className="text-xl">{dept.icon}</span>
+                          <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isSelected ? 'bg-amber-400 text-black' : 'bg-neutral-200 text-neutral-800'}`}>
+                            {dept.id === 'perfume' && <Droplets className="w-4 h-4 stroke-[2.5]" />}
+                            {dept.id === 'makeup' && <Sparkles className="w-4 h-4 stroke-[2.5]" />}
+                            {dept.id === 'accessories' && <Award className="w-4 h-4 stroke-[2.5]" />}
+                            {dept.id === 'bakhoor' && <Flame className="w-4 h-4 stroke-[2.5]" />}
+                            {dept.id === 'other' && <Package className="w-4 h-4 stroke-[2.5]" />}
+                          </div>
                           <span className={`text-[9px] font-mono px-1.5 py-0.2 rounded font-bold ${
                             isSelected ? 'bg-amber-400 text-black' : 'bg-neutral-200 text-neutral-700'
                           }`}>
@@ -2082,7 +2761,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                       {/* File input button */}
                       <label className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-black hover:bg-neutral-800 text-amber-300 hover:text-white font-black text-xs cursor-pointer shadow-md transition active:scale-95">
                         <Upload className="w-4 h-4 text-amber-400 stroke-[2.5]" />
-                        <span>{isAr ? '🖥️ اختيار صورة من الكمبيوتر' : '🖥️ Choose from Computer'}</span>
+                        <span>{isAr ? 'اختيار صورة من الكمبيوتر' : 'Choose from Computer'}</span>
                         <input
                           type="file"
                           accept="image/*"
@@ -2179,7 +2858,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                 {autofillSuccessNotice && (
                   <div className="p-3 bg-amber-500 text-black font-bold text-xs rounded-xl flex items-center justify-between gap-3 shadow-xs animate-fadeIn">
                     <div className="flex items-center gap-2">
-                      <span className="text-base shrink-0">✨</span>
+                      <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
                       <span>{autofillSuccessNotice}</span>
                     </div>
                     <span className="text-[11px] font-bold bg-black text-amber-300 px-3 py-1 rounded-lg shrink-0 whitespace-nowrap shadow-xs font-mono">
@@ -2319,7 +2998,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                         : 'bg-transparent text-neutral-600 hover:text-black hover:bg-neutral-200/60'
                     }`}
                   >
-                    <span>🧴</span>
+                    <Droplets className="w-3.5 h-3.5 text-neutral-600" />
                     <span>{isAr ? 'عطر سكب وتركيب فاخر (زيوت)' : 'Blended & Decanted Perfume'}</span>
                   </button>
 
@@ -2332,7 +3011,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                         : 'bg-transparent text-neutral-600 hover:text-black hover:bg-neutral-200/60'
                     }`}
                   >
-                    <span>💎</span>
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                     <span>{isAr ? 'عطر أصلي 100% معلب جاهز' : '100% Original Boxed Perfume'}</span>
                   </button>
                 </div>
@@ -2362,7 +3041,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                     {inlineMatch && (
                       <div className="mt-1.5 p-2 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-[11px] flex items-center justify-between gap-2 animate-fadeIn shadow-2xs">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-sm">💡</span>
+                          <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
                           <span>
                             {isAr ? 'عطر مطابق في قاعدة البيانات:' : 'Matching perfume detected:'}{' '}
                             <strong className="text-black">{inlineMatch.nameAr}</strong> ({inlineMatch.brand})
@@ -2517,7 +3196,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                 {newFragrance.isOriginalPackaged && (
                   <div className="p-3.5 bg-amber-500/10 border border-amber-300 rounded-2xl space-y-3 animate-fadeIn">
                     <div className="flex items-center gap-2">
-                      <span className="text-base">💎</span>
+                      <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
                       <h4 className="font-black text-xs text-amber-950">
                         {isAr ? 'بيانات الأصالة والكرتونة الرسمية (للعطر المعلب الجاهز):' : 'Authenticity & Box Specifications:'}
                       </h4>
@@ -2608,7 +3287,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                   /* ================= ORIGINAL PACKAGED PERFUME RETAIL PRICING & INVENTORY ================= */
                   <div className="space-y-3 bg-gradient-to-b from-amber-500/10 via-amber-500/5 to-white p-4 rounded-2xl border border-amber-300">
                     <div className="flex items-center gap-2 p-2.5 bg-black text-amber-300 rounded-xl text-xs font-bold shadow-xs">
-                      <span className="text-base">💎</span>
+                      <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
                       <span>
                         {isAr 
                           ? 'هذا منتج أصلي معلب جاهز للبيع: يُباع بالعبوة/الحبة الكاملة، ويُحسب المخزون بعدد العلب المتوفرة مباشرة.'
@@ -2696,7 +3375,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                           {isAr ? 'عدد العلب المتوفرة بالمخزون (حبة) *:' : 'Stock Quantity (Bottles/Boxes) *:'}
                         </label>
                         <div className="flex items-center bg-white border border-neutral-300 rounded-xl px-2.5 py-1.5">
-                          <span className="text-neutral-400 font-mono text-xs me-1">📦</span>
+                          
                           <input
                             type="number"
                             min="0"
@@ -2832,7 +3511,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                       {/* Manual Size & Price Adder */}
                       <div className="pt-2 border-t border-neutral-200">
                         <label className="block font-bold text-neutral-700 text-[10px] mb-1.5">
-                          {isAr ? '➕ إضافة مقاس مخصص يدوياً (أدخل الحجم وسعر البيع):' : '➕ Add Custom Size & Price Manually:'}
+                          {isAr ? 'إضافة مقاس مخصص يدوياً (أدخل الحجم وسعر البيع):' : 'Add Custom Size & Price Manually:'}
                         </label>
                         <div className="flex flex-wrap items-center gap-2">
                           <div className="flex-1 min-w-[90px]">
@@ -3023,9 +3702,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                   <div className="p-3.5 rounded-2xl bg-gradient-to-r from-neutral-900 via-neutral-800 to-black text-white border border-neutral-700 shadow-xs flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2.5">
                       <span className="text-2xl p-1 bg-white/10 rounded-xl">
-                        {newFragrance.department === 'makeup' ? '💄' :
-                         newFragrance.department === 'accessories' ? '💍' :
-                         newFragrance.department === 'bakhoor' ? '🪔' : '🛍️'}
+                        <Sparkles className="w-5 h-5 text-amber-400" />
                       </span>
                       <div>
                         <div className="font-black text-xs sm:text-sm text-amber-300">
@@ -3174,7 +3851,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                       <div className="p-3 bg-rose-50/70 border border-rose-200 rounded-xl space-y-2">
                         <div className="flex items-center justify-between">
                           <label className="block font-black text-rose-950 text-xs">
-                            {isAr ? '💄 درجة اللون أو رقم الشيد (Color Shade):' : '💄 Color Shade / Number:'}
+                            {isAr ? 'درجة اللون أو رقم الشيد (Color Shade):' : 'Color Shade / Number:'}
                           </label>
                           <span className="text-[10px] text-rose-700 font-bold">
                             {isAr ? 'يظهر للزبون في بطاقة المنتج لاختيار الدرجة' : 'Shown to customers'}
@@ -3205,8 +3882,8 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                         <div className="flex items-center justify-between">
                           <label className="block font-black text-amber-950 text-xs">
                             {newFragrance.department === 'bakhoor'
-                              ? (isAr ? '🪔 الوزن أو حجم العبوة وحالة الكسرات:' : '🪔 Weight / Grade:')
-                              : (isAr ? '💎 مواصفات الخامة والمقاس:' : '💎 Material & Specifications:')}
+                              ? (isAr ? 'الوزن أو حجم العبوة وحالة الكسرات:' : 'Weight / Grade:')
+                              : (isAr ? 'مواصفات الخامة والمقاس:' : 'Material & Specifications:')}
                           </label>
                           <span className="text-[10px] text-amber-800 font-bold">
                             {isAr ? 'يظهر للزبون كبيان فخامة للمنتج' : 'Product specifications'}

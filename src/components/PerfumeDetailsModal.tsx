@@ -880,11 +880,9 @@ export const PerfumeDetailsModal: React.FC<PerfumeDetailsModalProps> = ({
             <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-500/5 border-2 border-amber-400 space-y-2.5 shadow-xs">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-xl">
-                    {oil.productNature === 'makeup' ? '💄' :
-                     oil.productNature === 'accessories' ? '💍' :
-                     oil.productNature === 'bakhoor' ? '🪔' : '💎'}
-                  </span>
+                  <div className="w-7 h-7 rounded-lg bg-black text-amber-400 flex items-center justify-center font-bold">
+                    <Sparkles className="w-4 h-4" />
+                  </div>
                   <div>
                     <h4 className="font-black text-xs sm:text-sm text-neutral-900">
                       {oil.productNature === 'makeup' ? (isAr ? 'مستحضر تجميل ومكياج فاخر أصلي' : 'Luxury Official Cosmetics') :

@@ -805,7 +805,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
       quantity: 1,
     });
 
-    showToast(language === 'ar' ? `تمت إضافة "${name}" (${size} ملل) إلى سلتك بنجاح! 🛍️` : 'Custom blend added to cart!');
+    showToast(language === 'ar' ? `تمت إضافة "${name}" (${size} ملل) إلى سلتك بنجاح` : 'Custom blend added to cart!');
   };
 
   const handleWhatsAppOrderBlend = (blend?: CustomerCustomBlend) => {
@@ -1155,8 +1155,8 @@ export const StoreTab: React.FC<StoreTabProps> = ({
 
     showToast(
       language === 'ar'
-        ? `🛍️ تمت إضافة "${name}" (${sizeMl} ملل) إلى السلة بنجاح!`
-        : `🛍️ Added "${nameEn || name}" (${sizeMl}ml) to cart!`
+        ? `تمت إضافة "${name}" (${sizeMl} ملل) إلى السلة بنجاح`
+        : `Added "${nameEn || name}" (${sizeMl}ml) to cart`
     );
 
     trackPixelEvent('AddToCart', {
@@ -1475,16 +1475,16 @@ export const StoreTab: React.FC<StoreTabProps> = ({
               {badgeOverride
                 ? (isAr ? badgeOverride : (badgeOverride.includes('أكثر') ? '★ Best Seller' : (!/[\u0600-\u06FF]/.test(badgeOverride) ? badgeOverride : '★ Special Offer')))
                 : (oil?.productNature === 'makeup'
-                    ? (isAr ? '💄 مكياج فاخر' : '💄 Luxury Makeup')
+                    ? (isAr ? 'مكياج فاخر' : 'Luxury Makeup')
                     : oil?.productNature === 'accessories'
-                    ? (isAr ? '💍 إكسسوار راقٍ' : '💍 Luxury Accessory')
+                    ? (isAr ? 'إكسسوار راقٍ' : 'Luxury Accessory')
                     : oil?.productNature === 'bakhoor'
-                    ? (isAr ? '🪔 بخور ملكي' : '🪔 Royal Bakhoor')
+                    ? (isAr ? 'بخور ملكي' : 'Royal Bakhoor')
                     : oil?.productNature === 'other'
-                    ? (isAr ? '🛍️ منتج بوتيك' : '🛍️ Boutique')
+                    ? (isAr ? 'منتج بوتيك' : 'Boutique Item')
                     : (oil?.isOriginalPackaged 
-                        ? (isAr ? '💎 عطر أصلي معلب' : '💎 100% Original Boxed') 
-                        : (isRecipe ? (isAr ? '★ خلطة ملكية' : '★ Royal Blend') : (isAr ? '★ الأكثر طلباً' : '★ Best Seller'))))}
+                        ? (isAr ? 'عطر أصلي معلب' : '100% Original Boxed') 
+                        : (isRecipe ? (isAr ? 'خلطة ملكية' : 'Royal Blend') : (isAr ? 'الأكثر طلباً' : 'Best Seller'))))}
             </span>
           </div>
 
@@ -1573,11 +1573,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
               <div className="p-2 sm:p-2.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-500/5 border border-amber-300 flex items-center justify-between gap-2 shadow-2xs">
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xs">
-                      {oil.productNature === 'makeup' ? '💄' :
-                       oil.productNature === 'accessories' ? '💍' :
-                       oil.productNature === 'bakhoor' ? '🪔' : '💎'}
-                    </span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span>
                     <span className="text-[10px] sm:text-xs font-black text-amber-950 font-mono truncate">
                       {oil.productNature === 'makeup'
                         ? (oil.colorOrShade ? `${oil.colorOrShade}` : (isAr ? 'مستحضر تجميل فاخر' : 'Luxury Makeup'))

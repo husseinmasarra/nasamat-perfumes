@@ -77,6 +77,9 @@ export interface FragranceOil {
   productNature?: 'perfume_crafted' | 'perfume_original' | 'makeup' | 'accessories' | 'bakhoor' | 'other';
   department?: 'perfume' | 'makeup' | 'accessories' | 'bakhoor' | 'other';
   colorOrShade?: string; // درجة اللون أو رقمها للمكياج (e.g. #02 Velvet Rose)
+  colors?: string[]; // قائمة الألوان المتاحة للمنتج
+  selectedSizes?: string[]; // المقاسات أو السعات المختارة للمنتج
+  variants?: { name: string; price: number; stock: number }[]; // الخيارات الإضافية
   specification?: string; // مواصفات الخامة أو المقاس للإكسسوارات (e.g. كريستال بوهيمي منقوش)
   category?: string; // القسم الفرعي (أحمر شفاه، مباخر، سلاسل، بخور)
   // Original Packaged Perfume attributes (عطور أصلية معلبة وجاهزة)

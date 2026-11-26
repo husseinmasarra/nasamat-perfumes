@@ -5,6 +5,14 @@ import App from './App.tsx'
 
 // Register PWA Service Worker for desktop & mobile installation with automatic update checks
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      refreshing = true;
+      window.location.reload();
+    }
+  });
+
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').then((reg) => {
       reg.update().catch(() => {});
