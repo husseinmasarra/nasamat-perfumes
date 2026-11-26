@@ -4,5 +4,4 @@ Disallow: /admin
 Disallow: /api/
 Disallow: /*admin*
 
-Sitemap: https://nasamatperfumes.com/sitemap.xml
-Sitemap: https://nasamat-perfumes.vercel.app/sitemap.xml
+Sitemap: https://www.nasamat-perfumes.com/sitemap.xml
