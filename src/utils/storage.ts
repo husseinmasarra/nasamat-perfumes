@@ -216,6 +216,14 @@ export function unrecordDeletedNavCategoryId(id: string): void {
   }
 }
 
+export function resetDeletedNavCategories(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEYS.DELETED_NAV_CATEGORIES);
+  } catch (e) {
+    console.error('Failed to reset deleted nav categories', e);
+  }
+}
+
 // ================= PERMANENTLY DELETED PRODUCTS & OILS =================
 export function loadDeletedProductIds(): Set<string> {
   try {

@@ -217,6 +217,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
   const [barcodeDrafts, setBarcodeDrafts] = useState<Record<string, string>>({});
   const [sizeDrafts, setSizeDrafts] = useState<Record<string, number[]>>({});
   const [savedFeedback, setSavedFeedback] = useState<string | null>(null);
+  const [productToDelete, setProductToDelete] = useState<(typeof combinedProducts)[0] | null>(null);
 
   // Batch Pricing Modal state
   const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
@@ -1100,22 +1101,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
   };
 
   const handleDeleteProduct = (p: (typeof combinedProducts)[0]) => {
-    const isAr = language === 'ar';
-    const confirmMsg = isAr
-      ? `هل أنت متأكد تماماً من حذف عطر "${p.name}" (${p.code}) نهائياً من المتجر؟\n\nلن يعود للظهور في المتجر أو خزانة العطور إطلاقاً.`
-      : `Are you sure you want to permanently delete "${p.name}" (${p.code})? This cannot be undone.`;
-    if (!window.confirm(confirmMsg)) return;
-
-    recordDeletedProductId(p.id);
-    if (p.code) recordDeletedProductId(p.code);
-
-    if (p.type === 'recipe') {
-      onDeleteRecipe?.(p.id);
-    } else {
-      onDeleteOil?.(p.id);
-    }
-
-    setSavedFeedback(null);
+    setProductToDelete(p);
   };
 
   // Apply batch price updates
@@ -1658,6 +1644,67 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
           </table>
         </div>
       </div>
+
+      {/* In-App Permanent Product Deletion Confirmation Modal */}
+      {productToDelete && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn"
+          onClick={() => setProductToDelete(null)}
+        >
+          <div 
+            className="bg-white rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl border border-neutral-200 text-black animate-scaleUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-14 h-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mx-auto border border-red-100 shadow-inner">
+              <Trash2 className="w-7 h-7" />
+            </div>
+            <div className="text-center space-y-2">
+              <h3 className="font-serif font-black text-lg text-black">
+                {isAr ? 'حذف المنتج نهائياً من المتجر؟' : 'Permanently Delete Product?'}
+              </h3>
+              <p className="text-xs text-neutral-600 leading-relaxed">
+                {isAr
+                  ? `هل أنت متأكد من حذف "${productToDelete.name}" (${productToDelete.code}) نهائياً؟ سيتم حظره ولن يعود للظهور في المتجر أو المخزون.`
+                  : `Are you sure you want to permanently delete "${productToDelete.name}" (${productToDelete.code})? It will be blocked from the boutique.`}
+              </p>
+            </div>
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setProductToDelete(null)}
+                className="flex-1 py-2.5 px-4 rounded-xl border border-neutral-300 hover:bg-neutral-100 text-neutral-800 text-xs font-bold transition cursor-pointer"
+              >
+                {isAr ? 'إلغاء' : 'Cancel'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const p = productToDelete;
+                  recordDeletedProductId(p.id);
+                  if (p.code) recordDeletedProductId(p.code);
+
+                  if (p.type === 'recipe') {
+                    onDeleteRecipe?.(p.id);
+                  } else {
+                    onDeleteOil?.(p.id);
+                  }
+
+                  setProductToDelete(null);
+                  setSavedFeedback(
+                    isAr
+                      ? `🗑️ تم حذف عطر "${p.name}" وحظره نهائياً من المتجر`
+                      : `🗑️ Permanently deleted "${p.name}"`
+                  );
+                  setTimeout(() => setSavedFeedback(null), 3500);
+                }}
+                className="flex-1 py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition cursor-pointer shadow-md"
+              >
+                {isAr ? 'نعم، احذف المنتج' : 'Yes, Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Batch Price Adjuster Modal */}
       {isBatchModalOpen && (

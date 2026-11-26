@@ -58,6 +58,7 @@ import {
 import { 
   loadNavCategories, 
   saveNavCategories, 
+  loadDeletedNavCategoryIds,
   INITIAL_NAV_CATEGORIES, 
   LUXURY_PRESET_IMAGES,
   loadCustomerBlends,
@@ -195,9 +196,22 @@ export const StoreTab: React.FC<StoreTabProps> = ({
   // Category Images & Navigation configuration (Managed exclusively from Admin)
   const [navCategories, setNavCategories] = useState<CategoryNavConfig[]>(() => loadNavCategories());
 
-  // Helper to find category config
+  // Helper to find category config (strictly respects deleted/blocked categories)
   const getCategoryConfig = (id: string): CategoryNavConfig => {
-    return navCategories.find((c) => c.id === id) || INITIAL_NAV_CATEGORIES.find((c) => c.id === id) || {
+    const deletedIds = loadDeletedNavCategoryIds();
+    if (deletedIds.has(id)) {
+      return {
+        id,
+        labelAr: '',
+        labelEn: '',
+        imageUrl: 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=300&q=80',
+      };
+    }
+    const found = navCategories.find((c) => c.id === id);
+    if (found) return found;
+    const initialFound = INITIAL_NAV_CATEGORIES.find((c) => c.id === id);
+    if (initialFound && !deletedIds.has(initialFound.id)) return initialFound;
+    return {
       id,
       labelAr: id,
       labelEn: id,
@@ -1714,7 +1728,12 @@ export const StoreTab: React.FC<StoreTabProps> = ({
               { id: 'atelier', page: 'atelier', conf: getCategoryConfig('atelier') },
               { id: 'delivery', page: 'delivery', conf: getCategoryConfig('delivery') },
             ]
-              .filter(({ id }) => id === 'home' || id === 'catalog' || navCategories.some((c) => c.id === id))
+              .filter(({ id }) => {
+                const deletedIds = loadDeletedNavCategoryIds();
+                if (deletedIds.has(id)) return false;
+                if (id === 'catalog' && (deletedIds.has('all') || !navCategories.some((c) => c.id === 'all'))) return false;
+                return navCategories.some((c) => c.id === id || (id === 'catalog' && c.id === 'all'));
+              })
               .map(({ id, page, conf }) => (
               <button
                 key={id}
@@ -4210,7 +4229,13 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                     active: customerPage === 'mix-perfume',
                   },
                 ]
-                  .filter((item) => item.id === 'home' || item.id === 'catalog' || item.configId === 'ai-sommelier' || navCategories.some((c) => c.id === item.id))
+                  .filter((item) => {
+                    const deletedIds = loadDeletedNavCategoryIds();
+                    if (deletedIds.has(item.id) || (item.configId && deletedIds.has(item.configId))) return false;
+                    if (item.id === 'catalog' && !navCategories.some((c) => c.id === 'all')) return false;
+                    if (item.configId === 'ai-sommelier') return true;
+                    return navCategories.some((c) => c.id === item.id || (item.id === 'catalog' && c.id === 'all'));
+                  })
                   .map((item) => {
                   const conf = getCategoryConfig(item.configId);
                   return (

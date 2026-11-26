@@ -68,6 +68,7 @@ import {
   saveNavCategories, 
   recordDeletedNavCategoryId,
   unrecordDeletedNavCategoryId,
+  loadDeletedNavCategoryIds,
   INITIAL_NAV_CATEGORIES, 
   LUXURY_PRESET_IMAGES,
   loadCustomerBlends,
@@ -588,6 +589,8 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
   // Navigation & Category Images management (صور قابلة للتعديل وإضافة أقسام جديدة)
   const [adminNavCategories, setAdminNavCategories] = useState<CategoryNavConfig[]>(() => loadNavCategories());
   const [editingCategoryModal, setEditingCategoryModal] = useState<CategoryNavConfig | null>(null);
+  const [categoryToDelete, setCategoryToDelete] = useState<{ id: string; label: string } | null>(null);
+  const [categoryToast, setCategoryToast] = useState<string | null>(null);
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [modalEditId, setModalEditId] = useState('');
   const [modalEditImageUrl, setModalEditImageUrl] = useState('');
@@ -595,6 +598,15 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
   const [modalEditLabelEn, setModalEditLabelEn] = useState('');
   const [modalEditCountAr, setModalEditCountAr] = useState('');
   const [modalEditCountEn, setModalEditCountEn] = useState('');
+
+  // Re-sync categories automatically whenever updated anywhere in the app
+  useEffect(() => {
+    const handleUpdate = () => {
+      setAdminNavCategories(loadNavCategories());
+    };
+    window.addEventListener('nasamat_categories_updated', handleUpdate);
+    return () => window.removeEventListener('nasamat_categories_updated', handleUpdate);
+  }, []);
 
   const openAdminCategoryEdit = (cat: CategoryNavConfig) => {
     setIsAddingCategory(false);
@@ -626,13 +638,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
   };
 
   const deleteAdminCategory = (id: string, label: string) => {
-    if (confirm(isAr ? `هل أنت متأكد من حذف قسم "${label}" نهائياً من المتجر؟` : `Are you sure you want to permanently delete category "${label}"?`)) {
-      recordDeletedNavCategoryId(id);
-      const updated = adminNavCategories.filter((c) => c.id !== id);
-      setAdminNavCategories(updated);
-      saveNavCategories(updated);
-      window.dispatchEvent(new Event('nasamat_categories_updated'));
-    }
+    setCategoryToDelete({ id, label });
   };
 
   const saveAdminCategoryEdit = () => {
@@ -1846,6 +1852,62 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
             ))}
           </div>
 
+          {/* Blacklisted / Deleted Categories Card for Full Transparency */}
+          {Array.from(loadDeletedNavCategoryIds()).filter((id) => id !== 'bundles').length > 0 && (
+            <div className="bg-neutral-50 border border-neutral-200 p-6 rounded-3xl shadow-xs space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-black font-serif uppercase tracking-wider text-neutral-800 flex items-center gap-2">
+                    <Trash2 className="w-4 h-4 text-red-500" />
+                    <span>{isAr ? 'قائمة الأقسام المحذوفة من المتجر (المحظورة)' : 'Deleted & Blocked Categories'}</span>
+                  </h3>
+                  <p className="text-[11px] text-neutral-500">
+                    {isAr
+                      ? 'هذه الأقسام تم حذفها نهائياً ومحظور ظهورها في المتجر أو شريط التنقل. يمكنك استرجاع أي قسم بنقرة واحدة.'
+                      : 'These categories have been permanently blocked from the storefront. You can restore any category anytime.'}
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {Array.from(loadDeletedNavCategoryIds())
+                  .filter((id) => id !== 'bundles')
+                  .map((delId) => {
+                    const original = INITIAL_NAV_CATEGORIES.find((c) => c.id === delId);
+                    const label = original ? (isAr ? original.labelAr : original.labelEn) : delId;
+                    return (
+                      <div key={delId} className="p-3.5 rounded-2xl bg-white border border-neutral-200 flex items-center justify-between gap-3 shadow-2xs">
+                        <div className="space-y-0.5 min-w-0">
+                          <span className="font-bold text-xs text-neutral-700 block truncate">{label}</span>
+                          <span className="text-[10px] text-neutral-400 font-mono block">ID: {delId}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            unrecordDeletedNavCategoryId(delId);
+                            if (original && !adminNavCategories.some((c) => c.id === delId)) {
+                              const restored = [...adminNavCategories, original];
+                              setAdminNavCategories(restored);
+                              saveNavCategories(restored);
+                            }
+                            window.dispatchEvent(new Event('nasamat_categories_updated'));
+                            setCategoryToast(
+                              isAr
+                                ? `↺ تم استرجاع قسم "${label}" للمتجر بنجاح`
+                                : `Restored category "${label}" successfully`
+                            );
+                            setTimeout(() => setCategoryToast(null), 3500);
+                          }}
+                          className="px-3 py-1.5 rounded-xl border border-neutral-300 hover:border-black hover:bg-neutral-50 text-[11px] font-bold text-neutral-800 transition flex items-center gap-1 cursor-pointer shrink-0"
+                        >
+                          <span>{isAr ? '↺ استرجاع' : 'Restore'}</span>
+                        </button>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          )}
+
           {/* Olfactory Families Breakdown */}
           <div className="bg-white border border-neutral-200 p-6 rounded-3xl shadow-xs space-y-4">
             <h3 className="text-sm font-black font-serif uppercase tracking-wider text-black">
@@ -2011,6 +2073,14 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                   >
                     <Camera className="w-3.5 h-3.5 text-neutral-600" />
                     <span>{isAr ? 'تعديل الصورة' : 'Edit'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => deleteAdminCategory(item.id, item.labelAr)}
+                    className="p-1.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 text-xs font-bold transition flex items-center justify-center cursor-pointer shadow-2xs"
+                    title={isAr ? 'حذف هذا القسم' : 'Delete Category'}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                   <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
                     {isAr ? 'مفعّل' : 'Active'}
@@ -4877,6 +4947,70 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* In-App Permanent Category Deletion Confirmation Modal */}
+      {categoryToDelete && (
+        <div 
+          className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
+          onClick={() => setCategoryToDelete(null)}
+        >
+          <div 
+            className="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-neutral-200 overflow-hidden text-black animate-scaleUp my-auto p-6 space-y-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-14 h-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mx-auto border border-red-100 shadow-inner">
+              <Trash2 className="w-7 h-7" />
+            </div>
+            <div className="text-center space-y-2">
+              <h3 className="font-bold text-lg text-black font-serif">
+                {isAr ? 'حذف هذا القسم نهائياً من المتجر؟' : 'Permanently Delete Category?'}
+              </h3>
+              <p className="text-xs text-neutral-600 leading-relaxed">
+                {isAr
+                  ? `هل أنت متأكد من حذف قسم "${categoryToDelete.label}"؟ سيتم إخفاؤه وحظره تماماً من شريط التنقل والواجهة ولن يعود للظهور مجدداً.`
+                  : `Are you sure you want to permanently delete "${categoryToDelete.label}"? It will be blocked and hidden from store navigation permanently.`}
+              </p>
+            </div>
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setCategoryToDelete(null)}
+                className="flex-1 py-2.5 px-4 rounded-xl border border-neutral-300 hover:bg-neutral-100 text-neutral-800 text-xs font-bold transition cursor-pointer"
+              >
+                {isAr ? 'إلغاء' : 'Cancel'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  recordDeletedNavCategoryId(categoryToDelete.id);
+                  const updated = adminNavCategories.filter((c) => c.id !== categoryToDelete.id);
+                  setAdminNavCategories(updated);
+                  saveNavCategories(updated);
+                  window.dispatchEvent(new Event('nasamat_categories_updated'));
+                  setCategoryToast(
+                    isAr
+                      ? `🗑️ تم حذف قسم "${categoryToDelete.label}" وحظره نهائياً من المتجر`
+                      : `🗑️ Permanently deleted "${categoryToDelete.label}"`
+                  );
+                  setCategoryToDelete(null);
+                  setTimeout(() => setCategoryToast(null), 3500);
+                }}
+                className="flex-1 py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition cursor-pointer shadow-md"
+              >
+                {isAr ? 'نعم، احذف القسم' : 'Yes, Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Category Action Toast Notification */}
+      {categoryToast && (
+        <div className="fixed bottom-6 start-1/2 -translate-x-1/2 z-50 bg-black text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-neutral-700 animate-fadeIn text-xs font-bold">
+          <Check className="w-4 h-4 text-emerald-400 stroke-[3]" />
+          <span>{categoryToast}</span>
         </div>
       )}
 
