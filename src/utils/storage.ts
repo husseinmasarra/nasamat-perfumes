@@ -149,14 +149,6 @@ export const INITIAL_NAV_CATEGORIES: CategoryNavConfig[] = [
     countAr: 'حرفية بيروت',
     countEn: 'Beirut Atelier',
   },
-  {
-    id: 'delivery',
-    labelAr: 'التوصيل والدفع',
-    labelEn: 'Delivery & COD',
-    imageUrl: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=300&q=80',
-    countAr: 'كل لبنان',
-    countEn: 'Lebanon Wide',
-  },
 ];
 
 export const LUXURY_PRESET_IMAGES = [
@@ -183,21 +175,29 @@ export function loadDeletedNavCategoryIds(): Set<string> {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.DELETED_NAV_CATEGORIES);
     const list: string[] = raw ? JSON.parse(raw) : [];
-    // Ensure 'bundles' is permanently blacklisted unless merchant explicitly creates it
-    if (!list.includes('bundles')) {
-      list.push('bundles');
+    let changed = false;
+    // Permanently ensure 'bundles' and 'delivery' are blacklisted unless explicitly restored
+    ['bundles', 'delivery', 'التوصيل والدفع', 'باقات التوفير'].forEach((id) => {
+      if (!list.includes(id)) {
+        list.push(id);
+        changed = true;
+      }
+    });
+    if (changed) {
       localStorage.setItem(STORAGE_KEYS.DELETED_NAV_CATEGORIES, JSON.stringify(list));
     }
     return new Set(list);
   } catch {
-    return new Set(['bundles']);
+    return new Set(['bundles', 'delivery', 'التوصيل والدفع', 'باقات التوفير']);
   }
 }
 
-export function recordDeletedNavCategoryId(id: string): void {
+export function recordDeletedNavCategoryId(idOrLabel: string): void {
   try {
+    if (!idOrLabel) return;
     const set = loadDeletedNavCategoryIds();
-    set.add(id);
+    set.add(idOrLabel);
+    set.add(idOrLabel.toLowerCase());
     localStorage.setItem(STORAGE_KEYS.DELETED_NAV_CATEGORIES, JSON.stringify(Array.from(set)));
   } catch (e) {
     console.error('Failed to record deleted nav category', e);
@@ -262,8 +262,10 @@ export function loadNavCategories(): CategoryNavConfig[] {
     const raw = localStorage.getItem(STORAGE_KEYS.NAV_CATEGORIES);
     if (raw) {
       const saved: CategoryNavConfig[] = JSON.parse(raw);
-      // Strictly exclude any category explicitly deleted by the merchant
-      const filtered = saved.filter((c) => !deletedIds.has(c.id));
+      // Strictly exclude any category explicitly deleted by the merchant (by id or Arabic/English label)
+      const filtered = saved.filter(
+        (c) => !deletedIds.has(c.id) && !deletedIds.has(c.labelAr) && !deletedIds.has(c.labelEn) && c.id !== 'delivery' && c.id !== 'bundles'
+      );
 
       // Auto-strip product count numbers from countAr / countEn for clean luxury UI
       filtered.forEach((c) => {
@@ -271,7 +273,7 @@ export function loadNavCategories(): CategoryNavConfig[] {
         if (c.countEn && /\d+/.test(c.countEn)) c.countEn = '';
       });
 
-      // Never auto-resurrect deleted categories! Persist clean list
+      // Always persist the clean list so unwanted categories never resurrect
       if (filtered.length !== saved.length) {
         saveNavCategories(filtered);
       }
@@ -279,12 +281,14 @@ export function loadNavCategories(): CategoryNavConfig[] {
     }
 
     // First time initializing: exclude any previously marked deleted categories
-    const initialList = INITIAL_NAV_CATEGORIES.filter((c) => !deletedIds.has(c.id));
+    const initialList = INITIAL_NAV_CATEGORIES.filter(
+      (c) => !deletedIds.has(c.id) && !deletedIds.has(c.labelAr) && !deletedIds.has(c.labelEn) && c.id !== 'delivery' && c.id !== 'bundles'
+    );
     saveNavCategories(initialList);
     return initialList;
   } catch (e) {
     console.error('Failed to load nav categories', e);
-    return INITIAL_NAV_CATEGORIES;
+    return INITIAL_NAV_CATEGORIES.filter((c) => c.id !== 'delivery' && c.id !== 'bundles');
   }
 }
 
