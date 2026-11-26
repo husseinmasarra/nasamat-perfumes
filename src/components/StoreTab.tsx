@@ -211,6 +211,9 @@ export const StoreTab: React.FC<StoreTabProps> = ({
       setCustomerPage('home');
       setSelectedCategory('all');
       setSearchTerm('');
+      setIsMenuDrawerOpen(false);
+      setQuickSelectProduct(null);
+      setLastPlacedInvoice(null);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
     const handleOpenMenu = () => setIsMenuDrawerOpen(true);

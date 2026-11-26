@@ -74,28 +74,15 @@ const AppContent: React.FC = () => {
   const [isAdminAuthModalOpen, setIsAdminAuthModalOpen] = useState(false);
   const [pendingAdminTab, setPendingAdminTab] = useState<AdminNavTab | ActiveTab | null>(null);
 
-  // Portal Mode: 'customer' (صفحة الزبائن - المتجر الفاخر والسلة) or 'admin' (صفحة الإدارة - لوحة القيادة والمختبر)
-  const [portal, setPortal] = useState<'customer' | 'admin'>(() => {
-    try {
-      const isAuth = sessionStorage.getItem('nasamat_admin_auth') === 'true';
-      const saved = localStorage.getItem('nasamat_portal_mode');
-      if (isAuth && saved === 'admin') return 'admin';
-    } catch (_) {}
-    return 'customer';
-  });
+  // Portal Mode: ALWAYS default to 'customer' (الصفحة الرئيسية لمتجر الزبائن الفاخر) on fresh open or page load
+  // Admin portal is only entered explicitly via PIN authentication / secret lock
+  const [portal, setPortal] = useState<'customer' | 'admin'>('customer');
 
   const [adminTab, setAdminTab] = useState<AdminNavTab>('pos');
   const [isMobileAdminSidebarOpen, setIsMobileAdminSidebarOpen] = useState(false);
   const [isPosSidebarCollapsed, setIsPosSidebarCollapsed] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<ActiveTab>(() => {
-    try {
-      const isAuth = sessionStorage.getItem('nasamat_admin_auth') === 'true';
-      const savedPortal = localStorage.getItem('nasamat_portal_mode');
-      if (isAuth && savedPortal === 'admin') return 'dashboard';
-    } catch (_) {}
-    return 'store';
-  });
+  const [activeTab, setActiveTab] = useState<ActiveTab>('store');
 
   const [oils, setOils] = useState<FragranceOil[]>(loadOils);
   const [materials, setMaterials] = useState<RawMaterial[]>(loadMaterials);
@@ -773,6 +760,7 @@ const AppContent: React.FC = () => {
   const handleGoHome = () => {
     setPortal('customer');
     setActiveTab('store');
+    setIsCartOpen(false);
     window.dispatchEvent(new CustomEvent('nasamat_go_home'));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
