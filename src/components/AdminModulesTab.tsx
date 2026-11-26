@@ -147,7 +147,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
   // Savings Bundles state (Admin Management)
   const [couponSubTab, setCouponSubTab] = useState<'bundles' | 'coupons'>('bundles');
   const [bundlesList, setBundlesList] = useState<SavingsBundle[]>(() => {
-    return propSavingsBundles && propSavingsBundles.length > 0 ? propSavingsBundles : loadSavingsBundles();
+    return propSavingsBundles !== undefined ? propSavingsBundles : loadSavingsBundles();
   });
   const [savedBundleId, setSavedBundleId] = useState<string | null>(null);
   const [isAddBundleModalOpen, setIsAddBundleModalOpen] = useState(false);
@@ -167,7 +167,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
   const [newBundleSelectedIds, setNewBundleSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
-    if (propSavingsBundles && propSavingsBundles.length > 0) {
+    if (propSavingsBundles !== undefined) {
       setBundlesList(propSavingsBundles);
     }
   }, [propSavingsBundles]);

@@ -19,10 +19,11 @@ import {
   FlaskConical,
   Package,
   Database,
+  Trash2,
   X
 } from './icons';
 import { useLanguage } from '../context/LanguageContext';
-import { LUXURY_PRESET_IMAGES, generatePerfumeBarcode } from '../utils/storage';
+import { LUXURY_PRESET_IMAGES, generatePerfumeBarcode, recordDeletedProductId } from '../utils/storage';
 import {
   PERFUME_PRESETS_DATABASE,
   POPULAR_DATABASE_BRANDS,
@@ -127,6 +128,8 @@ interface AdminProductsPricingTabProps {
   onUpdateOil: (updatedOil: FragranceOil) => void;
   onUpdateRecipe?: (updatedRecipe: SavedRecipe) => void;
   onAddOil?: (newOil: FragranceOil) => void;
+  onDeleteOil?: (id: string) => void;
+  onDeleteRecipe?: (id: string) => void;
 }
 
 export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = ({
@@ -136,6 +139,8 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
   onUpdateOil,
   onUpdateRecipe,
   onAddOil,
+  onDeleteOil,
+  onDeleteRecipe,
 }) => {
   const { language } = useLanguage();
   const isAr = language === 'ar';
@@ -798,6 +803,25 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
     setTimeout(() => setSavedFeedback(null), 2500);
   };
 
+  const handleDeleteProduct = (p: (typeof combinedProducts)[0]) => {
+    const isAr = language === 'ar';
+    const confirmMsg = isAr
+      ? `هل أنت متأكد تماماً من حذف عطر "${p.name}" (${p.code}) نهائياً من المتجر؟\n\nلن يعود للظهور في المتجر أو خزانة العطور إطلاقاً.`
+      : `Are you sure you want to permanently delete "${p.name}" (${p.code})? This cannot be undone.`;
+    if (!window.confirm(confirmMsg)) return;
+
+    recordDeletedProductId(p.id);
+    if (p.code) recordDeletedProductId(p.code);
+
+    if (p.type === 'recipe') {
+      onDeleteRecipe?.(p.id);
+    } else {
+      onDeleteOil?.(p.id);
+    }
+
+    setSavedFeedback(null);
+  };
+
   // Apply batch price updates
   const handleApplyBatchPrices = () => {
     const n30 = parseFloat(batchPrice30) || 5;
@@ -1044,7 +1068,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                   {isAr ? 'سعر الجملة ($)' : 'Wholesale ($)'}
                 </th>
                 <th className="py-3.5 px-3 text-center font-black text-black">{isAr ? 'هامش الربح (50ml)' : 'Profit / Margin'}</th>
-                <th className="py-3.5 px-4 text-center font-black text-black">{isAr ? 'حفظ السعر' : 'Action'}</th>
+                <th className="py-3.5 px-4 text-center font-black text-black">{isAr ? 'الإجراءات والتحكم' : 'Actions'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-200">
@@ -1242,31 +1266,42 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                       </div>
                     </td>
 
-                    {/* Quick Save Action Button */}
+                    {/* Quick Save & Permanent Delete Action Buttons */}
                     <td className="py-3.5 px-4 text-center">
-                      <button
-                        onClick={() => handleSaveIndividualPrice(p)}
-                        className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 mx-auto transition cursor-pointer shadow-xs ${
-                          isSaved
-                            ? 'bg-emerald-600 text-white'
-                            : isDraftModified
-                            ? 'bg-black text-white hover:bg-neutral-800 animate-pulse'
-                            : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-800 border border-neutral-300'
-                        }`}
-                        title={isAr ? 'حفظ السعر الفردي لهذا العطر' : 'Save individual price'}
-                      >
-                        {isSaved ? (
-                          <>
-                            <Check className="w-3.5 h-3.5 text-white" />
-                            <span>{isAr ? 'تم الحفظ ✅' : 'Saved'}</span>
-                          </>
-                        ) : (
-                          <>
-                            <DollarSign className="w-3.5 h-3.5" />
-                            <span>{isAr ? 'حفظ السعر' : 'Save'}</span>
-                          </>
-                        )}
-                      </button>
+                      <div className="flex items-center justify-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleSaveIndividualPrice(p)}
+                          className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow-xs ${
+                            isSaved
+                              ? 'bg-emerald-600 text-white'
+                              : isDraftModified
+                              ? 'bg-black text-white hover:bg-neutral-800 animate-pulse'
+                              : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-800 border border-neutral-300'
+                          }`}
+                          title={isAr ? 'حفظ السعر الفردي لهذا العطر' : 'Save individual price'}
+                        >
+                          {isSaved ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-white" />
+                              <span>{isAr ? 'تم الحفظ ✅' : 'Saved'}</span>
+                            </>
+                          ) : (
+                            <>
+                              <DollarSign className="w-3.5 h-3.5" />
+                              <span>{isAr ? 'حفظ السعر' : 'Save'}</span>
+                            </>
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteProduct(p)}
+                          className="p-1.5 rounded-xl text-rose-500 hover:text-white hover:bg-rose-600 border border-rose-200 hover:border-rose-600 transition cursor-pointer shadow-2xs"
+                          title={isAr ? `حذف عطر "${p.name}" نهائياً من المتجر` : `Delete product "${p.name}"`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );

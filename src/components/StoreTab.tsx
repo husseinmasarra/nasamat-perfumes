@@ -1678,7 +1678,6 @@ export const StoreTab: React.FC<StoreTabProps> = ({
               { id: 'catalog', page: 'catalog', conf: getCategoryConfig('all') },
               { id: 'signatures', page: 'signatures', conf: getCategoryConfig('signatures') },
               { id: 'mix-perfume', page: 'mix-perfume', conf: getCategoryConfig('mix-perfume') },
-              { id: 'bundles', page: 'bundles', conf: getCategoryConfig('bundles') },
               { id: 'atelier', page: 'atelier', conf: getCategoryConfig('atelier') },
               { id: 'delivery', page: 'delivery', conf: getCategoryConfig('delivery') },
             ]
@@ -4176,16 +4175,6 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                       setIsMenuDrawerOpen(false);
                     },
                     active: customerPage === 'mix-perfume',
-                  },
-                  {
-                    id: 'bundles',
-                    configId: 'bundles',
-                    label: language === 'ar' ? 'باقات التوفير والشحن المجاني' : 'Bundles & Save',
-                    action: () => {
-                      navigateToCustomerPage('bundles');
-                      setIsMenuDrawerOpen(false);
-                    },
-                    active: customerPage === 'bundles',
                   },
                 ]
                   .filter((item) => item.id === 'home' || item.id === 'catalog' || item.configId === 'ai-sommelier' || navCategories.some((c) => c.id === item.id))

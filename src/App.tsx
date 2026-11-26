@@ -19,7 +19,8 @@ import {
   loadStaffMembers,
   loadCurrentStaff,
   saveStaffMembers,
-  saveCurrentStaffId
+  saveCurrentStaffId,
+  recordDeletedProductId
 } from './utils/storage';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { Header } from './components/Header';
@@ -463,7 +464,14 @@ const AppContent: React.FC = () => {
   };
 
   const handleDeleteOil = (id: string) => {
-    setOils((prev) => prev.filter((o) => o.id !== id));
+    recordDeletedProductId(id);
+    setOils((prev) => {
+      const target = prev.find((o) => o.id === id);
+      if (target?.code) recordDeletedProductId(target.code);
+      const filtered = prev.filter((o) => o.id !== id);
+      saveOils(filtered);
+      return filtered;
+    });
   };
 
   const handleRestockOil = (id: string, additionalQty: number, additionalCost?: number) => {
@@ -587,7 +595,12 @@ const AppContent: React.FC = () => {
   };
 
   const handleDeleteRecipe = (id: string) => {
-    setRecipes((prev) => prev.filter((r) => r.id !== id));
+    recordDeletedProductId(id);
+    setRecipes((prev) => {
+      const filtered = prev.filter((r) => r.id !== id);
+      saveRecipes(filtered);
+      return filtered;
+    });
   };
 
   const handleFormulateRecipe = (recipe: SavedRecipe) => {
@@ -922,6 +935,8 @@ const AppContent: React.FC = () => {
                   onUpdateOil={handleUpdateOil}
                   onUpdateRecipe={handleSaveRecipe}
                   onAddOil={handleAddOil}
+                  onDeleteOil={handleDeleteOil}
+                  onDeleteRecipe={handleDeleteRecipe}
                 />
               )}
 

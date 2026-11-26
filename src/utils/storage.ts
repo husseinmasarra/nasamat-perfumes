@@ -37,6 +37,7 @@ const STORAGE_KEYS = {
   CRM_LEADS: 'nasamat_crm_leads_v2',
   CRM_DELETED_LEADS: 'nasamat_crm_deleted_leads_v1',
   DELETED_NAV_CATEGORIES: 'nasamat_deleted_nav_categories_v2',
+  DELETED_PRODUCTS: 'nasamat_deleted_products_v2',
   PIXEL_SETTINGS: 'nasamat_pixel_settings_v1',
   PIXEL_EVENTS_LOG: 'nasamat_pixel_events_log_v1',
   STAFF_MEMBERS: 'nasamat_staff_members_v1',
@@ -141,14 +142,6 @@ export const INITIAL_NAV_CATEGORIES: CategoryNavConfig[] = [
     countEn: 'Bespoke Lab',
   },
   {
-    id: 'bundles',
-    labelAr: 'باقات التوفير',
-    labelEn: 'Bundles',
-    imageUrl: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=300&q=80',
-    countAr: 'شحن مجاني',
-    countEn: 'Free Delivery',
-  },
-  {
     id: 'atelier',
     labelAr: 'قصة الدار والمختبر',
     labelEn: 'Atelier Story',
@@ -184,9 +177,15 @@ export const LUXURY_PRESET_IMAGES = [
 export function loadDeletedNavCategoryIds(): Set<string> {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.DELETED_NAV_CATEGORIES);
-    return raw ? new Set(JSON.parse(raw)) : new Set();
+    const list: string[] = raw ? JSON.parse(raw) : [];
+    // Ensure 'bundles' is permanently blacklisted unless merchant explicitly creates it
+    if (!list.includes('bundles')) {
+      list.push('bundles');
+      localStorage.setItem(STORAGE_KEYS.DELETED_NAV_CATEGORIES, JSON.stringify(list));
+    }
+    return new Set(list);
   } catch {
-    return new Set();
+    return new Set(['bundles']);
   }
 }
 
@@ -209,6 +208,38 @@ export function unrecordDeletedNavCategoryId(id: string): void {
     }
   } catch (e) {
     console.error('Failed to unrecord deleted nav category', e);
+  }
+}
+
+// ================= PERMANENTLY DELETED PRODUCTS & OILS =================
+export function loadDeletedProductIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.DELETED_PRODUCTS);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+export function recordDeletedProductId(idOrCode: string): void {
+  try {
+    if (!idOrCode) return;
+    const set = loadDeletedProductIds();
+    set.add(idOrCode);
+    localStorage.setItem(STORAGE_KEYS.DELETED_PRODUCTS, JSON.stringify(Array.from(set)));
+  } catch (e) {
+    console.error('Failed to record deleted product id', e);
+  }
+}
+
+export function unrecordDeletedProductId(idOrCode: string): void {
+  try {
+    const set = loadDeletedProductIds();
+    if (set.delete(idOrCode)) {
+      localStorage.setItem(STORAGE_KEYS.DELETED_PRODUCTS, JSON.stringify(Array.from(set)));
+    }
+  } catch (e) {
+    console.error('Failed to unrecord deleted product id', e);
   }
 }
 
@@ -267,10 +298,15 @@ export function generatePerfumeBarcode(code: string, prefix = '6281'): string {
 
 export function loadOils(): FragranceOil[] {
   try {
+    const deletedProductIds = loadDeletedProductIds();
     const rawV5 = localStorage.getItem(STORAGE_KEYS.OILS);
     if (rawV5) {
       const list: FragranceOil[] = JSON.parse(rawV5);
-      return list.map((o) => {
+      const filtered = list.filter((o) => !deletedProductIds.has(o.id) && !deletedProductIds.has(o.code));
+      if (filtered.length !== list.length) {
+        saveOils(filtered);
+      }
+      return filtered.map((o) => {
         let img = o.imageUrl;
         // Fix old generic images
         if (o.code === 'NAS-003' && img && img.includes('photo-1523293182086-7651a899d37f')) {
@@ -303,21 +339,26 @@ export function loadOils(): FragranceOil[] {
       
     if (rawOld) {
       const list: FragranceOil[] = JSON.parse(rawOld);
-      const migrated = list.map((o) => ({
-        ...o,
-        retailPrice30ml: 5,
-        retailPrice50ml: 7,
-        retailPrice100ml: 12,
-        wholesalePrice50ml: 4.5,
-      }));
+      const migrated = list
+        .filter((o) => !deletedProductIds.has(o.id) && !deletedProductIds.has(o.code))
+        .map((o) => ({
+          ...o,
+          retailPrice30ml: 5,
+          retailPrice50ml: 7,
+          retailPrice100ml: 12,
+          wholesalePrice50ml: 4.5,
+        }));
       localStorage.setItem(STORAGE_KEYS.OILS, JSON.stringify(migrated));
       return migrated;
     }
 
-    return INITIAL_OILS;
+    const cleanInitial = INITIAL_OILS.filter((o) => !deletedProductIds.has(o.id) && !deletedProductIds.has(o.code));
+    saveOils(cleanInitial);
+    return cleanInitial;
   } catch (e) {
     console.error('Failed to load oils from storage', e);
-    return INITIAL_OILS;
+    const deletedProductIds = loadDeletedProductIds();
+    return INITIAL_OILS.filter((o) => !deletedProductIds.has(o.id) && !deletedProductIds.has(o.code));
   }
 }
 
@@ -544,10 +585,19 @@ export function saveSettings(settings: AppSettings) {
 
 export function loadRecipes(): SavedRecipe[] {
   try {
+    const deletedProductIds = loadDeletedProductIds();
     const raw = localStorage.getItem(STORAGE_KEYS.RECIPES);
-    if (!raw) return INITIAL_RECIPES;
+    if (!raw) {
+      const cleanInitial = INITIAL_RECIPES.filter((r) => !deletedProductIds.has(r.id) && !deletedProductIds.has(r.code));
+      saveRecipes(cleanInitial);
+      return cleanInitial;
+    }
     const list: SavedRecipe[] = JSON.parse(raw);
-    return list.map((r) => {
+    const filtered = (Array.isArray(list) ? list : []).filter((r) => !deletedProductIds.has(r.id) && !deletedProductIds.has(r.code));
+    if (filtered.length !== list.length) {
+      saveRecipes(filtered);
+    }
+    return filtered.map((r) => {
       let img = r.imageUrl;
       if (!img || img.includes('photo-1615397349754-cfa2066a298e')) {
         img = 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=600&q=80';
@@ -1247,11 +1297,14 @@ export const INITIAL_SAVINGS_BUNDLES: SavingsBundle[] = [
 export function loadSavingsBundles(): SavingsBundle[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.SAVINGS_BUNDLES);
-    if (!raw) return INITIAL_SAVINGS_BUNDLES;
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_SAVINGS_BUNDLES;
+    if (raw !== null) {
+      const parsed = JSON.parse(raw);
+      // Strictly respect merchant deletions - do not resurrect if empty array
+      return Array.isArray(parsed) ? parsed : [];
+    }
+    return [];
   } catch {
-    return INITIAL_SAVINGS_BUNDLES;
+    return [];
   }
 }
 
