@@ -555,9 +555,17 @@ export const StoreTab: React.FC<StoreTabProps> = ({
     }, 2800);
   };
 
-  // Helper to get or default selection
-  const getSelection = (key: string) => {
-    return productSelections[key] || { size: 50, qty: 1 };
+  // Helper to get or default selection (supports custom sizes)
+  const getSelection = (key: string, availableSizes?: number[]) => {
+    const defaultSize = availableSizes && availableSizes.length > 0
+      ? (availableSizes.includes(50) ? 50 : availableSizes[0])
+      : 50;
+    const current = productSelections[key];
+    if (!current) return { size: defaultSize, qty: 1 };
+    if (availableSizes && availableSizes.length > 0 && !availableSizes.includes(current.size)) {
+      return { size: defaultSize, qty: current.qty };
+    }
+    return current;
   };
 
   const setSize = (key: string, size: number) => {
@@ -852,14 +860,24 @@ export const StoreTab: React.FC<StoreTabProps> = ({
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
-  // Calculate pricing & stock for an oil
+  // Calculate pricing & stock for an oil (supports custom sizes & sizePrices)
   const getOilInfo = (oil: FragranceOil, size: number) => {
-    let price = oil.retailPrice50ml || 7;
-    if (size === 30) price = oil.retailPrice30ml || 5;
-    if (size === 100) price = oil.retailPrice100ml || 12;
+    let price = 7;
+    if (oil.sizePrices && oil.sizePrices[size] !== undefined) {
+      price = oil.sizePrices[size];
+    } else if (size === 30) {
+      price = oil.retailPrice30ml !== undefined ? oil.retailPrice30ml : 5;
+    } else if (size === 100) {
+      price = oil.retailPrice100ml !== undefined ? oil.retailPrice100ml : 12;
+    } else if (size === 50) {
+      price = oil.retailPrice50ml !== undefined ? oil.retailPrice50ml : 7;
+    } else {
+      const base50 = oil.retailPrice50ml !== undefined ? oil.retailPrice50ml : 7;
+      price = Math.max(1, Math.round((size / 50) * base50 * 10) / 10);
+    }
 
-    // Oil needed per bottle (Extrait concentration)
-    const oilNeededMl = size === 30 ? 7.5 : size === 50 ? 12.5 : 25;
+    // Oil needed per bottle (Extrait concentration ~25-30%)
+    const oilNeededMl = Math.max(0.5, (size * 25) / 100);
     const maxBottlesPossible = Math.floor(oil.currentQuantity / oilNeededMl);
 
     let stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock' = 'in_stock';
@@ -872,14 +890,25 @@ export const StoreTab: React.FC<StoreTabProps> = ({
     return { price, oilNeededMl, maxBottlesPossible, stockStatus };
   };
 
-  // Calculate pricing & stock for a recipe
+  // Calculate pricing & stock for a recipe (supports custom sizes & sizePrices)
   const getRecipeInfo = (recipe: SavedRecipe, size: number) => {
-    let price = recipe.retailPrice50ml || (recipe.suggestedRetailPrice || 7);
-    if (size === 30) price = recipe.retailPrice30ml || 5;
-    if (size === 100) price = recipe.retailPrice100ml || 12;
+    let price = 7;
+    if (recipe.sizePrices && recipe.sizePrices[size] !== undefined) {
+      price = recipe.sizePrices[size];
+    } else if (size === 30) {
+      price = recipe.retailPrice30ml !== undefined ? recipe.retailPrice30ml : 5;
+    } else if (size === 100) {
+      price = recipe.retailPrice100ml !== undefined ? recipe.retailPrice100ml : 12;
+    } else if (size === 50) {
+      price = recipe.retailPrice50ml !== undefined ? recipe.retailPrice50ml : (recipe.suggestedRetailPrice || 7);
+    } else {
+      const base50 = recipe.retailPrice50ml !== undefined ? recipe.retailPrice50ml : (recipe.suggestedRetailPrice || 7);
+      price = Math.max(1, Math.round((size / 50) * base50 * 10) / 10);
+    }
 
     // Calculate max bottles based on constituent oils in stock
-    const oilNeededMl = (size * recipe.concentrationPercent) / 100;
+    const conc = recipe.concentrationPercent || 25;
+    const oilNeededMl = Math.max(0.5, (size * conc) / 100);
     let minBottles = 999;
     recipe.oils.forEach((ro) => {
       const match = oils.find((o) => o.id === ro.oilId);
@@ -1336,7 +1365,11 @@ export const StoreTab: React.FC<StoreTabProps> = ({
     const oil = !isRecipe ? (item.data as FragranceOil) : null;
 
     const key = item.key;
-    const selection = getSelection(key);
+    const availSizes = (item.data as any)?.availableSizes;
+    const productSizes: number[] = Array.isArray(availSizes) && availSizes.length > 0
+      ? availSizes
+      : [30, 50, 100];
+    const selection = getSelection(key, productSizes);
     const currentSize = selection.size;
     const currentQty = selection.qty;
 
@@ -1486,25 +1519,21 @@ export const StoreTab: React.FC<StoreTabProps> = ({
               </div>
             </div>
 
-            {/* Size pills (30ml, 50ml, 100ml) */}
-            <div className="grid grid-cols-3 gap-1 sm:gap-2">
-              {[
-                { size: 30, label: '30ml' },
-                { size: 50, label: '50ml', popular: true },
-                { size: 100, label: '100ml' },
-              ].filter((s) => {
-                const avail = (item.data as any)?.availableSizes;
-                return !avail || !Array.isArray(avail) || avail.length === 0 || avail.includes(s.size);
-              }).map((s) => {
-                const isSelected = currentSize === s.size;
-                const sInfo = isRecipe ? getRecipeInfo(rec!, s.size) : getOilInfo(oil!, s.size);
+            {/* Size pills (Dynamic based on perfume's availableSizes) */}
+            <div className={`grid gap-1 sm:gap-2 ${
+              productSizes.length <= 2 ? 'grid-cols-2' : productSizes.length === 3 ? 'grid-cols-3' : 'grid-cols-4'
+            }`}>
+              {productSizes.map((sz) => {
+                const isSelected = currentSize === sz;
+                const sInfo = isRecipe ? getRecipeInfo(rec!, sz) : getOilInfo(oil!, sz);
+                const isPopular = sz === 50 || (productSizes.length === 1);
                 return (
                   <button
-                    key={s.size}
+                    key={sz}
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      setSize(key, s.size);
+                      setSize(key, sz);
                     }}
                     className={`relative py-1 sm:py-2 px-0.5 sm:px-1 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black transition-all flex flex-col items-center justify-center cursor-pointer ${
                       isSelected
@@ -1512,11 +1541,11 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                         : 'size-pill-unselected bg-white hover:bg-neutral-50 text-black border-2 border-neutral-300'
                     }`}
                   >
-                    <span className="text-[9px] sm:text-xs font-black uppercase tracking-wider">{s.label}</span>
+                    <span className="text-[9px] sm:text-xs font-black uppercase tracking-wider">{sz}ml</span>
                     <span className={`text-[9px] sm:text-xs font-mono font-bold mt-0.5 ${isSelected ? 'text-amber-300' : 'price-subtext text-neutral-700'}`}>
                       ${sInfo.price}
                     </span>
-                    {s.popular && (
+                    {isPopular && (
                       <span className="badge-top absolute -top-1.5 -end-1 bg-amber-400 text-black text-[7px] sm:text-[8px] font-black px-1 sm:px-1.5 py-0.2 rounded-full uppercase shadow-xs">
                         {isAr ? 'توب' : 'TOP'}
                       </span>
@@ -3859,7 +3888,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
         isOpen={!!quickSelectProduct}
         onClose={handleCloseProductModal}
         product={quickSelectProduct}
-        selectedSize={quickSelectProduct ? getSelection(quickSelectProduct.key).size : 50}
+        selectedSize={quickSelectProduct ? getSelection(quickSelectProduct.key, (quickSelectProduct.data as any)?.availableSizes).size : 50}
         onSelectSize={(size) => {
           if (quickSelectProduct) {
             setSize(quickSelectProduct.key, size);

@@ -66,8 +66,11 @@ export interface FragranceOil {
   retailPrice50ml?: number; // Retail selling price 50ml ($7)
   retailPrice100ml?: number; // Retail selling price 100ml ($12)
   wholesalePrice50ml?: number; // Wholesale price 50ml ($4.5)
+  sizePrices?: Record<number, number>; // Dynamic / custom size prices map (e.g. { 12: 15, 30: 5, 50: 7, 100: 12 })
+  customSizes?: { size: number; price: number; label?: string }[];
+  perfumeType?: 'spray' | 'oil_attar' | 'sample' | 'bukhoor' | 'custom';
   barcode?: string; // Barcode for scanner / inventory
-  availableSizes?: number[]; // Available bottle sizes [30, 50, 100]
+  availableSizes?: number[]; // Available bottle sizes (e.g. [12, 30, 50, 100])
   notes?: string;
   olfactoryProfile?: PerfumeOlfactoryProfile;
   createdAt: string;
@@ -338,6 +341,9 @@ export interface SavedRecipe {
   retailPrice50ml?: number; // Selling price for 50ml
   retailPrice100ml?: number; // Selling price for 100ml
   wholesalePrice50ml?: number; // Wholesale price for 50ml
+  sizePrices?: Record<number, number>; // Dynamic / custom size prices map (e.g. { 12: 15, 30: 5, 50: 7, 100: 12 })
+  customSizes?: { size: number; price: number; label?: string }[];
+  perfumeType?: 'spray' | 'oil_attar' | 'sample' | 'bukhoor' | 'custom';
   barcode?: string; // Barcode for scanner / inventory
   availableSizes?: number[]; // Available bottle sizes [30, 50, 100]
   targetGender?: 'unisex' | 'men' | 'women';

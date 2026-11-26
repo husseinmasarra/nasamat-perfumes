@@ -135,12 +135,15 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
   });
 
   const getPriceForSize = (item: FragranceOil | SavedRecipe, size: number) => {
+    if (item.sizePrices && item.sizePrices[size] !== undefined) return item.sizePrices[size];
     if (size === 30) return item.retailPrice30ml || 5;
     if (size === 100) return item.retailPrice100ml || 12;
-    return item.retailPrice50ml || (item as any).suggestedRetailPrice || 7;
+    if (size === 50) return item.retailPrice50ml || (item as any).suggestedRetailPrice || 7;
+    const base = item.retailPrice50ml || (item as any).suggestedRetailPrice || 7;
+    return Math.max(1, Math.round((size / 50) * base * 10) / 10);
   };
 
-  const handleAddItemToPosCart = (item: FragranceOil, size: 30 | 50 | 100) => {
+  const handleAddItemToPosCart = (item: FragranceOil, size: number) => {
     const unitPrice = getPriceForSize(item, size);
     const existingIndex = posCart.findIndex(
       (it) => it.productId === item.id && it.sizeMl === size
@@ -380,7 +383,9 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
                   </div>
 
                   {/* Available Bottle Sizes - Direct Click to Add Size to Cart */}
-                  <div className="grid grid-cols-3 gap-1 pt-0.5">
+                  <div className={`grid gap-1 pt-0.5 ${
+                    oilSizes.length <= 2 ? 'grid-cols-2' : oilSizes.length === 3 ? 'grid-cols-3' : 'grid-cols-4'
+                  }`}>
                     {oilSizes.map((sz) => {
                       const szPrice = getPriceForSize(oil, sz);
                       const isDefaultSelected = selectedSize === sz;
@@ -390,7 +395,7 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleAddItemToPosCart(oil, sz as 30 | 50 | 100);
+                            handleAddItemToPosCart(oil, sz);
                           }}
                           className={`py-1 px-0.5 rounded-lg text-center transition-all duration-150 border flex flex-col items-center justify-center cursor-pointer ${
                             isDefaultSelected

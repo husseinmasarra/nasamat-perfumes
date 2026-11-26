@@ -32,6 +32,63 @@ import {
 } from '../data/perfumeDatabase';
 import { PerfumeMarketDatabaseModal } from './PerfumeMarketDatabaseModal';
 
+export interface SizePriceEntry {
+  size: number;
+  price: number;
+  label?: string;
+  isDefault?: boolean;
+}
+
+export type PerfumePresentationType = 'spray' | 'oil_attar' | 'sample' | 'custom';
+
+export const PERFUME_TYPE_CONFIG: Record<
+  PerfumePresentationType,
+  { labelAr: string; labelEn: string; icon: string; descAr: string; defaultSizes: SizePriceEntry[] }
+> = {
+  spray: {
+    labelAr: 'عطر بخاخ فاخر (Extrait / EDP)',
+    labelEn: 'Luxury Spray Perfume',
+    icon: '🧴',
+    descAr: 'أحجام رذاذ فواحة شائعة: 30مل، 50مل، 100مل',
+    defaultSizes: [
+      { size: 30, price: 5, label: '30ml' },
+      { size: 50, price: 7, label: '50ml', isDefault: true },
+      { size: 100, price: 12, label: '100ml' },
+    ],
+  },
+  oil_attar: {
+    labelAr: 'دهن عود ومسك وتولات نقية',
+    labelEn: 'Pure Oud, Attar & Tolas',
+    icon: '🛢️',
+    descAr: 'مقاسات التولات التراثية: ربع تولة (3مل)، نصف تولة (6مل)، تولة كاملة (12مل)',
+    defaultSizes: [
+      { size: 3, price: 6, label: 'ربع تولة (3ml)' },
+      { size: 6, price: 10, label: 'نصف تولة (6ml)' },
+      { size: 12, price: 18, label: 'تولة كاملة (12ml)', isDefault: true },
+    ],
+  },
+  sample: {
+    labelAr: 'عينات وتوزيعات وتجربة وسفر',
+    labelEn: 'Discovery & Travel Vials',
+    icon: '🧪',
+    descAr: 'مقاسات مصغرة للحقيبة والتجربة: 5مل، 10مل، 15مل',
+    defaultSizes: [
+      { size: 5, price: 2, label: '5ml' },
+      { size: 10, price: 3, label: '10ml', isDefault: true },
+      { size: 15, price: 4, label: '15ml' },
+    ],
+  },
+  custom: {
+    labelAr: 'مقاسات وأسعار مخصصة يدوياً',
+    labelEn: 'Custom Defined Sizes',
+    icon: '👑',
+    descAr: 'أدخل أي مقاس بالملل وسعر مخصص بحرية تامة',
+    defaultSizes: [
+      { size: 50, price: 7, label: '50ml', isDefault: true },
+    ],
+  },
+};
+
 const POPULAR_BRANDS = [
   'Dior',
   'Chanel',
@@ -172,6 +229,12 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
     family: 'oriental' as FragranceFamily,
     targetGender: 'unisex' as 'men' | 'women' | 'unisex',
     barcode: '',
+    perfumeType: 'spray' as PerfumePresentationType,
+    sizeEntries: [
+      { size: 30, price: 5, label: '30ml' },
+      { size: 50, price: 7, label: '50ml', isDefault: true },
+      { size: 100, price: 12, label: '100ml' },
+    ] as SizePriceEntry[],
     availableSizes: [30, 50, 100] as number[],
     retailPrice30ml: '5',
     retailPrice50ml: '7',
@@ -187,6 +250,101 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
     heartNotes: '',
     baseNotes: '',
   });
+
+  // Manual Size Entry inputs
+  const [manualSizeMl, setManualSizeMl] = useState('');
+  const [manualPriceUsd, setManualPriceUsd] = useState('');
+  const [manualLabel, setManualLabel] = useState('');
+
+  // Switch perfume type & auto-populate corresponding luxury size template
+  const handleSelectPerfumeType = (typeKey: PerfumePresentationType) => {
+    const config = PERFUME_TYPE_CONFIG[typeKey];
+    if (!config) return;
+    setNewFragrance((prev) => ({
+      ...prev,
+      perfumeType: typeKey,
+      sizeEntries: [...config.defaultSizes],
+      availableSizes: config.defaultSizes.map((s) => s.size),
+      retailPrice30ml: String(config.defaultSizes.find((s) => s.size === 30)?.price || prev.retailPrice30ml),
+      retailPrice50ml: String(config.defaultSizes.find((s) => s.size === 50)?.price || config.defaultSizes[0]?.price || prev.retailPrice50ml),
+      retailPrice100ml: String(config.defaultSizes.find((s) => s.size === 100)?.price || prev.retailPrice100ml),
+    }));
+  };
+
+  // Add custom manual size & price
+  const handleAddManualSize = () => {
+    const sz = parseInt(manualSizeMl.trim(), 10);
+    const pr = parseFloat(manualPriceUsd.trim());
+    if (isNaN(sz) || sz <= 0) return;
+    if (isNaN(pr) || pr < 0) return;
+
+    setNewFragrance((prev) => {
+      const filtered = prev.sizeEntries.filter((e) => e.size !== sz);
+      const newEntry: SizePriceEntry = {
+        size: sz,
+        price: pr,
+        label: manualLabel.trim() || `${sz}ml`,
+        isDefault: prev.sizeEntries.length === 0,
+      };
+      const updated = [...filtered, newEntry].sort((a, b) => a.size - b.size);
+      return {
+        ...prev,
+        sizeEntries: updated,
+        availableSizes: updated.map((e) => e.size),
+      };
+    });
+    setManualSizeMl('');
+    setManualPriceUsd('');
+    setManualLabel('');
+  };
+
+  // Quick toggle common bottle size badge
+  const handleQuickToggleSize = (sz: number, defaultSuggestedPrice?: number) => {
+    setNewFragrance((prev) => {
+      const exists = prev.sizeEntries.some((e) => e.size === sz);
+      let updated: SizePriceEntry[];
+      if (exists) {
+        if (prev.sizeEntries.length <= 1) return prev; // Keep at least one size
+        updated = prev.sizeEntries.filter((e) => e.size !== sz);
+      } else {
+        const base50 = prev.sizeEntries.find((e) => e.size === 50)?.price || 7;
+        const suggested = defaultSuggestedPrice !== undefined ? defaultSuggestedPrice : (
+          sz === 30 ? 5 : sz === 50 ? 7 : sz === 100 ? 12 : sz <= 12 ? Math.max(5, sz * 1.5) : Math.max(1, Math.round((sz / 50) * base50))
+        );
+        let label = `${sz}ml`;
+        if (sz === 3) label = 'ربع تولة (3ml)';
+        else if (sz === 6) label = 'نصف تولة (6ml)';
+        else if (sz === 12) label = 'تولة كاملة (12ml)';
+        updated = [...prev.sizeEntries, { size: sz, price: Math.max(0.5, suggested), label }].sort((a, b) => a.size - b.size);
+      }
+      return {
+        ...prev,
+        sizeEntries: updated,
+        availableSizes: updated.map((e) => e.size),
+      };
+    });
+  };
+
+  // Update inline size price
+  const handleUpdateSizePrice = (size: number, newPrice: number) => {
+    setNewFragrance((prev) => ({
+      ...prev,
+      sizeEntries: prev.sizeEntries.map((e) => (e.size === size ? { ...e, price: newPrice } : e)),
+    }));
+  };
+
+  // Remove size
+  const handleRemoveSize = (size: number) => {
+    setNewFragrance((prev) => {
+      if (prev.sizeEntries.length <= 1) return prev;
+      const updated = prev.sizeEntries.filter((e) => e.size !== size);
+      return {
+        ...prev,
+        sizeEntries: updated,
+        availableSizes: updated.map((e) => e.size),
+      };
+    });
+  };
 
   // Compute matched presets from database based on query & brand filter
   const dbSearchResults = useMemo(() => {
@@ -226,6 +384,12 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
       wholesalePrice50ml: String(preset.suggestedWholesalePrice50ml),
       unitCost: String(preset.typicalCostPerMl),
       imageUrl: preset.imageUrl || prev.imageUrl,
+      sizeEntries: [
+        { size: 30, price: preset.suggestedPrice30ml, label: '30ml' },
+        { size: 50, price: preset.suggestedPrice50ml, label: '50ml', isDefault: true },
+        { size: 100, price: preset.suggestedPrice100ml, label: '100ml' },
+      ],
+      availableSizes: [30, 50, 100],
     }));
     setAutofillSuccessNotice(
       isAr
@@ -255,6 +419,12 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
       nameEn: '',
       code: autoCode,
       barcode: generatePerfumeBarcode(autoCode, '6281'),
+      perfumeType: 'spray',
+      sizeEntries: [
+        { size: 30, price: 5, label: '30ml' },
+        { size: 50, price: 7, label: '50ml', isDefault: true },
+        { size: 100, price: 12, label: '100ml' },
+      ],
       availableSizes: [30, 50, 100],
       brand: 'نسمات',
       family: 'oriental',
@@ -310,10 +480,17 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
     if (newFragrance.baseNotes.trim()) notesParts.push(`قاعدة: ${newFragrance.baseNotes.trim()}`);
     const finalNotes = notesParts.join(' | ') || 'صياغة فاخرة خاصة من أنقى الزيوت العطرية السويسرية والفرنسية';
 
-    const p30 = parseFloat(newFragrance.retailPrice30ml) || 5;
-    const p50 = parseFloat(newFragrance.retailPrice50ml) || 7;
-    const p100 = parseFloat(newFragrance.retailPrice100ml) || 12;
-    const wholesale = parseFloat(newFragrance.wholesalePrice50ml) || 4.5;
+    const sortedEntries = [...newFragrance.sizeEntries].sort((a, b) => a.size - b.size);
+    const availableSizes = sortedEntries.length > 0 ? sortedEntries.map((e) => e.size) : [30, 50, 100];
+    const sizePrices: Record<number, number> = {};
+    sortedEntries.forEach((e) => {
+      sizePrices[e.size] = e.price;
+    });
+
+    const p30 = sizePrices[30] !== undefined ? sizePrices[30] : (parseFloat(newFragrance.retailPrice30ml) || 5);
+    const p50 = sizePrices[50] !== undefined ? sizePrices[50] : (sortedEntries[0]?.price || 7);
+    const p100 = sizePrices[100] !== undefined ? sizePrices[100] : (parseFloat(newFragrance.retailPrice100ml) || 12);
+    const wholesale = parseFloat(newFragrance.wholesalePrice50ml) || Number((p50 * 0.7).toFixed(1));
     const cost = parseFloat(newFragrance.unitCost) || 0.15;
     const dens = parseFloat(newFragrance.density) || 0.95;
     const stock = parseFloat(newFragrance.stockMl) || 500;
@@ -344,8 +521,11 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
       retailPrice50ml: p50,
       retailPrice100ml: p100,
       wholesalePrice50ml: wholesale,
+      sizePrices,
+      customSizes: sortedEntries,
+      perfumeType: newFragrance.perfumeType,
       barcode: newFragrance.barcode.trim() || generatePerfumeBarcode(code, '6281'),
-      availableSizes: newFragrance.availableSizes && newFragrance.availableSizes.length > 0 ? newFragrance.availableSizes : [30, 50, 100],
+      availableSizes,
       notes: finalNotes,
       imageUrl: newFragrance.imageUrl.trim() || LUXURY_PRESET_IMAGES[0]?.url,
       createdAt: new Date().toISOString(),
@@ -860,31 +1040,34 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                             <span className="text-neutral-700 font-bold capitalize">{p.family}</span>
                           </div>
 
-                          {/* Available Sizes Pills */}
-                          <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                          {/* Available Sizes Pills (Dynamic for standard and custom sizes) */}
+                          <div className="flex items-center gap-1 mt-1.5 flex-wrap">
                             <span className="text-[10px] text-neutral-500 font-bold">{isAr ? 'الأحجام:' : 'Sizes:'}</span>
-                            {[30, 50, 100].map((sz) => {
+                            {(() => {
                               const currentSizes = sizeDrafts[p.id] || p.availableSizes || [30, 50, 100];
-                              const isAvail = currentSizes.includes(sz);
-                              return (
-                                <button
-                                  key={sz}
-                                  type="button"
-                                  onClick={() => {
-                                    const next = isAvail ? currentSizes.filter((s) => s !== sz) : [...currentSizes, sz].sort((a, b) => a - b);
-                                    setSizeDrafts((prev) => ({ ...prev, [p.id]: next }));
-                                  }}
-                                  className={`px-1.5 py-0.2 rounded text-[10px] font-bold transition border cursor-pointer ${
-                                    isAvail
-                                      ? 'bg-neutral-900 text-amber-300 border-neutral-900 shadow-2xs'
-                                      : 'bg-neutral-100 text-neutral-400 border-dashed border-neutral-300 line-through'
-                                  }`}
-                                  title={isAr ? `تبديل توفر حجم ${sz} مل (مفعّل: ${isAvail ? 'نعم' : 'لا'})` : `Toggle ${sz}ml`}
-                                >
-                                  {sz}ml
-                                </button>
-                              );
-                            })}
+                              const allDisplaySizes = Array.from(new Set([...currentSizes, 30, 50, 100])).sort((a, b) => a - b);
+                              return allDisplaySizes.map((sz) => {
+                                const isAvail = currentSizes.includes(sz);
+                                return (
+                                  <button
+                                    key={sz}
+                                    type="button"
+                                    onClick={() => {
+                                      const next = isAvail ? currentSizes.filter((s) => s !== sz) : [...currentSizes, sz].sort((a, b) => a - b);
+                                      setSizeDrafts((prev) => ({ ...prev, [p.id]: next }));
+                                    }}
+                                    className={`px-1.5 py-0.2 rounded text-[10px] font-bold font-mono transition border cursor-pointer ${
+                                      isAvail
+                                        ? 'bg-neutral-900 text-amber-300 border-neutral-900 shadow-2xs'
+                                        : 'bg-neutral-100 text-neutral-400 border-dashed border-neutral-300 line-through'
+                                    }`}
+                                    title={isAr ? `تبديل توفر حجم ${sz} مل (مفعّل: ${isAvail ? 'نعم' : 'لا'})` : `Toggle ${sz}ml`}
+                                  >
+                                    {sz}ml
+                                  </button>
+                                );
+                              });
+                            })()}
                           </div>
                         </div>
                       </div>
@@ -1664,57 +1847,202 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                 </div>
               </div>
 
-              {/* Section 3: Pricing & Inventory */}
-              <div className="space-y-3 pt-2">
+              {/* Section 3: Perfume Type & Custom Sizes & Pricing */}
+              <div className="space-y-3.5 pt-2">
                 <div className="font-black text-neutral-900 uppercase tracking-wider text-[11px] flex items-center justify-between pb-1 border-b border-neutral-200">
                   <div className="flex items-center gap-1.5">
                     <DollarSign className="w-3.5 h-3.5 text-black" />
-                    <span>{isAr ? '3. أسعار البيع والتكلفة والمخزون' : '3. Pricing & Inventory'}</span>
+                    <span>{isAr ? '3. نوع العطر وتحديد المقاسات والأسعار يدوياً' : '3. Perfume Type & Custom Sizing'}</span>
                   </div>
-                  <span className="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                    {isAr ? 'هامش ربح ~70% إلى 80%' : '~70-80% Margin'}
+                  <span className="text-[10px] text-amber-900 font-mono font-bold bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+                    {isAr ? 'تخصيص حر حسب نوع العطر' : 'Flexible Sizes & Prices'}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                  <div className="bg-neutral-50 p-2.5 rounded-xl border border-neutral-200">
-                    <label className="block font-bold text-neutral-700 text-[10px] mb-1">{isAr ? 'سعر 30ml ($):' : '30ml ($):'}</label>
-                    <input
-                      type="number"
-                      step="0.5"
-                      required
-                      value={newFragrance.retailPrice30ml}
-                      onChange={(e) => setNewFragrance({ ...newFragrance, retailPrice30ml: e.target.value })}
-                      className="w-full p-1.5 rounded-lg border border-neutral-300 font-mono font-bold text-center text-xs bg-white"
-                    />
+                {/* Perfume Presentation Type Selector */}
+                <div>
+                  <label className="block font-bold text-neutral-800 text-xs mb-1.5">
+                    {isAr ? 'اختر نوع العطر (لتطبيق المقاسات المناسبة تلقائياً):' : 'Select Perfume Type:'}
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {(Object.keys(PERFUME_TYPE_CONFIG) as PerfumePresentationType[]).map((typeKey) => {
+                      const cfg = PERFUME_TYPE_CONFIG[typeKey];
+                      const isSelected = newFragrance.perfumeType === typeKey;
+                      return (
+                        <button
+                          key={typeKey}
+                          type="button"
+                          onClick={() => handleSelectPerfumeType(typeKey)}
+                          className={`p-2.5 rounded-xl border text-start transition cursor-pointer flex flex-col justify-between ${
+                            isSelected
+                              ? 'bg-neutral-950 text-white border-neutral-950 shadow-md ring-1 ring-amber-400'
+                              : 'bg-neutral-50 hover:bg-white text-neutral-800 border-neutral-200 hover:border-black'
+                          }`}
+                        >
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <span className="text-base">{cfg.icon}</span>
+                            <span className="text-xs font-black truncate">{isAr ? cfg.labelAr : cfg.labelEn}</span>
+                          </div>
+                          <span className={`text-[9.5px] leading-tight ${isSelected ? 'text-neutral-300' : 'text-neutral-500'}`}>
+                            {isAr ? cfg.descAr : ''}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Active Sizes & Price List for this Perfume */}
+                <div className="bg-neutral-50 p-3.5 rounded-2xl border border-neutral-200 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-xs font-black text-black">
+                        {isAr ? 'المقاسات المعتمدة وأسعار البيع المخصصة ($):' : 'Configured Sizes & Prices ($):'}
+                      </h4>
+                      <p className="text-[10px] text-neutral-500">
+                        {isAr ? 'يمكنك تعديل سعر أي مقاس مباشرة أو حذفه بنقرة واحدة' : 'Directly edit price or delete size'}
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-mono font-bold bg-white px-2 py-0.5 rounded-md border border-neutral-200 text-neutral-700">
+                      {newFragrance.sizeEntries.length} {isAr ? 'مقاسات معتمدة' : 'Sizes'}
+                    </span>
                   </div>
 
-                  <div className="bg-amber-50 p-2.5 rounded-xl border-2 border-amber-400">
-                    <label className="block font-bold text-amber-950 text-[10px] mb-1">{isAr ? 'سعر 50ml ($) ★:' : '50ml ($) ★:'}</label>
-                    <input
-                      type="number"
-                      step="0.5"
-                      required
-                      value={newFragrance.retailPrice50ml}
-                      onChange={(e) => setNewFragrance({ ...newFragrance, retailPrice50ml: e.target.value })}
-                      className="w-full p-1.5 rounded-lg border border-amber-300 font-mono font-bold text-center text-xs bg-white"
-                    />
+                  {/* Configured Size Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                    {newFragrance.sizeEntries.map((entry) => {
+                      return (
+                        <div
+                          key={entry.size}
+                          className="bg-white p-2.5 rounded-xl border border-neutral-300 shadow-2xs flex items-center justify-between gap-2"
+                        >
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                              <span className="font-mono font-black text-xs text-black">{entry.size}ml</span>
+                            </div>
+                            <div className="text-[10px] text-neutral-500 truncate font-semibold">
+                              {entry.label || `${entry.size}ml`}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <div className="flex items-center bg-neutral-50 border border-neutral-300 rounded-lg px-1.5 py-1">
+                              <span className="text-[11px] text-neutral-500 font-mono me-0.5">$</span>
+                              <input
+                                type="number"
+                                step="0.5"
+                                min="0.5"
+                                value={entry.price}
+                                onChange={(e) => {
+                                  const val = parseFloat(e.target.value) || 0;
+                                  handleUpdateSizePrice(entry.size, val);
+                                }}
+                                className="w-12 text-center font-mono font-black text-xs text-neutral-900 bg-transparent focus:outline-none"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveSize(entry.size)}
+                              disabled={newFragrance.sizeEntries.length <= 1}
+                              title={isAr ? 'حذف هذا المقاس' : 'Delete size'}
+                              className="text-neutral-400 hover:text-rose-600 disabled:opacity-30 disabled:hover:text-neutral-400 p-1 cursor-pointer transition font-bold"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
 
-                  <div className="bg-neutral-50 p-2.5 rounded-xl border border-neutral-200">
-                    <label className="block font-bold text-neutral-700 text-[10px] mb-1">{isAr ? 'سعر 100ml ($):' : '100ml ($):'}</label>
-                    <input
-                      type="number"
-                      step="0.5"
-                      required
-                      value={newFragrance.retailPrice100ml}
-                      onChange={(e) => setNewFragrance({ ...newFragrance, retailPrice100ml: e.target.value })}
-                      className="w-full p-1.5 rounded-lg border border-neutral-300 font-mono font-bold text-center text-xs bg-white"
-                    />
+                  {/* Manual Size & Price Adder */}
+                  <div className="pt-2 border-t border-neutral-200">
+                    <label className="block font-bold text-neutral-700 text-[10px] mb-1.5">
+                      {isAr ? '➕ إضافة مقاس مخصص يدوياً (أدخل الحجم وسعر البيع):' : '➕ Add Custom Size & Price Manually:'}
+                    </label>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex-1 min-w-[90px]">
+                        <input
+                          type="number"
+                          min="1"
+                          placeholder={isAr ? 'الحجم بالملل (مثلاً 15)' : 'Size in ml (e.g. 15)'}
+                          value={manualSizeMl}
+                          onChange={(e) => setManualSizeMl(e.target.value)}
+                          className="w-full p-2 rounded-xl border border-neutral-300 font-mono text-xs bg-white text-center focus:outline-none focus:border-black font-bold"
+                        />
+                      </div>
+
+                      <div className="flex-1 min-w-[90px]">
+                        <div className="flex items-center bg-white border border-neutral-300 rounded-xl px-2 py-1.5">
+                          <span className="text-xs text-neutral-400 font-mono me-1">$</span>
+                          <input
+                            type="number"
+                            step="0.5"
+                            min="0.5"
+                            placeholder={isAr ? 'سعر البيع' : 'Price'}
+                            value={manualPriceUsd}
+                            onChange={(e) => setManualPriceUsd(e.target.value)}
+                            className="w-full font-mono text-xs bg-transparent text-center focus:outline-none font-bold"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex-1 min-w-[110px]">
+                        <input
+                          type="text"
+                          placeholder={isAr ? 'وصف الحجم (مثلاً تولة)' : 'Label (Optional)'}
+                          value={manualLabel}
+                          onChange={(e) => setManualLabel(e.target.value)}
+                          className="w-full p-2 rounded-xl border border-neutral-300 text-xs bg-white text-center focus:outline-none focus:border-black"
+                        />
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleAddManualSize}
+                        disabled={!manualSizeMl.trim() || !manualPriceUsd.trim()}
+                        className="px-3.5 py-2 rounded-xl bg-black text-amber-300 hover:bg-neutral-800 disabled:opacity-40 text-xs font-black shadow-xs transition cursor-pointer shrink-0"
+                      >
+                        {isAr ? '+ إضافة المقاس' : '+ Add Size'}
+                      </button>
+                    </div>
                   </div>
 
+                  {/* Quick Toggle Popular Sizes Badges */}
+                  <div className="pt-2 border-t border-neutral-200">
+                    <span className="text-[10px] text-neutral-500 font-bold block mb-1">
+                      {isAr ? 'مقاسات سريعة شائعة (انقر للإضافة أو الحذف السريع):' : 'Quick Popular Sizes (click to toggle):'}
+                    </span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {[3, 6, 10, 12, 15, 20, 30, 50, 80, 100, 150, 200].map((sz) => {
+                        const isAdded = newFragrance.sizeEntries.some((e) => e.size === sz);
+                        return (
+                          <button
+                            key={sz}
+                            type="button"
+                            onClick={() => handleQuickToggleSize(sz)}
+                            className={`px-2 py-1 rounded-lg text-[10px] font-bold font-mono transition border cursor-pointer flex items-center gap-1 ${
+                              isAdded
+                                ? 'bg-neutral-900 text-amber-300 border-neutral-900 shadow-2xs'
+                                : 'bg-white text-neutral-600 border-neutral-300 hover:border-black'
+                            }`}
+                          >
+                            <span>{isAdded ? '✓' : '+'}</span>
+                            <span>{sz}ml</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Wholesale Price & Inventory Cost */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                   <div className="bg-neutral-50 p-2.5 rounded-xl border border-neutral-200">
-                    <label className="block font-bold text-neutral-700 text-[10px] mb-1">{isAr ? 'سعر الجملة 50ml ($):' : 'Wholesale ($):'}</label>
+                    <label className="block font-bold text-neutral-700 text-[10px] mb-1">
+                      {isAr ? 'سعر الجملة للعبوة المعتادة ($):' : 'Wholesale Bottle ($):'}
+                    </label>
                     <input
                       type="number"
                       step="0.5"
@@ -1724,43 +2052,9 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                       className="w-full p-1.5 rounded-lg border border-neutral-300 font-mono font-bold text-center text-xs bg-white"
                     />
                   </div>
-                </div>
 
-                {/* Available Sizes Selector */}
-                <div className="bg-neutral-50 p-3 rounded-xl border border-neutral-200">
-                  <label className="block font-bold text-neutral-800 text-xs mb-1.5">
-                    {isAr ? 'الأحجام المتوفرة للبيع في المتجر والكاشير:' : 'Available Bottle Sizes:'}
-                  </label>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {[30, 50, 100].map((sz) => {
-                      const isSelected = newFragrance.availableSizes.includes(sz);
-                      return (
-                        <button
-                          key={sz}
-                          type="button"
-                          onClick={() => {
-                            const updated = isSelected
-                              ? newFragrance.availableSizes.filter((s) => s !== sz)
-                              : [...newFragrance.availableSizes, sz].sort((a, b) => a - b);
-                            setNewFragrance({ ...newFragrance, availableSizes: updated });
-                          }}
-                          className={`px-3 py-1.5 rounded-xl font-bold text-xs transition border cursor-pointer flex items-center gap-1.5 ${
-                            isSelected
-                              ? 'bg-black text-amber-300 border-black shadow-xs'
-                              : 'bg-white text-neutral-500 border-neutral-300'
-                          }`}
-                        >
-                          <span>{isSelected ? '✓' : '+'}</span>
-                          <span>{sz}ml</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                  <div>
-                    <label className="block font-bold text-neutral-700 mb-1">
+                  <div className="bg-neutral-50 p-2.5 rounded-xl border border-neutral-200">
+                    <label className="block font-bold text-neutral-700 text-[10px] mb-1">
                       {isAr ? 'تكلفة الملي/الجرام الصافي ($):' : 'Oil Cost Per ML ($):'}
                     </label>
                     <input
@@ -1768,20 +2062,19 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                       step="0.01"
                       value={newFragrance.unitCost}
                       onChange={(e) => setNewFragrance({ ...newFragrance, unitCost: e.target.value })}
-                      className="w-full p-2 rounded-xl border border-neutral-300 font-mono font-bold text-xs bg-white"
+                      className="w-full p-1.5 rounded-lg border border-neutral-300 font-mono font-bold text-center text-xs bg-white"
                     />
                   </div>
 
-                  <div>
-                    <label className="block font-bold text-neutral-700 mb-1">
-                      {isAr ? 'الكمية المتوفرة بالمخزون (ملل):' : 'Stock Quantity (ML):'}
+                  <div className="bg-neutral-50 p-2.5 rounded-xl border border-neutral-200">
+                    <label className="block font-bold text-neutral-700 text-[10px] mb-1">
+                      {isAr ? 'الكمية بالمخزون (ملل):' : 'Stock Quantity (ML):'}
                     </label>
                     <input
                       type="number"
-                      step="50"
                       value={newFragrance.stockMl}
                       onChange={(e) => setNewFragrance({ ...newFragrance, stockMl: e.target.value })}
-                      className="w-full p-2 rounded-xl border border-neutral-300 font-mono font-bold text-xs bg-white"
+                      className="w-full p-1.5 rounded-lg border border-neutral-300 font-mono font-bold text-center text-xs bg-white"
                     />
                   </div>
                 </div>

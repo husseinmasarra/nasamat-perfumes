@@ -175,32 +175,28 @@ export const PerfumeDetailsModal: React.FC<PerfumeDetailsModalProps> = ({
   const lineTotal = price * quantity;
   const lbpTotal = Math.round(lineTotal * lbpRate);
 
-  // Standard bottle options filtered by product availability
+  // Dynamic bottle options filtered by product availability (supports custom sizes)
   const productAvailableSizes = (product?.data as any)?.availableSizes;
-  const sizes = [
-    {
-      size: 30,
-      label: '30ml',
-      subtitle: isAr ? 'حجم حقيبة / سفر' : 'Pocket / Travel Flacon',
-      price: getPriceInfo(product, 30).price,
-      popular: false,
-    },
-    {
-      size: 50,
-      label: '50ml',
-      subtitle: isAr ? 'الأكثر طلباً وتوفيراً' : 'Most Popular & Best Value',
-      price: getPriceInfo(product, 50).price,
-      popular: true,
-    },
-    {
-      size: 100,
-      label: '100ml',
-      subtitle: isAr ? 'حجم الفخامة الملكية' : 'Grand Luxury Flacon',
-      price: getPriceInfo(product, 100).price,
-      popular: false,
-    },
-  ].filter((s) => {
-    return !productAvailableSizes || !Array.isArray(productAvailableSizes) || productAvailableSizes.length === 0 || productAvailableSizes.includes(s.size);
+  const availableList: number[] = Array.isArray(productAvailableSizes) && productAvailableSizes.length > 0
+    ? productAvailableSizes
+    : [30, 50, 100];
+
+  const sizes = availableList.map((sz) => {
+    let subtitle = isAr ? `حجم ${sz} مل` : `${sz}ml bottle`;
+    if (sz <= 12) subtitle = isAr ? 'تولة / دهن مركز فاخر' : 'Pure Tola / Attar';
+    else if (sz <= 20) subtitle = isAr ? 'عينة وتجربة وسفر' : 'Discovery / Travel';
+    else if (sz === 30) subtitle = isAr ? 'حجم حقيبة / سفر' : 'Pocket / Travel Flacon';
+    else if (sz === 50) subtitle = isAr ? 'الأكثر طلباً وتوفيراً' : 'Most Popular & Best Value';
+    else if (sz === 100) subtitle = isAr ? 'حجم الفخامة الملكية' : 'Grand Luxury Flacon';
+    else if (sz >= 150) subtitle = isAr ? 'حجم صالونات كبير' : 'Grand Salon Flacon';
+
+    return {
+      size: sz,
+      label: `${sz}ml`,
+      subtitle,
+      price: getPriceInfo(product, sz).price,
+      popular: sz === 50 || (availableList.length === 1),
+    };
   });
 
   // Dynamic Ratings & Review metrics
@@ -880,7 +876,9 @@ export const PerfumeDetailsModal: React.FC<PerfumeDetailsModalProps> = ({
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div className={`grid gap-2.5 ${
+              sizes.length <= 2 ? 'grid-cols-1 sm:grid-cols-2' : sizes.length === 3 ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-2 sm:grid-cols-4'
+            }`}>
               {sizes.map((tier) => {
                 const isSelected = selectedSize === tier.size;
                 return (
