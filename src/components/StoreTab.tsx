@@ -1005,6 +1005,15 @@ export const StoreTab: React.FC<StoreTabProps> = ({
         if (selectedCategory === 'original') {
           return item.type === 'oil' && !!(item.data as FragranceOil).isOriginalPackaged;
         }
+        if (selectedCategory === 'makeup') {
+          return item.type === 'oil' && (item.data as FragranceOil).productNature === 'makeup';
+        }
+        if (selectedCategory === 'accessories') {
+          return item.type === 'oil' && (item.data as FragranceOil).productNature === 'accessories';
+        }
+        if (selectedCategory === 'bakhoor') {
+          return item.type === 'oil' && (item.data as FragranceOil).productNature === 'bakhoor';
+        }
         if (selectedCategory === 'men') {
           if (item.type === 'recipe') return item.data.targetGender === 'men';
           const oil = item.data as FragranceOil;
@@ -1451,9 +1460,17 @@ export const StoreTab: React.FC<StoreTabProps> = ({
             }`}>
               {badgeOverride
                 ? (isAr ? badgeOverride : (badgeOverride.includes('أكثر') ? '★ Best Seller' : (!/[\u0600-\u06FF]/.test(badgeOverride) ? badgeOverride : '★ Special Offer')))
-                : (oil?.isOriginalPackaged 
-                    ? (isAr ? '💎 عطر أصلي معلب' : '💎 100% Original Boxed') 
-                    : (isRecipe ? (isAr ? '★ خلطة ملكية' : '★ Royal Blend') : (isAr ? '★ الأكثر طلباً' : '★ Best Seller')))}
+                : (oil?.productNature === 'makeup'
+                    ? (isAr ? '💄 مكياج فاخر' : '💄 Luxury Makeup')
+                    : oil?.productNature === 'accessories'
+                    ? (isAr ? '💍 إكسسوار راقٍ' : '💍 Luxury Accessory')
+                    : oil?.productNature === 'bakhoor'
+                    ? (isAr ? '🪔 بخور ملكي' : '🪔 Royal Bakhoor')
+                    : oil?.productNature === 'other'
+                    ? (isAr ? '🛍️ منتج بوتيك' : '🛍️ Boutique')
+                    : (oil?.isOriginalPackaged 
+                        ? (isAr ? '💎 عطر أصلي معلب' : '💎 100% Original Boxed') 
+                        : (isRecipe ? (isAr ? '★ خلطة ملكية' : '★ Royal Blend') : (isAr ? '★ الأكثر طلباً' : '★ Best Seller'))))}
             </span>
           </div>
 
@@ -1501,7 +1518,11 @@ export const StoreTab: React.FC<StoreTabProps> = ({
           <div>
             {/* Inspiration Sub-label */}
             <div className="text-[10px] sm:text-xs text-neutral-600 font-bold uppercase tracking-wider flex items-center gap-1 truncate">
-              <span className="text-neutral-500 font-bold">{isAr ? 'مستوحى من:' : 'Inspired by:'}</span>
+              <span className="text-neutral-500 font-bold">
+                {oil?.productNature && oil.productNature !== 'perfume_crafted' && oil.productNature !== 'perfume_original'
+                  ? (isAr ? 'دار الصنع:' : 'Brand:')
+                  : (isAr ? 'مستوحى من:' : 'Inspired by:')}
+              </span>
               <span className="text-black font-black truncate">{displayBrand}</span>
             </div>
 
@@ -1538,13 +1559,25 @@ export const StoreTab: React.FC<StoreTabProps> = ({
               <div className="p-2 sm:p-2.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-500/5 border border-amber-300 flex items-center justify-between gap-2 shadow-2xs">
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xs">💎</span>
+                    <span className="text-xs">
+                      {oil.productNature === 'makeup' ? '💄' :
+                       oil.productNature === 'accessories' ? '💍' :
+                       oil.productNature === 'bakhoor' ? '🪔' : '💎'}
+                    </span>
                     <span className="text-[10px] sm:text-xs font-black text-amber-950 font-mono truncate">
-                      {oil.singleBottleSizeMl || 100}ml • {oil.concentration || 'Eau de Parfum'}
+                      {oil.productNature === 'makeup'
+                        ? (oil.colorOrShade ? `${oil.colorOrShade}` : (isAr ? 'مستحضر تجميل فاخر' : 'Luxury Makeup'))
+                        : oil.productNature === 'accessories'
+                        ? (oil.specification ? `${oil.specification}` : (isAr ? 'إكسسوار راقٍ' : 'Luxury Accessory'))
+                        : oil.productNature === 'bakhoor'
+                        ? (oil.specification ? `${oil.specification}` : (isAr ? 'بخور ملكي معتق' : 'Royal Bakhoor'))
+                        : `${oil.singleBottleSizeMl || 100}ml • ${oil.concentration || 'Eau de Parfum'}`}
                     </span>
                   </div>
                   <span className="text-[9px] sm:text-[10px] text-neutral-600 block truncate font-bold mt-0.5">
-                    {oil.countryOfOrigin ? `${oil.countryOfOrigin} • ` : ''}{oil.boxCondition === 'sealed' ? (isAr ? 'مغلف بالسولوفان' : 'Sealed Box') : (oil.boxCondition === 'tester' ? (isAr ? 'تستر أصلي' : 'Tester Box') : (isAr ? 'علبة رسمية' : 'Retail Box'))}
+                    {oil.productNature && oil.productNature !== 'perfume_crafted' && oil.productNature !== 'perfume_original'
+                      ? (oil.category ? `${oil.category} • ` : '') + (isAr ? 'قطعة فاخرة أصلية' : 'Authentic Piece')
+                      : ((oil.countryOfOrigin ? `${oil.countryOfOrigin} • ` : '') + (oil.boxCondition === 'sealed' ? (isAr ? 'مغلف بالسولوفان' : 'Sealed Box') : (oil.boxCondition === 'tester' ? (isAr ? 'تستر أصلي' : 'Tester Box') : (isAr ? 'علبة رسمية' : 'Retail Box'))))}
                   </span>
                 </div>
                 <div className="text-end shrink-0">

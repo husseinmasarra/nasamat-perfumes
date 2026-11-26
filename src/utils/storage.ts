@@ -172,6 +172,11 @@ export const LUXURY_PRESET_IMAGES = [
   { name: 'عطر زمردي وأخضر', nameEn: 'Emerald Green Flacon', url: 'https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?auto=format&fit=crop&w=600&q=80' },
   { name: 'زهور وبساتين غراس', nameEn: 'Grasse French Florals', url: 'https://images.unsplash.com/photo-1583445013765-46c20c4a6772?auto=format&fit=crop&w=600&q=80' },
   { name: 'بخاخ ذهبي أنتيك', nameEn: 'Antique Gold Sprayer', url: 'https://images.unsplash.com/photo-1590736969955-71cc94801759?auto=format&fit=crop&w=600&q=80' },
+  { name: 'أحمر شفاه ومكياج فاخر', nameEn: 'Luxury Red Lipstick', url: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=600&q=80' },
+  { name: 'مكياج وظلال عيون ناعمة', nameEn: 'Cosmetics Palette', url: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=600&q=80' },
+  { name: 'مبخرة كريستال ملكية', nameEn: 'Royal Crystal Burner', url: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=600&q=80' },
+  { name: 'سلسلة ومجوهرات وإكسسوارات', nameEn: 'Luxury Jewelry & Accessories', url: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=600&q=80' },
+  { name: 'صندوق هدايا وإكسسوار فاخر', nameEn: 'Luxury Gift Box Set', url: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=600&q=80' },
 ];
 
 export function loadDeletedNavCategoryIds(): Set<string> {

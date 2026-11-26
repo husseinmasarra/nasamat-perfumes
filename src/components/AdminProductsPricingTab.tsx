@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { FragranceOil, SavedRecipe, AppSettings, FragranceFamily } from '../types';
 import { 
   Tag, 
@@ -32,6 +32,64 @@ import {
   type PerfumePresetSpec
 } from '../data/perfumeDatabase';
 import { PerfumeMarketDatabaseModal } from './PerfumeMarketDatabaseModal';
+
+export type ProductDepartment = 'perfume' | 'makeup' | 'accessories' | 'bakhoor' | 'other';
+
+export const PRODUCT_DEPARTMENTS: {
+  id: ProductDepartment;
+  labelAr: string;
+  labelEn: string;
+  icon: string;
+  codePrefix: string;
+  descAr: string;
+  subCategories: string[];
+}[] = [
+  {
+    id: 'perfume',
+    labelAr: 'عطورات فاخرة وتولات',
+    labelEn: 'Luxury Perfumes & Attars',
+    icon: '🧴',
+    codePrefix: 'NAS',
+    descAr: 'عطور سكب وتركيب، بخاخ EDP/Extrait، دهن عود وتولات نقية، أو عطور أصلية معلبة',
+    subCategories: ['عطر رجالي', 'عطر نسائي', 'عطر للجنسين', 'دهن عود ومسك', 'عطر نيش فاخر'],
+  },
+  {
+    id: 'makeup',
+    labelAr: 'مكياج ومستحضرات تجميل',
+    labelEn: 'Makeup & Cosmetics',
+    icon: '💄',
+    codePrefix: 'MKP',
+    descAr: 'أحمر شفاه، كحل وماسكارا، ظلال عيون، فاونديشن وبودرة، عناية شخصية',
+    subCategories: ['أحمر شفاه وروج', 'ماسكارا وكحل', 'باليت وظلال عيون', 'كريم أساس وفاونديشن', 'بودرة وبلاشر', 'محددات وفرش'],
+  },
+  {
+    id: 'accessories',
+    labelAr: 'إكسسوارات وهدايا ومباخر',
+    labelEn: 'Accessories & Gifts',
+    icon: '💍',
+    codePrefix: 'ACC',
+    descAr: 'مباخر كريستال ملكية، سلاسل وأساور، أطقم هدايا، زجاجات عطور كريستال فارغة',
+    subCategories: ['مباخر كريستال فاخرة', 'أطقم هدايا وتوزيعات', 'سلاسل وأساور ومجوهرات', 'زجاجات تعبئة كريستال', 'إكسسوارات شخصية'],
+  },
+  {
+    id: 'bakhoor',
+    labelAr: 'بخور ومعطرات جو',
+    labelEn: 'Bakhoor & Home Scents',
+    icon: '🪔',
+    codePrefix: 'BKH',
+    descAr: 'بخور خشب طبيعي، معمول دوسري وملكي، معطرات مفارش وأجواء 500مل',
+    subCategories: ['بخور خشب مروكي وسيلاني', 'معمول ومبثوث ملكي', 'معطر مفارش وأجواء 500مل', 'لبان حوجري معطر'],
+  },
+  {
+    id: 'other',
+    labelAr: 'منتجات متنوعة أخرى',
+    labelEn: 'General Boutique Items',
+    icon: '📦',
+    codePrefix: 'PRD',
+    descAr: 'أي منتجات كماليات أو معروضات أخرى تباع في البوتيك بالقطعة',
+    subCategories: ['منتجات عامة', 'أطقم موسمية', 'عروض خاصة'],
+  },
+];
 
 export interface SizePriceEntry {
   size: number;
@@ -130,6 +188,7 @@ interface AdminProductsPricingTabProps {
   onAddOil?: (newOil: FragranceOil) => void;
   onDeleteOil?: (id: string) => void;
   onDeleteRecipe?: (id: string) => void;
+  autoOpenAddModal?: boolean;
 }
 
 export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = ({
@@ -141,6 +200,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
   onAddOil,
   onDeleteOil,
   onDeleteRecipe,
+  autoOpenAddModal = false,
 }) => {
   const { language } = useLanguage();
   const isAr = language === 'ar';
@@ -149,7 +209,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBrand, setSelectedBrand] = useState('all');
   const [selectedFamily, setSelectedFamily] = useState('all');
-  const [selectedType, setSelectedType] = useState<'all' | 'oil' | 'recipe'>('all');
+  const [selectedType, setSelectedType] = useState<'all' | 'oil' | 'recipe' | 'makeup' | 'accessories' | 'bakhoor' | 'other'>('all');
   const [sortBy, setSortBy] = useState<'name' | 'price_desc' | 'price_asc' | 'margin'>('name');
 
   // Local draft prices for unsaved inputs { [productId]: { p30, p50, p100, wholesale } }
@@ -215,6 +275,49 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
     reader.readAsDataURL(file);
   };
 
+  // Canvas-based client-side image compression for PC uploads (keeps images crisp ~80-120KB)
+  const compressImageFile = (file: File, maxWidth = 900, maxHeight = 900, quality = 0.85): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (readerEvent) => {
+        const img = new Image();
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+          if (width > height) {
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve(readerEvent.target?.result as string);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve(dataUrl);
+        };
+        img.onerror = () => reject(new Error('Image decode error'));
+        img.src = readerEvent.target?.result as string;
+      };
+      reader.onerror = () => reject(new Error('File reading error'));
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const [isCompressingImage, setIsCompressingImage] = useState(false);
+  const [uploadedImageMeta, setUploadedImageMeta] = useState<{ name: string; sizeKb: number } | null>(null);
+
   // ================= NEW FRAGRANCE / PRODUCT ADDITION MODAL =================
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isMarketDbModalOpen, setIsMarketDbModalOpen] = useState(false);
@@ -227,6 +330,18 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
   const [autofillSuccessNotice, setAutofillSuccessNotice] = useState<string | null>(null);
 
   const [newFragrance, setNewFragrance] = useState({
+    // Multi-department attributes
+    department: 'perfume' as ProductDepartment,
+    subCategory: '',
+    directPrice: '25',
+    compareAtPrice: '35',
+    costPriceInput: '10',
+    wholesalePriceInput: '18',
+    stockCount: '10',
+    colorOrShade: '',
+    specification: '',
+    description: '',
+    // Basic identifiers
     name: '',
     nameEn: '',
     code: '',
@@ -266,6 +381,13 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
     heartNotes: '',
     baseNotes: '',
   });
+
+  // Auto-open modal if requested via sidebar prop
+  useEffect(() => {
+    if (autoOpenAddModal) {
+      handleOpenAddModal();
+    }
+  }, [autoOpenAddModal]);
 
   // Manual Size Entry inputs
   const [manualSizeMl, setManualSizeMl] = useState('');
@@ -415,22 +537,41 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
     setTimeout(() => setAutofillSuccessNotice(null), 5500);
   };
 
-  const handleOpenAddModal = () => {
+  const handleOpenAddModal = (dept: ProductDepartment = 'perfume') => {
+    const deptConfig = PRODUCT_DEPARTMENTS.find((d) => d.id === dept) || PRODUCT_DEPARTMENTS[0];
+    const prefix = deptConfig.codePrefix;
     const existingNums = oils
       .map((o) => {
-        const m = o.code.match(/NAS-(\d+)/i);
+        const m = o.code.match(new RegExp(`${prefix}-(\\d+)`, 'i'));
         return m ? parseInt(m[1], 10) : 0;
       })
       .filter((n) => !isNaN(n));
     const nextNum = existingNums.length > 0 ? Math.max(...existingNums) + 1 : oils.length + 1;
-    const autoCode = `NAS-${String(nextNum).padStart(3, '0')}`;
+    const autoCode = `${prefix}-${String(nextNum).padStart(3, '0')}`;
 
     setDbSearchQuery('');
     setSelectedDbBrand('الكل');
     setAutofillSuccessNotice(null);
     setIsDbSectionExpanded(true);
+    setUploadedImageMeta(null);
+
+    const defaultImg = dept === 'makeup' ? (LUXURY_PRESET_IMAGES[3]?.url || LUXURY_PRESET_IMAGES[0]?.url) :
+                       dept === 'accessories' ? (LUXURY_PRESET_IMAGES[6]?.url || LUXURY_PRESET_IMAGES[0]?.url) :
+                       dept === 'bakhoor' ? (LUXURY_PRESET_IMAGES[5]?.url || LUXURY_PRESET_IMAGES[0]?.url) :
+                       dept === 'other' ? (LUXURY_PRESET_IMAGES[7]?.url || LUXURY_PRESET_IMAGES[0]?.url) :
+                       (LUXURY_PRESET_IMAGES[0]?.url || 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=400&q=80');
 
     setNewFragrance({
+      department: dept,
+      subCategory: deptConfig.subCategories[0] || '',
+      directPrice: dept === 'makeup' ? '18' : dept === 'accessories' ? '35' : dept === 'bakhoor' ? '22' : '25',
+      compareAtPrice: dept === 'makeup' ? '25' : dept === 'accessories' ? '50' : dept === 'bakhoor' ? '30' : '35',
+      costPriceInput: dept === 'makeup' ? '8' : dept === 'accessories' ? '14' : dept === 'bakhoor' ? '9' : '10',
+      wholesalePriceInput: dept === 'makeup' ? '13' : dept === 'accessories' ? '24' : dept === 'bakhoor' ? '15' : '18',
+      stockCount: '10',
+      colorOrShade: '',
+      specification: '',
+      description: '',
       name: '',
       nameEn: '',
       code: autoCode,
@@ -453,7 +594,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
       density: '0.95',
       stockMl: '500',
       reorderLevelMl: '100',
-      imageUrl: LUXURY_PRESET_IMAGES[0]?.url || 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=400&q=80',
+      imageUrl: defaultImg,
       isOriginalPackaged: false,
       singleBottleSizeMl: '100',
       singleBottlePrice: '85',
@@ -472,24 +613,69 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
     setIsAddModalOpen(true);
   };
 
+  const handleSelectDepartment = (dept: ProductDepartment) => {
+    const deptConfig = PRODUCT_DEPARTMENTS.find((d) => d.id === dept) || PRODUCT_DEPARTMENTS[0];
+    const prefix = deptConfig.codePrefix;
+    const existingNums = oils
+      .map((o) => {
+        const m = o.code.match(new RegExp(`${prefix}-(\\d+)`, 'i'));
+        return m ? parseInt(m[1], 10) : 0;
+      })
+      .filter((n) => !isNaN(n));
+    const nextNum = existingNums.length > 0 ? Math.max(...existingNums) + 1 : oils.length + 1;
+    const autoCode = `${prefix}-${String(nextNum).padStart(3, '0')}`;
+
+    const defaultImg = dept === 'makeup' ? (LUXURY_PRESET_IMAGES[3]?.url || LUXURY_PRESET_IMAGES[0]?.url) :
+                       dept === 'accessories' ? (LUXURY_PRESET_IMAGES[6]?.url || LUXURY_PRESET_IMAGES[0]?.url) :
+                       dept === 'bakhoor' ? (LUXURY_PRESET_IMAGES[5]?.url || LUXURY_PRESET_IMAGES[0]?.url) :
+                       dept === 'other' ? (LUXURY_PRESET_IMAGES[7]?.url || LUXURY_PRESET_IMAGES[0]?.url) :
+                       (LUXURY_PRESET_IMAGES[0]?.url);
+
+    setNewFragrance((prev) => ({
+      ...prev,
+      department: dept,
+      subCategory: deptConfig.subCategories[0] || '',
+      code: autoCode,
+      barcode: generatePerfumeBarcode(autoCode, '6281'),
+      imageUrl: prev.imageUrl && prev.imageUrl !== LUXURY_PRESET_IMAGES[0]?.url ? prev.imageUrl : defaultImg,
+      directPrice: dept === 'makeup' ? '18' : dept === 'accessories' ? '35' : dept === 'bakhoor' ? '22' : '25',
+      compareAtPrice: dept === 'makeup' ? '25' : dept === 'accessories' ? '50' : dept === 'bakhoor' ? '30' : '35',
+      costPriceInput: dept === 'makeup' ? '8' : dept === 'accessories' ? '14' : dept === 'bakhoor' ? '9' : '10',
+      wholesalePriceInput: dept === 'makeup' ? '13' : dept === 'accessories' ? '24' : dept === 'bakhoor' ? '15' : '18',
+    }));
+  };
+
   const handleOpenAddModalWithPreset = (preset: PerfumePresetSpec) => {
     setIsMarketDbModalOpen(false);
-    handleOpenAddModal();
+    handleOpenAddModal('perfume');
     setTimeout(() => {
       handleAutofillFromPreset(preset);
     }, 60);
   };
 
-  const handleNewFragranceImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNewFragranceImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (typeof event.target?.result === 'string') {
-        setNewFragrance((prev) => ({ ...prev, imageUrl: event.target!.result as string }));
-      }
-    };
-    reader.readAsDataURL(file);
+    setIsCompressingImage(true);
+    const origSizeKb = Math.round(file.size / 1024);
+    try {
+      const compressedDataUrl = await compressImageFile(file, 900, 900, 0.85);
+      const approxCompressedKb = Math.round((compressedDataUrl.length * 3) / 4 / 1024);
+      setUploadedImageMeta({ name: file.name, sizeKb: approxCompressedKb || origSizeKb });
+      setNewFragrance((prev) => ({ ...prev, imageUrl: compressedDataUrl }));
+    } catch (err) {
+      console.warn('Canvas compression fallback', err);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (typeof event.target?.result === 'string') {
+          setNewFragrance((prev) => ({ ...prev, imageUrl: event.target!.result as string }));
+          setUploadedImageMeta({ name: file.name, sizeKb: origSizeKb });
+        }
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setIsCompressingImage(false);
+    }
   };
 
   const handleSaveNewFragrance = (e: React.FormEvent) => {
@@ -498,6 +684,92 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
 
     const newOilId = `oil-${Date.now()}`;
     const code = newFragrance.code.trim() || `NAS-${String(oils.length + 1).padStart(3, '0')}`;
+
+    // Handling for non-perfume departments (Makeup, Accessories, Bakhoor, General Items)
+    if (newFragrance.department !== 'perfume') {
+      const directPrice = parseFloat(newFragrance.directPrice.trim()) || 25;
+      const compareAt = parseFloat(newFragrance.compareAtPrice.trim()) || Number((directPrice * 1.35).toFixed(1));
+      const costPrice = parseFloat(newFragrance.costPriceInput.trim()) || Number((directPrice * 0.45).toFixed(1));
+      const wholesalePrice = parseFloat(newFragrance.wholesalePriceInput.trim()) || Number((directPrice * 0.75).toFixed(1));
+      const stockPieces = parseInt(newFragrance.stockCount.trim(), 10) || 10;
+      
+      const defaultDesc = newFragrance.department === 'makeup' 
+        ? 'مستحضر تجميل فاخر عالي الجودة يدوم طويلاً' 
+        : newFragrance.department === 'accessories' 
+        ? 'إكسسوار راقٍ بتصميم استثنائي للمناسبات والهدايا' 
+        : newFragrance.department === 'bakhoor' 
+        ? 'بخور ملكي ومعطر فاخر ذو فوحان وثبات مميز' 
+        : 'منتج فاخر حصري من دار نسمات';
+
+      const finalDesc = newFragrance.description.trim() || defaultDesc;
+
+      const newProductItem: FragranceOil = {
+        id: newOilId,
+        code,
+        name: newFragrance.name.trim(),
+        nameEn: newFragrance.nameEn.trim() || newFragrance.name.trim(),
+        company: newFragrance.brand.trim() || 'نسمات',
+        brand: newFragrance.brand.trim() || 'نسمات',
+        family: 'other',
+        targetGender: newFragrance.targetGender,
+        density: 1,
+        costPrice: Number((costPrice * stockPieces).toFixed(2)),
+        initialQuantity: stockPieces,
+        currentQuantity: stockPieces,
+        stockMl: stockPieces,
+        reorderLevelMl: 2,
+        lowStockThreshold: 2,
+        isAvailable: true,
+        unit: 'piece',
+        costPerGram: costPrice,
+        costPerMl: costPrice,
+        unitCost: costPrice,
+        retailPrice30ml: directPrice,
+        retailPrice50ml: directPrice,
+        retailPrice100ml: directPrice,
+        wholesalePrice50ml: wholesalePrice,
+        sizePrices: { 1: directPrice },
+        customSizes: [{ size: 1, price: directPrice, label: isAr ? 'قطعة واحدة' : '1 Piece' }],
+        perfumeType: 'custom',
+        barcode: newFragrance.barcode.trim() || generatePerfumeBarcode(code, '6281'),
+        availableSizes: [1],
+        notes: finalDesc,
+        imageUrl: newFragrance.imageUrl.trim() || LUXURY_PRESET_IMAGES[0]?.url,
+        // Department / Universal product properties
+        productNature: newFragrance.department,
+        department: newFragrance.department,
+        category: newFragrance.subCategory.trim() || undefined,
+        colorOrShade: newFragrance.colorOrShade.trim() || undefined,
+        specification: newFragrance.specification.trim() || undefined,
+        // Packaged item handling
+        isOriginalPackaged: true,
+        packageStockCount: stockPieces,
+        singleBottleSizeMl: 1,
+        singleBottlePrice: directPrice,
+        originalRetailPrice: compareAt,
+        concentration: newFragrance.department === 'makeup' ? 'COSMETICS' :
+                       newFragrance.department === 'accessories' ? 'ACCESSORY' :
+                       newFragrance.department === 'bakhoor' ? 'BAKHOOR' : 'BOUTIQUE',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      if (onAddOil) {
+        onAddOil(newProductItem);
+      }
+
+      setIsAddModalOpen(false);
+      const deptName = newFragrance.department === 'makeup' ? 'مستحضر المكياج' :
+                       newFragrance.department === 'accessories' ? 'الإكسسوار' :
+                       newFragrance.department === 'bakhoor' ? 'البخور' : 'المنتج';
+      setAddSuccessToast(
+        isAr
+          ? `تمت إضافة ${deptName} "${newProductItem.name}" (${newProductItem.code}) ونشره بنجاح في الكتالوج والمتجر!`
+          : `Product "${newProductItem.name}" (${newProductItem.code}) added & published successfully!`
+      );
+      setTimeout(() => setAddSuccessToast(''), 4500);
+      return;
+    }
 
     const notesParts: string[] = [];
     if (newFragrance.notes.trim()) notesParts.push(newFragrance.notes.trim());
@@ -584,6 +856,8 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
       batchCode: isOriginal ? newFragrance.batchCode.trim() : undefined,
       countryOfOrigin: isOriginal ? newFragrance.countryOfOrigin.trim() : undefined,
       boxCondition: isOriginal ? newFragrance.boxCondition : undefined,
+      productNature: isOriginal ? 'perfume_original' : 'perfume_crafted',
+      department: 'perfume',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -636,11 +910,15 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
       wholesale: number;
       isOriginalPackaged?: boolean;
       packageStockCount?: number;
+      productNature?: string;
+      department?: string;
+      colorOrShade?: string;
+      specification?: string;
       rawOil?: FragranceOil;
       rawRecipe?: SavedRecipe;
     }> = [];
 
-    // Fragrance Oils
+    // Fragrance Oils & Multi-Department Products
     oils.forEach((oil) => {
       const drafts = priceDrafts[oil.id];
       const p30 = drafts ? drafts.p30 : (oil.retailPrice30ml !== undefined ? oil.retailPrice30ml : 5);
@@ -672,6 +950,10 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
         wholesale,
         isOriginalPackaged: oil.isOriginalPackaged,
         packageStockCount: oil.packageStockCount,
+        productNature: oil.productNature,
+        department: oil.department,
+        colorOrShade: oil.colorOrShade,
+        specification: oil.specification,
         rawOil: oil,
       });
     });
@@ -714,7 +996,21 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
   // Filter & Search
   const filteredProducts = useMemo(() => {
     return combinedProducts.filter((p) => {
-      if (selectedType !== 'all' && p.type !== selectedType) return false;
+      if (selectedType !== 'all') {
+        if (selectedType === 'oil') {
+          if (p.type !== 'oil' || (p.productNature && p.productNature !== 'perfume_crafted' && p.productNature !== 'perfume_original')) return false;
+        } else if (selectedType === 'recipe') {
+          if (p.type !== 'recipe') return false;
+        } else if (selectedType === 'makeup') {
+          if (p.productNature !== 'makeup') return false;
+        } else if (selectedType === 'accessories') {
+          if (p.productNature !== 'accessories') return false;
+        } else if (selectedType === 'bakhoor') {
+          if (p.productNature !== 'bakhoor') return false;
+        } else if (selectedType === 'other') {
+          if (p.productNature !== 'other') return false;
+        }
+      }
       if (selectedBrand !== 'all' && p.brand !== selectedBrand) return false;
       if (selectedFamily !== 'all' && p.family !== selectedFamily) return false;
 
@@ -894,11 +1190,11 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
           </button>
 
           <button
-            onClick={handleOpenAddModal}
+            onClick={() => handleOpenAddModal('perfume')}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black hover:bg-neutral-800 text-white text-xs font-black shadow-md border border-black transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4 text-amber-400 stroke-[3]" />
-            <span className="text-white font-black">{isAr ? 'إضافة عطر / منتج جديد' : 'Add New Fragrance'}</span>
+            <span className="text-white font-black">{isAr ? 'إضافة منتج جديد (عطور • مكياج • إكسسوار)' : 'Add Product (All Departments)'}</span>
           </button>
 
           <button
@@ -1000,9 +1296,13 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
             onChange={(e) => setSelectedType(e.target.value as any)}
             className="px-3 py-2 rounded-xl bg-neutral-50 border border-neutral-200 text-xs text-black font-bold focus:outline-none cursor-pointer"
           >
-            <option value="all">{isAr ? 'كل الأنواع (زيوت + وصفات)' : 'All Types'}</option>
-            <option value="oil">{isAr ? 'زيوت عطرية أصلية فقط' : 'Perfume Oils Only'}</option>
-            <option value="recipe">{isAr ? 'خلطات نسمات الحصرية' : 'Signature Blends Only'}</option>
+            <option value="all">{isAr ? 'كل الأقسام والمنتجات' : 'All Departments'}</option>
+            <option value="oil">{isAr ? 'عطورات وزيوت فاخرة 🧴' : 'Perfumes & Oils'}</option>
+            <option value="makeup">{isAr ? 'مكياج ومستحضرات 💄' : 'Makeup & Cosmetics'}</option>
+            <option value="accessories">{isAr ? 'إكسسوارات وهدايا 💍' : 'Accessories & Gifts'}</option>
+            <option value="bakhoor">{isAr ? 'بخور ومعطرات جو 🪔' : 'Bakhoor & Scents'}</option>
+            <option value="recipe">{isAr ? 'خلطات نسمات الملكية ★' : 'Signature Blends'}</option>
+            <option value="other">{isAr ? 'منتجات عامة ومتنوعة 📦' : 'Other Products'}</option>
           </select>
 
           {/* Brand Filter */}
@@ -1106,10 +1406,34 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                         <div className="min-w-0">
                           <div className="font-black text-sm text-black flex items-center gap-1.5 flex-wrap">
                             <span className="text-black font-black text-sm tracking-wide">{p.name}</span>
-                            {p.isOriginalPackaged && (
+                            {p.productNature === 'makeup' && (
+                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-100 text-rose-900 border border-rose-300 font-black flex items-center gap-1">
+                                <span>💄</span>
+                                <span>{isAr ? `مكياج (${p.packageStockCount || 0} حبة)` : `Cosmetics (${p.packageStockCount || 0})`}</span>
+                              </span>
+                            )}
+                            {p.productNature === 'accessories' && (
+                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-900 border border-indigo-300 font-black flex items-center gap-1">
+                                <span>💍</span>
+                                <span>{isAr ? `إكسسوار (${p.packageStockCount || 0} حبة)` : `Accessory (${p.packageStockCount || 0})`}</span>
+                              </span>
+                            )}
+                            {p.productNature === 'bakhoor' && (
+                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 font-black flex items-center gap-1">
+                                <span>🪔</span>
+                                <span>{isAr ? `بخور ومعطر (${p.packageStockCount || 0} علبة)` : `Bakhoor (${p.packageStockCount || 0})`}</span>
+                              </span>
+                            )}
+                            {p.productNature === 'other' && (
+                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-neutral-200 text-neutral-900 border border-neutral-300 font-black flex items-center gap-1">
+                                <span>📦</span>
+                                <span>{isAr ? `منتج (${p.packageStockCount || 0} حبة)` : `Item (${p.packageStockCount || 0})`}</span>
+                              </span>
+                            )}
+                            {p.isOriginalPackaged && (!p.productNature || p.productNature === 'perfume_original') && (
                               <span className="text-[10px] px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-black font-black shadow-2xs border border-amber-400 flex items-center gap-1">
                                 <span>💎</span>
-                                <span>{isAr ? `أصلي معلب (${p.packageStockCount || 0} حبة)` : `Original Boxed (${p.packageStockCount || 0})`}</span>
+                                <span>{isAr ? `عطر أصلي معلب (${p.packageStockCount || 0} حبة)` : `Original Boxed (${p.packageStockCount || 0})`}</span>
                               </span>
                             )}
                             {p.type === 'recipe' && (
@@ -1122,38 +1446,62 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                             <span className="font-mono font-bold text-neutral-900 bg-neutral-100 px-1.5 py-0.5 rounded text-[11px] border border-neutral-300 shadow-2xs">{p.code}</span>
                             <span>•</span>
                             <span className="text-black font-black">{p.brand}</span>
-                            <span>•</span>
-                            <span className="text-neutral-700 font-bold capitalize">{p.family}</span>
+                            {p.colorOrShade && (
+                              <>
+                                <span>•</span>
+                                <span className="text-rose-700 font-bold">{isAr ? `درجة:` : `Shade:`} {p.colorOrShade}</span>
+                              </>
+                            )}
+                            {p.specification && (
+                              <>
+                                <span>•</span>
+                                <span className="text-indigo-700 font-bold">{p.specification}</span>
+                              </>
+                            )}
+                            {!p.colorOrShade && !p.specification && (
+                              <>
+                                <span>•</span>
+                                <span className="text-neutral-700 font-bold capitalize">{p.family}</span>
+                              </>
+                            )}
                           </div>
 
-                          {/* Available Sizes Pills (Dynamic for standard and custom sizes) */}
+                          {/* Available Sizes / Units */}
                           <div className="flex items-center gap-1 mt-1.5 flex-wrap">
-                            <span className="text-[10px] text-neutral-500 font-bold">{isAr ? 'الأحجام:' : 'Sizes:'}</span>
-                            {(() => {
-                              const currentSizes = sizeDrafts[p.id] || p.availableSizes || [30, 50, 100];
-                              const allDisplaySizes = Array.from(new Set([...currentSizes, 30, 50, 100])).sort((a, b) => a - b);
-                              return allDisplaySizes.map((sz) => {
-                                const isAvail = currentSizes.includes(sz);
-                                return (
-                                  <button
-                                    key={sz}
-                                    type="button"
-                                    onClick={() => {
-                                      const next = isAvail ? currentSizes.filter((s) => s !== sz) : [...currentSizes, sz].sort((a, b) => a - b);
-                                      setSizeDrafts((prev) => ({ ...prev, [p.id]: next }));
-                                    }}
-                                    className={`px-1.5 py-0.2 rounded text-[10px] font-bold font-mono transition border cursor-pointer ${
-                                      isAvail
-                                        ? 'bg-neutral-900 text-amber-300 border-neutral-900 shadow-2xs'
-                                        : 'bg-neutral-100 text-neutral-400 border-dashed border-neutral-300 line-through'
-                                    }`}
-                                    title={isAr ? `تبديل توفر حجم ${sz} مل (مفعّل: ${isAvail ? 'نعم' : 'لا'})` : `Toggle ${sz}ml`}
-                                  >
-                                    {sz}ml
-                                  </button>
-                                );
-                              });
-                            })()}
+                            {p.productNature && p.productNature !== 'perfume_crafted' && p.productNature !== 'perfume_original' ? (
+                              <span className="text-[10px] font-bold text-neutral-800 bg-neutral-100 px-2 py-0.5 rounded-md border border-neutral-300">
+                                {isAr ? `المخزون المتوفر: ${p.packageStockCount || 0} قطعة • بيع مباشر بالوحدة` : `Stock: ${p.packageStockCount || 0} pcs • Unit retail`}
+                              </span>
+                            ) : (
+                              <>
+                                <span className="text-[10px] text-neutral-500 font-bold">{isAr ? 'الأحجام:' : 'Sizes:'}</span>
+                                {(() => {
+                                  const currentSizes = sizeDrafts[p.id] || p.availableSizes || [30, 50, 100];
+                                  const allDisplaySizes = Array.from(new Set([...currentSizes, 30, 50, 100])).sort((a, b) => a - b);
+                                  return allDisplaySizes.map((sz) => {
+                                    const isAvail = currentSizes.includes(sz);
+                                    return (
+                                      <button
+                                        key={sz}
+                                        type="button"
+                                        onClick={() => {
+                                          const next = isAvail ? currentSizes.filter((s) => s !== sz) : [...currentSizes, sz].sort((a, b) => a - b);
+                                          setSizeDrafts((prev) => ({ ...prev, [p.id]: next }));
+                                        }}
+                                        className={`px-1.5 py-0.2 rounded text-[10px] font-bold font-mono transition border cursor-pointer ${
+                                          isAvail
+                                            ? 'bg-neutral-900 text-amber-300 border-neutral-900 shadow-2xs'
+                                            : 'bg-neutral-100 text-neutral-400 border-dashed border-neutral-300 line-through'
+                                        }`}
+                                        title={isAr ? `تبديل توفر حجم ${sz} مل (مفعّل: ${isAvail ? 'نعم' : 'لا'})` : `Toggle ${sz}ml`}
+                                      >
+                                        {sz}ml
+                                      </button>
+                                    );
+                                  });
+                                })()}
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -1566,36 +1914,36 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
         </div>
       )}
 
-      {/* ================= ADD NEW FRAGRANCE MODAL (إضافة عطر / منتج جديد يدوياً) ================= */}
+      {/* ================= COMPREHENSIVE MULTI-DEPARTMENT PRODUCT ADDITION MODAL ================= */}
       {isAddModalOpen && (
         <div
           className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-fadeIn"
           onClick={() => setIsAddModalOpen(false)}
         >
           <div
-            className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-neutral-200 overflow-hidden text-black animate-scaleUp my-auto"
+            className="w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-neutral-200 overflow-hidden text-black animate-scaleUp my-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
             <div className="p-5 border-b border-neutral-200 flex items-center justify-between bg-black text-white">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-400">
+                <div className="w-10 h-10 rounded-xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-400">
                   <Plus className="w-5 h-5 text-amber-400 stroke-[3]" />
                 </div>
                 <div>
                   <h3 className="font-black text-sm sm:text-base text-white">
-                    {isAr ? 'إضافة عطر / منتج فاخر جديد' : 'Add New Luxury Fragrance'}
+                    {isAr ? 'إضافة منتج جديد شامل (عطور • مكياج • إكسسوار • بخور)' : 'Add New Product (All Departments)'}
                   </h3>
                   <p className="text-[11px] text-neutral-300">
                     {isAr 
-                      ? 'إدخال يدوي مباشر لقاعدة البيانات والتصنيفات والمتجر الفاخر' 
-                      : 'Direct manual addition with categories, pricing, and notes'}
+                      ? 'إدخال سهل وتفصيلي للمنتج مع إمكانية رفع الصورة مباشرة من جهاز الكمبيوتر' 
+                      : 'Easy addition with department customization and direct computer photo upload'}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="text-neutral-400 hover:text-white p-1.5 rounded-lg cursor-pointer"
+                className="text-neutral-400 hover:text-white p-1.5 rounded-lg cursor-pointer transition"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1604,7 +1952,151 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
             {/* Modal Form */}
             <form onSubmit={handleSaveNewFragrance} className="p-5 sm:p-6 space-y-5 max-h-[78vh] overflow-y-auto text-xs">
               
-              {/* ================= SMART FRAGRANCE DATABASE AUTO-FETCH ASSISTANT ================= */}
+              {/* 1. Department Selector (عطورات، مكياج، إكسسوارات، بخور، أخرى) */}
+              <div className="space-y-1.5">
+                <label className="block font-black text-neutral-800 text-xs">
+                  {isAr ? '1. اختر قسم ونوع المنتج المراد إضافته:' : '1. Select Product Department:'}
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                  {PRODUCT_DEPARTMENTS.map((dept) => {
+                    const isSelected = newFragrance.department === dept.id;
+                    return (
+                      <button
+                        key={dept.id}
+                        type="button"
+                        onClick={() => handleSelectDepartment(dept.id)}
+                        className={`p-2.5 rounded-2xl border-2 text-start transition-all cursor-pointer flex flex-col justify-between ${
+                          isSelected
+                            ? 'bg-black text-white border-black shadow-md ring-2 ring-amber-400/50'
+                            : 'bg-neutral-50 text-neutral-800 border-neutral-200 hover:border-black hover:bg-white'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between w-full mb-1">
+                          <span className="text-xl">{dept.icon}</span>
+                          <span className={`text-[9px] font-mono px-1.5 py-0.2 rounded font-bold ${
+                            isSelected ? 'bg-amber-400 text-black' : 'bg-neutral-200 text-neutral-700'
+                          }`}>
+                            {dept.codePrefix}
+                          </span>
+                        </div>
+                        <div className="font-black text-[11px] leading-tight">
+                          {isAr ? dept.labelAr : dept.labelEn}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 2. Prominent Computer Image Upload Card (رفع الصورة من الكمبيوتر) */}
+              <div className="p-4 rounded-2xl bg-neutral-50 border-2 border-dashed border-amber-400/80 hover:border-amber-500 transition-colors space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-black text-amber-400 flex items-center justify-center font-bold shadow-xs">
+                      <Camera className="w-4 h-4 text-amber-400" />
+                    </div>
+                    <div>
+                      <span className="font-black text-xs text-neutral-900 block">
+                        {isAr ? '2. صورة المنتج (رفع مباشر وسريع من جهاز الكمبيوتر)' : '2. Product Image (Upload from Computer)'}
+                      </span>
+                      <span className="text-[10px] text-neutral-500">
+                        {isAr ? 'اختر صورة من ملفات جهازك — يتم ضغطها وتحسينها تلقائياً لأعلى نقاوة وسرعة' : 'Select an image from your computer — auto-compressed for speed'}
+                      </span>
+                    </div>
+                  </div>
+                  {uploadedImageMeta && (
+                    <span className="text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 rounded-md">
+                      ✓ {uploadedImageMeta.name} (~{uploadedImageMeta.sizeKb}KB)
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                  {/* Live Image Preview */}
+                  <div className="relative w-24 h-24 rounded-2xl overflow-hidden border-2 border-black/80 bg-white shadow-md shrink-0 group">
+                    <img
+                      src={newFragrance.imageUrl || LUXURY_PRESET_IMAGES[0]?.url}
+                      alt="Product Preview"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = LUXURY_PRESET_IMAGES[0]?.url;
+                      }}
+                    />
+                    {isCompressingImage && (
+                      <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-white text-[10px] font-bold">
+                        <span className="animate-spin text-base">⏳</span>
+                        <span>{isAr ? 'جاري التحسين...' : 'Compressing...'}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1 w-full space-y-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {/* File input button */}
+                      <label className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-black hover:bg-neutral-800 text-amber-300 hover:text-white font-black text-xs cursor-pointer shadow-md transition active:scale-95">
+                        <Upload className="w-4 h-4 text-amber-400 stroke-[2.5]" />
+                        <span>{isAr ? '🖥️ اختيار صورة من الكمبيوتر' : '🖥️ Choose from Computer'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleNewFragranceImageUpload}
+                          className="hidden"
+                        />
+                      </label>
+
+                      {newFragrance.imageUrl && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setNewFragrance((prev) => ({ ...prev, imageUrl: '' }));
+                            setUploadedImageMeta(null);
+                          }}
+                          className="px-2.5 py-1.5 rounded-xl border border-neutral-300 hover:border-rose-400 hover:bg-rose-50 text-neutral-600 hover:text-rose-700 text-[11px] font-bold transition cursor-pointer"
+                        >
+                          {isAr ? 'إزالة الصورة' : 'Remove'}
+                        </button>
+                      )}
+
+                      <span className="text-[10px] text-neutral-400">
+                        {isAr ? 'يدعم PNG, JPG, WebP أو رابط مباشر أدناه' : 'PNG, JPG, WebP or direct URL'}
+                      </span>
+                    </div>
+
+                    {/* URL Input */}
+                    <input
+                      type="url"
+                      value={newFragrance.imageUrl}
+                      onChange={(e) => setNewFragrance({ ...newFragrance, imageUrl: e.target.value })}
+                      placeholder="https://..."
+                      className="w-full p-2 rounded-xl border border-neutral-300 font-mono text-[11px] bg-white focus:outline-none focus:border-black"
+                    />
+
+                    {/* Quick presets row */}
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 scrollbar-thin">
+                      <span className="text-[10px] font-bold text-neutral-500 shrink-0">
+                        {isAr ? 'أو صور فاخرة جاهزة:' : 'Presets:'}
+                      </span>
+                      {LUXURY_PRESET_IMAGES.map((preset, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setNewFragrance({ ...newFragrance, imageUrl: preset.url })}
+                          className={`w-7 h-7 rounded-lg overflow-hidden border shrink-0 transition cursor-pointer ${
+                            newFragrance.imageUrl === preset.url ? 'ring-2 ring-black border-black' : 'border-neutral-300 hover:border-black'
+                          }`}
+                          title={preset.name}
+                        >
+                          <img src={preset.url} alt={preset.name} className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {newFragrance.department === 'perfume' ? (
+                <>
+                  {/* ================= SMART FRAGRANCE DATABASE AUTO-FETCH ASSISTANT ================= */}
               <div className="rounded-2xl border border-amber-300/80 bg-gradient-to-b from-amber-500/10 via-amber-500/5 to-white p-4 sm:p-5 shadow-xs space-y-3.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
@@ -2477,76 +2969,457 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                   />
                 </div>
               </div>
-
-              {/* Section 5: Photo */}
-              <div className="space-y-3 pt-2">
-                <div className="font-black text-neutral-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5 pb-1 border-b border-neutral-200">
-                  <Camera className="w-3.5 h-3.5 text-black" />
-                  <span>{isAr ? '5. صورة قارورة العطر الفاخرة' : '5. Flacon Photo'}</span>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-center gap-4 p-3.5 rounded-2xl bg-neutral-50 border border-neutral-200">
-                  <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-black/80 shadow-md bg-white shrink-0 p-0.5">
-                    <img
-                      src={newFragrance.imageUrl || LUXURY_PRESET_IMAGES[0]?.url}
-                      alt="Preview"
-                      className="w-full h-full object-cover rounded-xl"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = LUXURY_PRESET_IMAGES[0]?.url;
-                      }}
-                    />
+                </>
+              ) : (
+                <div className="space-y-4">
+                  {/* Department Banner & Guide */}
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-r from-neutral-900 via-neutral-800 to-black text-white border border-neutral-700 shadow-xs flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-2xl p-1 bg-white/10 rounded-xl">
+                        {newFragrance.department === 'makeup' ? '💄' :
+                         newFragrance.department === 'accessories' ? '💍' :
+                         newFragrance.department === 'bakhoor' ? '🪔' : '🛍️'}
+                      </span>
+                      <div>
+                        <div className="font-black text-xs sm:text-sm text-amber-300">
+                          {newFragrance.department === 'makeup' ? (isAr ? 'إضافة مستحضر تجميل / مكياج فاخر' : 'Add Luxury Cosmetics / Makeup') :
+                           newFragrance.department === 'accessories' ? (isAr ? 'إضافة إكسسوار راقٍ / مجوهرات وهدايا' : 'Add Luxury Accessories & Jewelry') :
+                           newFragrance.department === 'bakhoor' ? (isAr ? 'إضافة بخور ملكي / عود ومعطرات' : 'Add Royal Bakhoor & Incense') :
+                           (isAr ? 'إضافة منتج بوتيك عام' : 'Add Boutique Product')}
+                        </div>
+                        <p className="text-[11px] text-neutral-300">
+                          {isAr
+                            ? 'أدخل بيانات وتفاصيل المنتج والأسعار مباشرة لنشره فوراً في المتجر والمخزون.'
+                            : 'Fill product details, pricing and stock count to immediately publish.'}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 font-mono">
+                      {newFragrance.department.toUpperCase()}
+                    </span>
                   </div>
-                  <div className="space-y-2 flex-1 w-full">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black hover:bg-neutral-800 text-white font-bold text-xs cursor-pointer shadow-xs transition">
-                        <Upload className="w-3.5 h-3.5 text-white" />
-                        <span>{isAr ? 'رفع صورة من جهازك' : 'Upload from Device'}</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleNewFragranceImageUpload}
-                          className="hidden"
-                        />
-                      </label>
-                      <span className="text-neutral-400 text-[11px]">{isAr ? 'أو ضع رابط مباشر أو اختر أدناه' : 'or choose preset below'}</span>
+
+                  {/* Section: Basic Identity */}
+                  <div className="space-y-3 bg-white p-4 rounded-2xl border border-neutral-200">
+                    <div className="font-black text-neutral-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5 pb-1 border-b border-neutral-200">
+                      <Tag className="w-3.5 h-3.5 text-black" />
+                      <span>{isAr ? '1. معلومات وهوية المنتج الأساسية' : '1. Product Identity'}</span>
                     </div>
 
-                    <input
-                      type="url"
-                      value={newFragrance.imageUrl}
-                      onChange={(e) => setNewFragrance({ ...newFragrance, imageUrl: e.target.value })}
-                      placeholder="https://..."
-                      className="w-full p-2 rounded-xl border border-neutral-300 font-mono text-[11px] bg-white focus:outline-none focus:border-black"
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block font-bold text-neutral-700 mb-1 text-xs">
+                          {isAr ? 'اسم المنتج بالعربية *:' : 'Product Name (Arabic) *:'}
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={newFragrance.name}
+                          onChange={(e) => setNewFragrance({ ...newFragrance, name: e.target.value })}
+                          placeholder={
+                            newFragrance.department === 'makeup' ? (isAr ? 'مثال: أحمر شفاه مخملي غير لامع' : 'e.g. Velvet Matte Lipstick') :
+                            newFragrance.department === 'accessories' ? (isAr ? 'مثال: مبخرة كريستال ملكية بحواف ذهبية' : 'e.g. Crystal Royal Incense Burner') :
+                            newFragrance.department === 'bakhoor' ? (isAr ? 'مثال: بخور مروكي فاخر دبل سوبر' : 'e.g. Double Super Maroki Bakhoor') :
+                            (isAr ? 'مثال: معطر مفارش وأجواء VIP' : 'e.g. VIP Atmosphere Mist')
+                          }
+                          className="w-full p-2.5 rounded-xl border border-neutral-300 font-bold text-xs focus:outline-none focus:border-black"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block font-bold text-neutral-700 mb-1 text-xs">
+                          {isAr ? 'اسم المنتج بالإنكليزية:' : 'Product Name (English):'}
+                        </label>
+                        <input
+                          type="text"
+                          value={newFragrance.nameEn}
+                          onChange={(e) => setNewFragrance({ ...newFragrance, nameEn: e.target.value })}
+                          placeholder={
+                            newFragrance.department === 'makeup' ? 'Velvet Matte Lipstick #02' :
+                            newFragrance.department === 'accessories' ? 'Royal Gold-Rimmed Crystal Burner' :
+                            newFragrance.department === 'bakhoor' ? 'Maroki Royal Double Super' :
+                            'Boutique Luxury Item'
+                          }
+                          className="w-full p-2.5 rounded-xl border border-neutral-300 font-medium text-xs focus:outline-none focus:border-black"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Brand & Subcategory */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block font-bold text-neutral-700 mb-1 text-xs">
+                          {isAr ? 'الماركة / دار الصنع:' : 'Brand / House:'}
+                        </label>
+                        <input
+                          type="text"
+                          value={newFragrance.brand}
+                          onChange={(e) => setNewFragrance({ ...newFragrance, brand: e.target.value })}
+                          placeholder={isAr ? 'نسمات، هدى بيوتي، سواروفسكي...' : 'Brand name...'}
+                          className="w-full p-2 rounded-xl border border-neutral-300 font-bold text-xs focus:outline-none focus:border-black"
+                        />
+                        {/* Quick brand chips */}
+                        <div className="flex items-center gap-1 overflow-x-auto pt-1.5 scrollbar-thin">
+                          {(newFragrance.department === 'makeup'
+                            ? ['نسمات بيوتي', 'Huda Beauty', 'Dior', 'MAC', 'Charlotte Tilbury', 'Kiko']
+                            : newFragrance.department === 'accessories'
+                            ? ['نسمات كولكشن', 'Swarovski', 'Pandora', 'Cartier', 'Tiffany', 'Van Cleef']
+                            : newFragrance.department === 'bakhoor'
+                            ? ['نسمات الملكية', 'عبد الصمد القرشي', 'الماجد للعود', 'أجمل', 'العربية للعود']
+                            : ['دار نسمات', 'Boutique Nasamat', 'Luxury Collection']
+                          ).map((b) => (
+                            <button
+                              key={b}
+                              type="button"
+                              onClick={() => setNewFragrance({ ...newFragrance, brand: b })}
+                              className={`text-[9px] px-2 py-0.5 rounded-md border font-semibold shrink-0 cursor-pointer transition ${
+                                newFragrance.brand === b
+                                  ? 'bg-black text-amber-300 border-black'
+                                  : 'bg-neutral-100 text-neutral-600 border-neutral-200 hover:border-black'
+                              }`}
+                            >
+                              {b}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block font-bold text-neutral-700 mb-1 text-xs">
+                          {isAr ? 'التصنيف الفرعي للمنتج:' : 'Sub-Category:'}
+                        </label>
+                        <input
+                          type="text"
+                          value={newFragrance.subCategory}
+                          onChange={(e) => setNewFragrance({ ...newFragrance, subCategory: e.target.value })}
+                          placeholder={isAr ? 'أحمر شفاه، مباخر، معمول، قلائد...' : 'Subcategory...'}
+                          className="w-full p-2 rounded-xl border border-neutral-300 font-bold text-xs focus:outline-none focus:border-black"
+                        />
+                        {/* Quick category chips */}
+                        <div className="flex items-center gap-1 overflow-x-auto pt-1.5 scrollbar-thin">
+                          {(newFragrance.department === 'makeup'
+                            ? ['أحمر شفاه', 'باليت ظلال', 'كريم أساس', 'مسكارا', 'بلاشر', 'محدد شفاه']
+                            : newFragrance.department === 'accessories'
+                            ? ['مباخر ملكية', 'سلاسل وقلائد', 'أساور', 'خواتم', 'علب هدايا فاخرة', 'ساعات راقية']
+                            : newFragrance.department === 'bakhoor'
+                            ? ['بخور مروكي', 'عود كلمنتان', 'معمول ملكي', 'مبثوث فاخر', 'رقائق عود']
+                            : ['معطرات مفارش', 'شموع عطرية', 'بكج هدايا VIP', 'لوشن للجسم']
+                          ).map((c) => (
+                            <button
+                              key={c}
+                              type="button"
+                              onClick={() => setNewFragrance({ ...newFragrance, subCategory: c })}
+                              className={`text-[9px] px-2 py-0.5 rounded-md border font-semibold shrink-0 cursor-pointer transition ${
+                                newFragrance.subCategory === c
+                                  ? 'bg-black text-amber-300 border-black'
+                                  : 'bg-neutral-100 text-neutral-600 border-neutral-200 hover:border-black'
+                              }`}
+                            >
+                              {c}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Department-Specific Feature: Color/Shade OR Specification/Material */}
+                    {newFragrance.department === 'makeup' ? (
+                      <div className="p-3 bg-rose-50/70 border border-rose-200 rounded-xl space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="block font-black text-rose-950 text-xs">
+                            {isAr ? '💄 درجة اللون أو رقم الشيد (Color Shade):' : '💄 Color Shade / Number:'}
+                          </label>
+                          <span className="text-[10px] text-rose-700 font-bold">
+                            {isAr ? 'يظهر للزبون في بطاقة المنتج لاختيار الدرجة' : 'Shown to customers'}
+                          </span>
+                        </div>
+                        <input
+                          type="text"
+                          value={newFragrance.colorOrShade}
+                          onChange={(e) => setNewFragrance({ ...newFragrance, colorOrShade: e.target.value })}
+                          placeholder={isAr ? 'مثال: #02 Velvet Rose، 08 Red Ruby، وردي طبيعي...' : 'e.g. #02 Velvet Rose, 08 Red Ruby...'}
+                          className="w-full p-2 rounded-xl border border-rose-300 font-bold text-xs bg-white focus:outline-none focus:border-rose-600"
+                        />
+                        <div className="flex items-center gap-1.5 overflow-x-auto pt-0.5 scrollbar-thin">
+                          {['#01 Nude Glow', '#02 Velvet Rose', '#03 Ruby Red', '#04 Berry Pink', '#05 Coral Sun', '01 Fair Ivory', '02 Natural Beige'].map((shade) => (
+                            <button
+                              key={shade}
+                              type="button"
+                              onClick={() => setNewFragrance({ ...newFragrance, colorOrShade: shade })}
+                              className="text-[9px] px-2 py-0.5 rounded-md bg-white border border-rose-200 hover:border-rose-500 font-bold text-rose-900 shrink-0 cursor-pointer"
+                            >
+                              {shade}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-xl space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="block font-black text-amber-950 text-xs">
+                            {newFragrance.department === 'bakhoor'
+                              ? (isAr ? '🪔 الوزن أو حجم العبوة وحالة الكسرات:' : '🪔 Weight / Grade:')
+                              : (isAr ? '💎 مواصفات الخامة والمقاس:' : '💎 Material & Specifications:')}
+                          </label>
+                          <span className="text-[10px] text-amber-800 font-bold">
+                            {isAr ? 'يظهر للزبون كبيان فخامة للمنتج' : 'Product specifications'}
+                          </span>
+                        </div>
+                        <input
+                          type="text"
+                          value={newFragrance.specification}
+                          onChange={(e) => setNewFragrance({ ...newFragrance, specification: e.target.value })}
+                          placeholder={
+                            newFragrance.department === 'bakhoor'
+                              ? (isAr ? 'مثال: تولة (12 غرام) دبل سوبر، أوقية (30 غرام) كسر مباخر...' : 'e.g. 1 Tola (12g), Double Super...')
+                              : (isAr ? 'مثال: كريستال بوهيمي منقوش ذهب، فضة إسترليني 925، ستانلس ستيل مطلي...' : 'e.g. Bohemian Crystal, 925 Sterling Silver...')
+                          }
+                          className="w-full p-2 rounded-xl border border-amber-300 font-bold text-xs bg-white focus:outline-none focus:border-amber-600"
+                        />
+                        <div className="flex items-center gap-1.5 overflow-x-auto pt-0.5 scrollbar-thin">
+                          {(newFragrance.department === 'bakhoor'
+                            ? ['تولة فاخرة (12 غرام)', 'أوقية كاملة (30 غرام)', 'ثمن كيلو (125 غرام)', 'كسر مباخر دبل سوبر بيور']
+                            : ['كريستال بوهيمي منقوش ذهب', 'فضة إسترليني 925', 'ستانلس ستيل مطلي ذهب 18K', 'جلد طبيعي فاخر']
+                          ).map((spec) => (
+                            <button
+                              key={spec}
+                              type="button"
+                              onClick={() => setNewFragrance({ ...newFragrance, specification: spec })}
+                              className="text-[9px] px-2 py-0.5 rounded-md bg-white border border-amber-200 hover:border-amber-500 font-bold text-amber-900 shrink-0 cursor-pointer"
+                            >
+                              {spec}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Code & Barcode */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block font-bold text-neutral-700 text-xs">
+                            {isAr ? 'كود المنتج (SKU) *:' : 'Product Code (SKU) *:'}
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const prefix = newFragrance.department === 'makeup' ? 'MKP' :
+                                             newFragrance.department === 'accessories' ? 'ACC' :
+                                             newFragrance.department === 'bakhoor' ? 'BKH' : 'PRD';
+                              const autoCode = `${prefix}-${String(oils.length + 1).padStart(3, '0')}`;
+                              setNewFragrance({ ...newFragrance, code: autoCode });
+                            }}
+                            className="text-[10px] text-amber-800 hover:text-black font-bold cursor-pointer"
+                          >
+                            {isAr ? '⚡ توليد كود' : '⚡ Auto-code'}
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          required
+                          value={newFragrance.code}
+                          onChange={(e) => setNewFragrance({ ...newFragrance, code: e.target.value.toUpperCase() })}
+                          className="w-full p-2 rounded-xl border border-neutral-300 font-mono font-bold text-xs focus:outline-none focus:border-black bg-neutral-50"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block font-bold text-neutral-700 text-xs">
+                            {isAr ? 'الباركود (Barcode):' : 'Barcode:'}
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const auto = generatePerfumeBarcode(newFragrance.code || 'PRD-001', '6281');
+                              setNewFragrance({ ...newFragrance, barcode: auto });
+                            }}
+                            className="text-[10px] text-amber-800 hover:text-black font-bold cursor-pointer"
+                          >
+                            {isAr ? '⚡ توليد باركود تلقائي' : '⚡ Generate Barcode'}
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          value={newFragrance.barcode}
+                          onChange={(e) => setNewFragrance({ ...newFragrance, barcode: e.target.value })}
+                          placeholder="6281000..."
+                          className="w-full p-2 rounded-xl border border-neutral-300 font-mono text-xs focus:outline-none focus:border-black bg-neutral-50"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Section: Pricing & Stock */}
+                  <div className="space-y-3 bg-white p-4 rounded-2xl border border-neutral-200">
+                    <div className="font-black text-neutral-900 uppercase tracking-wider text-[11px] flex items-center justify-between pb-1 border-b border-neutral-200">
+                      <div className="flex items-center gap-1.5">
+                        <DollarSign className="w-3.5 h-3.5 text-black" />
+                        <span>{isAr ? '2. الأسعار والمخزون المالي' : '2. Pricing & Inventory'}</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-emerald-700 font-mono bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                        USD ($)
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {/* Selling Price */}
+                      <div className="p-2.5 rounded-xl bg-amber-500/10 border-2 border-amber-400">
+                        <label className="block font-black text-amber-950 text-xs mb-1">
+                          {isAr ? 'سعر البيع للزبون ($) *:' : 'Selling Price ($) *:'}
+                        </label>
+                        <div className="flex items-center bg-white rounded-lg border border-amber-300 px-2 py-1">
+                          <span className="font-mono text-xs font-bold text-amber-800 me-1">$</span>
+                          <input
+                            type="number"
+                            step="0.5"
+                            min="0.5"
+                            required
+                            value={newFragrance.directPrice}
+                            onChange={(e) => setNewFragrance({ ...newFragrance, directPrice: e.target.value })}
+                            className="w-full font-mono font-black text-sm text-neutral-900 bg-transparent focus:outline-none"
+                          />
+                        </div>
+                        <span className="text-[9px] text-amber-900/80 font-bold block mt-1">
+                          {isAr ? 'السعر الأساسي بالمتجر' : 'Primary store price'}
+                        </span>
+                      </div>
+
+                      {/* Compare At Price */}
+                      <div className="p-2.5 rounded-xl bg-neutral-50 border border-neutral-200">
+                        <label className="block font-bold text-neutral-700 text-xs mb-1">
+                          {isAr ? 'السعر قبل الخصم ($):' : 'Compare-At Price ($):'}
+                        </label>
+                        <div className="flex items-center bg-white rounded-lg border border-neutral-300 px-2 py-1">
+                          <span className="font-mono text-xs font-bold text-neutral-500 me-1">$</span>
+                          <input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            value={newFragrance.compareAtPrice}
+                            onChange={(e) => setNewFragrance({ ...newFragrance, compareAtPrice: e.target.value })}
+                            placeholder="35"
+                            className="w-full font-mono font-bold text-sm text-neutral-600 bg-transparent focus:outline-none line-through"
+                          />
+                        </div>
+                        <span className="text-[9px] text-neutral-500 block mt-1">
+                          {isAr ? 'يظهر مشطوباً كعرض خاص' : 'Slashed promo price'}
+                        </span>
+                      </div>
+
+                      {/* Cost Price */}
+                      <div className="p-2.5 rounded-xl bg-neutral-50 border border-neutral-200">
+                        <label className="block font-bold text-neutral-700 text-xs mb-1">
+                          {isAr ? 'سعر التكلفة ($):' : 'Cost Price ($):'}
+                        </label>
+                        <div className="flex items-center bg-white rounded-lg border border-neutral-300 px-2 py-1">
+                          <span className="font-mono text-xs font-bold text-neutral-500 me-1">$</span>
+                          <input
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            value={newFragrance.costPriceInput}
+                            onChange={(e) => setNewFragrance({ ...newFragrance, costPriceInput: e.target.value })}
+                            placeholder="10"
+                            className="w-full font-mono font-bold text-sm text-neutral-900 bg-transparent focus:outline-none"
+                          />
+                        </div>
+                        <span className="text-[9px] text-neutral-500 block mt-1">
+                          {isAr ? 'لحساب صافي الأرباح' : 'For margin calculation'}
+                        </span>
+                      </div>
+
+                      {/* Wholesale Price */}
+                      <div className="p-2.5 rounded-xl bg-neutral-50 border border-neutral-200">
+                        <label className="block font-bold text-neutral-700 text-xs mb-1">
+                          {isAr ? 'سعر الجملة ($):' : 'Wholesale Price ($):'}
+                        </label>
+                        <div className="flex items-center bg-white rounded-lg border border-neutral-300 px-2 py-1">
+                          <span className="font-mono text-xs font-bold text-neutral-500 me-1">$</span>
+                          <input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            value={newFragrance.wholesalePriceInput}
+                            onChange={(e) => setNewFragrance({ ...newFragrance, wholesalePriceInput: e.target.value })}
+                            placeholder="18"
+                            className="w-full font-mono font-bold text-sm text-neutral-900 bg-transparent focus:outline-none"
+                          />
+                        </div>
+                        <span className="text-[9px] text-neutral-500 block mt-1">
+                          {isAr ? 'لطلبات الجملة والموزعين' : 'For bulk/wholesale'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Stock in Pieces and Profit Margin Indicator */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                      <div className="p-3 bg-neutral-50 border border-neutral-200 rounded-xl">
+                        <label className="block font-bold text-neutral-800 text-xs mb-1">
+                          {isAr ? 'عدد القطع المتوفرة بالمخزون (الكمية):' : 'Available Stock (Pieces):'}
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            min="0"
+                            required
+                            value={newFragrance.stockCount}
+                            onChange={(e) => setNewFragrance({ ...newFragrance, stockCount: e.target.value })}
+                            className="w-28 p-2 rounded-lg border border-neutral-300 font-mono font-black text-sm text-center bg-white focus:outline-none focus:border-black"
+                          />
+                          <span className="text-xs font-bold text-neutral-600">
+                            {isAr ? 'قطعة / عبوة جاهزة للبيع' : 'pieces available'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Live Profit Margin Badge */}
+                      {(() => {
+                        const sell = parseFloat(newFragrance.directPrice) || 0;
+                        const cost = parseFloat(newFragrance.costPriceInput) || 0;
+                        const profit = sell - cost;
+                        const marginPercent = cost > 0 ? ((profit / cost) * 100).toFixed(0) : 0;
+                        return (
+                          <div className="p-3 bg-emerald-50/80 border border-emerald-200 rounded-xl flex items-center justify-between">
+                            <div>
+                              <div className="text-[10px] font-bold text-emerald-800 uppercase">
+                                {isAr ? 'تحليل الربح الصافي المقدر للقطعة:' : 'Estimated Net Profit Per Unit:'}
+                              </div>
+                              <div className="text-base font-black font-mono text-emerald-950">
+                                +${profit > 0 ? profit.toFixed(2) : '0.00'}
+                              </div>
+                            </div>
+                            <span className="text-xs font-black font-mono px-2.5 py-1 rounded-lg bg-emerald-600 text-white shadow-2xs">
+                              {cost > 0 ? `+${marginPercent}% هامش ربح` : (isAr ? 'هامش ربح ممتاز' : 'Great Margin')}
+                            </span>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </div>
+
+                  {/* Section: Description / Features */}
+                  <div className="space-y-2 bg-white p-4 rounded-2xl border border-neutral-200">
+                    <label className="block font-bold text-neutral-800 text-xs">
+                      {isAr ? '3. وصف المنتج ومميزاته الفاخرة:' : '3. Product Description & Highlights:'}
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={newFragrance.description}
+                      onChange={(e) => setNewFragrance({ ...newFragrance, description: e.target.value })}
+                      placeholder={
+                        newFragrance.department === 'makeup'
+                          ? (isAr ? 'مثال: أحمر شفاه غني بالمرطبات الطبيعية يدوم حتى 12 ساعة، قوام كريمي مخملي خفيف على الشفاه...' : 'Rich moisturizing velvet lipstick...')
+                          : newFragrance.department === 'accessories'
+                          ? (isAr ? 'مثال: مبخرة كريستال فاخرة مصنوعة يدوياً بتصميم ملكي مناسب للمجالس والمناسبات الراقية...' : 'Handcrafted royal crystal incense burner...')
+                          : (isAr ? 'مثال: بخور ملكي معتق بنفحات العود الفاخر والمسك، فوحان ممتاز يدوم طويلاً...' : 'Royal aged bakhoor with rich oud notes...')
+                      }
+                      className="w-full p-2.5 rounded-xl border border-neutral-300 text-xs bg-white focus:outline-none focus:border-black font-medium"
                     />
                   </div>
                 </div>
-
-                {/* Preset image selector */}
-                <div className="space-y-1">
-                  <label className="block font-bold text-neutral-600 text-[10px]">
-                    {isAr ? 'اختر بنقرة واحدة من مكتبة الزجاجات الفاخرة المدمجة:' : 'Quick Select from Presets:'}
-                  </label>
-                  <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
-                    {LUXURY_PRESET_IMAGES.map((preset, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => setNewFragrance({ ...newFragrance, imageUrl: preset.url })}
-                        className={`p-1 rounded-xl border transition cursor-pointer flex flex-col items-center ${
-                          newFragrance.imageUrl === preset.url
-                            ? 'border-black bg-neutral-100 ring-2 ring-black'
-                            : 'border-neutral-200 hover:border-black'
-                        }`}
-                        title={preset.name}
-                      >
-                        <div className="w-10 h-10 rounded-lg overflow-hidden bg-neutral-100">
-                          <img src={preset.url} alt={preset.name} className="w-full h-full object-cover" />
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              )}
 
               {/* Modal Actions */}
               <div className="p-4 border-t border-neutral-200 bg-neutral-50 -mx-5 -mb-5 sm:-mx-6 sm:-mb-6 flex items-center justify-end gap-3 rounded-b-3xl">
@@ -2562,7 +3435,13 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                   className="px-6 py-2.5 rounded-xl bg-black hover:bg-neutral-800 text-white text-xs font-black cursor-pointer flex items-center gap-2 shadow-md transition"
                 >
                   <Plus className="w-4 h-4 text-amber-400 stroke-[3]" />
-                  <span>{isAr ? 'حفظ ونشر العطر في المتجر فوراً' : 'Save & Publish Fragrance'}</span>
+                  <span>
+                    {isAr
+                      ? (newFragrance.department === 'perfume'
+                          ? 'حفظ ونشر العطر في المتجر فوراً'
+                          : `حفظ ونشر ${newFragrance.department === 'makeup' ? 'مستحضر المكياج' : newFragrance.department === 'accessories' ? 'الإكسسوار' : newFragrance.department === 'bakhoor' ? 'البخور' : 'المنتج'} في المتجر فوراً`)
+                      : 'Save & Publish Product'}
+                  </span>
                 </button>
               </div>
 

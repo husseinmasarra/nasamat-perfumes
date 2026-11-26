@@ -56,7 +56,7 @@ export interface FragranceOil {
   stockMl?: number;
   reorderLevelMl?: number;
   isAvailable?: boolean;
-  unit: 'ml' | 'g';
+  unit: 'ml' | 'g' | 'piece';
   unitCost: number; // Cost per 1 ml or 1 g
   costPerMl?: number;
   costPerGram?: number;
@@ -73,6 +73,12 @@ export interface FragranceOil {
   availableSizes?: number[]; // Available bottle sizes (e.g. [12, 30, 50, 100])
   notes?: string;
   olfactoryProfile?: PerfumeOlfactoryProfile;
+  // Multi-department / Universal product attributes (عطور، مكياج، إكسسوارات، بخور)
+  productNature?: 'perfume_crafted' | 'perfume_original' | 'makeup' | 'accessories' | 'bakhoor' | 'other';
+  department?: 'perfume' | 'makeup' | 'accessories' | 'bakhoor' | 'other';
+  colorOrShade?: string; // درجة اللون أو رقمها للمكياج (e.g. #02 Velvet Rose)
+  specification?: string; // مواصفات الخامة أو المقاس للإكسسوارات (e.g. كريستال بوهيمي منقوش)
+  category?: string; // القسم الفرعي (أحمر شفاه، مباخر، سلاسل، بخور)
   // Original Packaged Perfume attributes (عطور أصلية معلبة وجاهزة)
   isOriginalPackaged?: boolean; // عطر أصلي معلب بكرتونته الرسمية
   packageStockCount?: number; // عدد العبوات الجاهزة المتوفرة بالمخزون (حبة)

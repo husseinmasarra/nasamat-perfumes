@@ -20,7 +20,8 @@ import {
   Lock,
   X,
   Target,
-  Printer
+  Printer,
+  Plus
 } from './icons';
 import { useLanguage } from '../context/LanguageContext';
 import type { StaffMember } from '../types';
@@ -29,6 +30,7 @@ export type AdminNavTab =
   | 'pos' 
   | 'orders' 
   | 'products' 
+  | 'add-product'
   | 'coupons' 
   | 'overview' 
   | 'categories' 
@@ -102,6 +104,14 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       icon: Tag,
       badge: isAr ? '242 بالسوق' : '242 Market',
       badgeColor: 'bg-amber-400/20 text-amber-300 border border-amber-400/40',
+    },
+    {
+      id: 'add-product' as AdminNavTab,
+      labelEn: 'Add Product (All Types)',
+      labelAr: 'إضافة منتج جديد (شامل)',
+      icon: Plus,
+      badge: isAr ? 'عطور • مكياج • إكسسوار' : 'All In 1',
+      badgeColor: 'bg-gradient-to-r from-amber-400 to-amber-500 text-black border border-amber-500 font-black shadow-xs text-[10px]',
     },
     {
       id: 'coupons' as AdminNavTab,

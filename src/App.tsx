@@ -927,7 +927,7 @@ const AppContent: React.FC = () => {
               )}
 
               {/* 2. Products & Individual Pricing (Item 3 in Sidebar - User Request) */}
-              {adminTab === 'products' && (
+              {(adminTab === 'products' || adminTab === 'add-product') && (
                 <AdminProductsPricingTab
                   oils={oils}
                   recipes={recipes}
@@ -937,6 +937,7 @@ const AppContent: React.FC = () => {
                   onAddOil={handleAddOil}
                   onDeleteOil={handleDeleteOil}
                   onDeleteRecipe={handleDeleteRecipe}
+                  autoOpenAddModal={adminTab === 'add-product'}
                 />
               )}
 
