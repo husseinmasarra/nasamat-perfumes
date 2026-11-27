@@ -24,10 +24,22 @@ import {
   X,
   Flame,
   Layers,
-  ShoppingBag
+  ShoppingBag,
+  ChevronUp,
+  ChevronDown,
+  Bookmark,
+  ArrowUpDown
 } from './icons';
 import { useLanguage } from '../context/LanguageContext';
-import { LUXURY_PRESET_IMAGES, generatePerfumeBarcode, recordDeletedProductId, unrecordDeletedProductId, loadNavCategories } from '../utils/storage';
+import { 
+  LUXURY_PRESET_IMAGES, 
+  generatePerfumeBarcode, 
+  recordDeletedProductId, 
+  unrecordDeletedProductId, 
+  loadNavCategories,
+  loadCustomProductOrder,
+  saveCustomProductOrder
+} from '../utils/storage';
 import {
   PERFUME_PRESETS_DATABASE,
   POPULAR_DATABASE_BRANDS,
@@ -259,7 +271,19 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
   const [selectedBrand, setSelectedBrand] = useState('all');
   const [selectedFamily, setSelectedFamily] = useState('all');
   const [selectedType, setSelectedType] = useState<'all' | 'oil' | 'recipe' | 'makeup' | 'accessories' | 'bakhoor' | 'other'>('all');
-  const [sortBy, setSortBy] = useState<'name' | 'price_desc' | 'price_asc' | 'margin'>('name');
+  const [sortBy, setSortBy] = useState<'custom' | 'name' | 'price_desc' | 'price_asc' | 'margin'>('custom');
+
+  // Custom Product Ordering (تحريك وترتيب المنتجات)
+  const [customProductOrder, setCustomProductOrder] = useState<string[]>(() => loadCustomProductOrder());
+  const [orderToast, setOrderToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleOrderUpdate = () => {
+      setCustomProductOrder(loadCustomProductOrder());
+    };
+    window.addEventListener('nasamat_products_order_updated', handleOrderUpdate);
+    return () => window.removeEventListener('nasamat_products_order_updated', handleOrderUpdate);
+  }, []);
 
   // Local draft prices for unsaved inputs { [productId]: { p30, p50, p100, wholesale } }
   const [priceDrafts, setPriceDrafts] = useState<Record<string, { p30: number; p50: number; p100: number; wholesale: number }>>({});
@@ -1307,9 +1331,82 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
         const marginB = ((b.p50 - b.estimatedBottleCost50) / b.p50);
         return marginB - marginA;
       }
+      if (sortBy === 'name') {
+        return a.name.localeCompare(b.name, 'ar');
+      }
+      // Default: 'custom' order (تحريك وترتيب المنتجات المخصص)
+      const idxA = customProductOrder.indexOf(a.id);
+      const idxB = customProductOrder.indexOf(b.id);
+      if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+      if (idxA !== -1) return -1;
+      if (idxB !== -1) return 1;
       return a.name.localeCompare(b.name, 'ar');
     });
-  }, [combinedProducts, selectedType, selectedBrand, selectedFamily, searchTerm, sortBy]);
+  }, [combinedProducts, selectedType, selectedBrand, selectedFamily, searchTerm, sortBy, customProductOrder]);
+
+  // Move product up/down in custom order
+  const moveProductOrder = (productId: string, direction: 'up' | 'down') => {
+    const visibleIds = filteredProducts.map((p) => p.id);
+    const visibleIdx = visibleIds.indexOf(productId);
+    if (visibleIdx === -1) return;
+    const targetVisibleIdx = direction === 'up' ? visibleIdx - 1 : visibleIdx + 1;
+    if (targetVisibleIdx < 0 || targetVisibleIdx >= visibleIds.length) return;
+
+    const targetProductId = visibleIds[targetVisibleIdx];
+
+    const fullOrder = [...combinedProducts]
+      .sort((a, b) => {
+        const idxA = customProductOrder.indexOf(a.id);
+        const idxB = customProductOrder.indexOf(b.id);
+        if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+        if (idxA !== -1) return -1;
+        if (idxB !== -1) return 1;
+        return a.name.localeCompare(b.name, 'ar');
+      })
+      .map((p) => p.id);
+
+    const posA = fullOrder.indexOf(productId);
+    if (posA === -1) return;
+
+    const updated = [...fullOrder];
+    const [moved] = updated.splice(posA, 1);
+    const newTargetPos = updated.indexOf(targetProductId);
+    const insertPos = direction === 'up' ? newTargetPos : newTargetPos + 1;
+    updated.splice(insertPos, 0, moved);
+
+    setCustomProductOrder(updated);
+    saveCustomProductOrder(updated);
+
+    setOrderToast(isAr ? 'تم تعديل ترتيب المنتج وحفظه فورياً' : 'Product order updated');
+    setTimeout(() => setOrderToast(null), 2500);
+  };
+
+  // Pin product to #1
+  const pinProductToTop = (productId: string) => {
+    const fullOrder = [...combinedProducts]
+      .sort((a, b) => {
+        const idxA = customProductOrder.indexOf(a.id);
+        const idxB = customProductOrder.indexOf(b.id);
+        if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+        if (idxA !== -1) return -1;
+        if (idxB !== -1) return 1;
+        return a.name.localeCompare(b.name, 'ar');
+      })
+      .map((p) => p.id);
+
+    const pos = fullOrder.indexOf(productId);
+    if (pos <= 0) return;
+
+    const updated = [...fullOrder];
+    const [moved] = updated.splice(pos, 1);
+    updated.unshift(moved);
+
+    setCustomProductOrder(updated);
+    saveCustomProductOrder(updated);
+
+    setOrderToast(isAr ? 'تم تثبيت المنتج في المرتبة الأولى #1 بنجاح' : 'Product pinned to #1');
+    setTimeout(() => setOrderToast(null), 2500);
+  };
 
   // Handle draft price change
   const handlePriceChange = (id: string, field: 'p30' | 'p50' | 'p100' | 'wholesale', val: number) => {
@@ -2174,6 +2271,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
             onChange={(e) => setSortBy(e.target.value as any)}
             className="px-3 py-2 rounded-xl bg-neutral-50 border border-neutral-200 text-xs text-black font-bold focus:outline-none cursor-pointer"
           >
+            <option value="custom">{isAr ? 'الترتيب المخصص (يدوي)' : 'Custom Order (Manual)'}</option>
             <option value="name">{isAr ? 'الاسم أبجدياً' : 'Name (A-Z)'}</option>
             <option value="price_desc">{isAr ? 'السعر (الأعلى أولاً)' : 'Price (High to Low)'}</option>
             <option value="price_asc">{isAr ? 'السعر (الأقل أولاً)' : 'Price (Low to High)'}</option>
@@ -2188,6 +2286,12 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
           <table className="w-full text-start border-collapse text-xs">
             <thead>
               <tr className="bg-neutral-100 border-b-2 border-neutral-300 text-black font-black uppercase tracking-wider text-xs">
+                <th className="py-3.5 px-3 text-center font-black text-black w-28 bg-neutral-200/60 border-e border-neutral-300">
+                  <div className="flex items-center justify-center gap-1">
+                    <ArrowUpDown className="w-3.5 h-3.5 text-neutral-700" />
+                    <span>{isAr ? 'الترتيب' : 'Order'}</span>
+                  </div>
+                </th>
                 <th className="py-3.5 px-4 text-start font-black text-black">{isAr ? 'المنتج / العطر والأحجام' : 'Fragrance & Sizes'}</th>
                 <th className="py-3.5 px-3 text-center font-black text-black">{isAr ? 'الباركود (Barcode)' : 'Barcode'}</th>
                 <th className="py-3.5 px-3 text-center font-black text-black">{isAr ? 'التكلفة المقدرة (50ml)' : 'Est. Cost (50ml)'}</th>
@@ -2208,7 +2312,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-200">
-              {filteredProducts.map((p) => {
+              {filteredProducts.map((p, idx) => {
                 const profit50 = Number((p.p50 - p.estimatedBottleCost50).toFixed(2));
                 const marginPercent = p.p50 > 0 ? Math.round((profit50 / p.p50) * 100) : 0;
                 const isSaved = savedFeedback === p.id;
@@ -2216,6 +2320,41 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
 
                 return (
                   <tr key={p.key} className="hover:bg-neutral-50/80 transition-colors">
+                    {/* Move & Order Controls */}
+                    <td className="py-3.5 px-2 text-center bg-neutral-50/60 border-e border-neutral-200">
+                      <div className="flex items-center justify-center gap-1">
+                        <span className="font-mono text-[11px] font-black text-black bg-white px-1.5 py-0.5 rounded border border-neutral-300 min-w-6 text-center shadow-2xs">
+                          #{idx + 1}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => moveProductOrder(p.id, 'up')}
+                          disabled={idx === 0}
+                          className="p-1 rounded-lg border border-neutral-200 hover:border-black disabled:opacity-20 disabled:cursor-not-allowed hover:bg-white text-neutral-800 transition cursor-pointer"
+                          title={isAr ? 'تقديم المنتج لأعلى' : 'Move up'}
+                        >
+                          <ChevronUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveProductOrder(p.id, 'down')}
+                          disabled={idx === filteredProducts.length - 1}
+                          className="p-1 rounded-lg border border-neutral-200 hover:border-black disabled:opacity-20 disabled:cursor-not-allowed hover:bg-white text-neutral-800 transition cursor-pointer"
+                          title={isAr ? 'تأخير المنتج لأسفل' : 'Move down'}
+                        >
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => pinProductToTop(p.id)}
+                          disabled={idx === 0}
+                          className="p-1 rounded-lg border border-amber-300 hover:border-amber-600 disabled:opacity-20 disabled:cursor-not-allowed hover:bg-amber-100 text-amber-900 transition cursor-pointer"
+                          title={isAr ? 'تثبيت في البداية (#1)' : 'Pin to #1'}
+                        >
+                          <Bookmark className="w-3.5 h-3.5 text-amber-600" />
+                        </button>
+                      </div>
+                    </td>
                     {/* Fragrance Info */}
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-3">
@@ -4378,6 +4517,14 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
           window.dispatchEvent(new CustomEvent('nasamat_open_calculator', { detail: { perfume: preset } }));
         }}
       />
+
+      {/* Order Update Toast */}
+      {orderToast && (
+        <div className="fixed bottom-6 end-6 z-50 bg-neutral-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold border border-neutral-700 animate-fadeIn">
+          <Check className="w-4 h-4 text-emerald-400 stroke-[3]" />
+          <span>{orderToast}</span>
+        </div>
+      )}
 
     </div>
   );

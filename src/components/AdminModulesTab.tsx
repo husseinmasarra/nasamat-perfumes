@@ -654,6 +654,16 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
     window.dispatchEvent(new Event('nasamat_categories_updated'));
   };
 
+  const pinCategoryToTop = (index: number) => {
+    if (index === 0) return;
+    const updated = [...adminNavCategories];
+    const [moved] = updated.splice(index, 1);
+    updated.unshift(moved);
+    setAdminNavCategories(updated);
+    saveNavCategories(updated);
+    window.dispatchEvent(new Event('nasamat_categories_updated'));
+  };
+
   const openAdminCategoryEdit = (cat: CategoryNavConfig) => {
     setIsAddingCategory(false);
     setEditingCategoryModal(cat);
@@ -1877,8 +1887,13 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                       }}
                     />
                   </div>
-                  <div className="space-y-0.5 min-w-0">
-                    <h4 className="font-bold text-sm text-black truncate">{isAr ? cat.labelAr : cat.labelEn}</h4>
+                  <div className="space-y-1 min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-md bg-neutral-900 text-white font-mono text-[11px] font-black tracking-wide shrink-0">
+                        #{idx + 1}
+                      </span>
+                      <h4 className="font-bold text-sm text-black truncate">{isAr ? cat.labelAr : cat.labelEn}</h4>
+                    </div>
                     <p className="text-xs text-neutral-500 font-medium truncate">{isAr ? cat.countAr : cat.countEn}</p>
                     <span className="inline-block px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200">
                       {isAr ? 'صورة مخصصة نشطة' : 'Active Photo'}
@@ -1892,7 +1907,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                     onClick={() => moveCategory(idx, 'up')}
                     disabled={idx === 0}
                     className="p-2 rounded-xl border border-neutral-300 hover:border-black disabled:opacity-25 disabled:cursor-not-allowed hover:bg-neutral-50 text-neutral-800 text-xs font-bold transition flex items-center justify-center cursor-pointer shadow-2xs"
-                    title={isAr ? 'تقديم الترتيب للأمام' : 'Move up / earlier'}
+                    title={isAr ? 'تقديم الترتيب للأمام (نحو البداية)' : 'Move up / earlier'}
                   >
                     <ChevronRight className="w-3.5 h-3.5 rtl:rotate-0 rotate-180" />
                   </button>
@@ -1901,9 +1916,19 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                     onClick={() => moveCategory(idx, 'down')}
                     disabled={idx === adminNavCategories.length - 1}
                     className="p-2 rounded-xl border border-neutral-300 hover:border-black disabled:opacity-25 disabled:cursor-not-allowed hover:bg-neutral-50 text-neutral-800 text-xs font-bold transition flex items-center justify-center cursor-pointer shadow-2xs"
-                    title={isAr ? 'تأخير الترتيب للخلف' : 'Move down / later'}
+                    title={isAr ? 'تأخير الترتيب للخلف (نحو النهاية)' : 'Move down / later'}
                   >
                     <ChevronLeft className="w-3.5 h-3.5 rtl:rotate-0 rotate-180" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => pinCategoryToTop(idx)}
+                    disabled={idx === 0}
+                    className="p-2 rounded-xl border border-neutral-300 hover:border-black disabled:opacity-25 disabled:cursor-not-allowed hover:bg-amber-50 text-amber-900 text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
+                    title={isAr ? 'تثبيت في البداية كأول قسم (#1)' : 'Pin to #1'}
+                  >
+                    <Bookmark className="w-3.5 h-3.5 text-amber-600" />
+                    <span className="hidden sm:inline text-[11px]">{isAr ? 'الأول' : 'Top'}</span>
                   </button>
                   <button
                     type="button"
@@ -2125,9 +2150,12 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
           </div>
 
           <div className="bg-white border border-neutral-200 p-6 rounded-3xl shadow-xs space-y-3 max-w-2xl text-xs">
-            {adminNavCategories.map((item) => (
+            {adminNavCategories.map((item, idx) => (
               <div key={item.id} className="flex items-center justify-between p-3 rounded-2xl bg-neutral-50 border border-neutral-200 hover:border-black transition">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="px-2 py-0.5 rounded-md bg-neutral-900 text-white font-mono text-[10px] font-black shrink-0">
+                    #{idx + 1}
+                  </span>
                   <div className="w-10 h-10 rounded-full overflow-hidden border border-neutral-300 shadow-2xs shrink-0 bg-white">
                     <img
                       src={item.imageUrl}
@@ -2138,19 +2166,46 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                       }}
                     />
                   </div>
-                  <div>
-                    <span className="font-bold text-black block">{isAr ? item.labelAr : item.labelEn}</span>
+                  <div className="truncate">
+                    <span className="font-bold text-black block truncate">{isAr ? item.labelAr : item.labelEn}</span>
                     <span className="text-[10px] text-neutral-500">{isAr ? item.countAr : item.countEn}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => moveCategory(idx, 'up')}
+                    disabled={idx === 0}
+                    className="p-1.5 rounded-lg border border-neutral-300 hover:border-black disabled:opacity-20 disabled:cursor-not-allowed hover:bg-white text-neutral-800 text-xs transition cursor-pointer"
+                    title={isAr ? 'تقديم للأمام' : 'Move up'}
+                  >
+                    <ChevronRight className="w-3.5 h-3.5 rtl:rotate-0 rotate-180" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => moveCategory(idx, 'down')}
+                    disabled={idx === adminNavCategories.length - 1}
+                    className="p-1.5 rounded-lg border border-neutral-300 hover:border-black disabled:opacity-20 disabled:cursor-not-allowed hover:bg-white text-neutral-800 text-xs transition cursor-pointer"
+                    title={isAr ? 'تأخير للخلف' : 'Move down'}
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5 rtl:rotate-0 rotate-180" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => pinCategoryToTop(idx)}
+                    disabled={idx === 0}
+                    className="p-1.5 rounded-lg border border-amber-300 hover:border-amber-600 disabled:opacity-20 disabled:cursor-not-allowed hover:bg-amber-100 text-amber-900 text-xs transition cursor-pointer"
+                    title={isAr ? 'تثبيت في البداية (#1)' : 'Pin as #1'}
+                  >
+                    <Bookmark className="w-3.5 h-3.5 text-amber-600" />
+                  </button>
                   <button
                     type="button"
                     onClick={() => openAdminCategoryEdit(item)}
-                    className="px-3 py-1.5 rounded-xl border border-neutral-300 hover:border-black bg-white text-neutral-800 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                    className="px-2.5 py-1.5 rounded-xl border border-neutral-300 hover:border-black bg-white text-neutral-800 text-xs font-bold transition flex items-center gap-1 cursor-pointer shadow-2xs"
                   >
                     <Camera className="w-3.5 h-3.5 text-neutral-600" />
-                    <span>{isAr ? 'تعديل الصورة' : 'Edit'}</span>
+                    <span>{isAr ? 'تعديل' : 'Edit'}</span>
                   </button>
                   <button
                     type="button"
@@ -2160,9 +2215,6 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                    {isAr ? 'مفعّل' : 'Active'}
-                  </span>
                 </div>
               </div>
             ))}

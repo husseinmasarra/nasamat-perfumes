@@ -68,7 +68,8 @@ import {
   loadSavedDeliveryDetails,
   saveSavedDeliveryDetails,
   saveCustomerUser,
-  loadSavingsBundles
+  loadSavingsBundles,
+  loadCustomProductOrder
 } from '../utils/storage';
 import { trackPixelEvent } from '../utils/pixelTracker';
 import { syncSingleOrderToGoogleSheetWebhook } from '../utils/googleSheets';
@@ -199,6 +200,9 @@ export const StoreTab: React.FC<StoreTabProps> = ({
   const [navCategories, setNavCategories] = useState<CategoryNavConfig[]>(() => loadNavCategories());
   const categoryScrollRef = useRef<HTMLDivElement>(null);
 
+  // Custom Product Display Order (Managed from Admin)
+  const [customProductOrder, setCustomProductOrder] = useState<string[]>(() => loadCustomProductOrder());
+
   // Helper to find category config (strictly respects deleted/blocked categories)
   const getCategoryConfig = (id: string): CategoryNavConfig => {
     const deletedIds = loadDeletedNavCategoryIds();
@@ -237,20 +241,28 @@ export const StoreTab: React.FC<StoreTabProps> = ({
     const handleCategoriesUpdated = () => {
       setNavCategories(loadNavCategories());
     };
+    const handleProductsOrderUpdated = () => {
+      setCustomProductOrder(loadCustomProductOrder());
+    };
     const handleStorage = (e: StorageEvent) => {
       if (!e.key || e.key.includes('nav_categories')) {
         setNavCategories(loadNavCategories());
+      }
+      if (!e.key || e.key.includes('products_order')) {
+        setCustomProductOrder(loadCustomProductOrder());
       }
     };
     const handleVisibilityOrFocus = () => {
       if (document.visibilityState === 'visible') {
         setNavCategories(loadNavCategories());
+        setCustomProductOrder(loadCustomProductOrder());
       }
     };
 
     window.addEventListener('nasamat_go_home', handleHome);
     window.addEventListener('nasamat_open_menu', handleOpenMenu);
     window.addEventListener('nasamat_categories_updated', handleCategoriesUpdated);
+    window.addEventListener('nasamat_products_order_updated', handleProductsOrderUpdated);
     window.addEventListener('storage', handleStorage);
     window.addEventListener('visibilitychange', handleVisibilityOrFocus);
     window.addEventListener('focus', handleVisibilityOrFocus);
@@ -259,6 +271,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
       window.removeEventListener('nasamat_go_home', handleHome);
       window.removeEventListener('nasamat_open_menu', handleOpenMenu);
       window.removeEventListener('nasamat_categories_updated', handleCategoriesUpdated);
+      window.removeEventListener('nasamat_products_order_updated', handleProductsOrderUpdated);
       window.removeEventListener('storage', handleStorage);
       window.removeEventListener('visibilitychange', handleVisibilityOrFocus);
       window.removeEventListener('focus', handleVisibilityOrFocus);
@@ -1152,10 +1165,24 @@ export const StoreTab: React.FC<StoreTabProps> = ({
       });
     } else if (sortBy === 'name') {
       filtered.sort((a, b) => a.data.name.localeCompare(b.data.name, 'ar'));
+    } else {
+      // Default: Custom merchant order (تحريك وترتيب المنتجات المخصص)
+      if (customProductOrder.length > 0) {
+        filtered.sort((a, b) => {
+          const idA = a.data.id;
+          const idB = b.data.id;
+          const idxA = customProductOrder.indexOf(idA);
+          const idxB = customProductOrder.indexOf(idB);
+          if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+          if (idxA !== -1) return -1;
+          if (idxB !== -1) return 1;
+          return 0;
+        });
+      }
     }
 
     return filtered;
-  }, [oils, recipes, searchTerm, selectedCategory, sortBy]);
+  }, [oils, recipes, searchTerm, selectedCategory, sortBy, customProductOrder]);
 
   // Cart calculations
   const cartSubtotal = useMemo(() => {
@@ -1441,6 +1468,27 @@ export const StoreTab: React.FC<StoreTabProps> = ({
       | { type: 'recipe'; data: SavedRecipe; key: string }
       | { type: 'oil'; data: FragranceOil; key: string };
 
+    // If merchant has defined a custom product order or pinned items, prioritize the top 4
+    if (customProductOrder.length > 0 && unifiedItems.length > 0) {
+      const topItems: CatalogEntry[] = [];
+      for (const prodId of customProductOrder) {
+        const found = unifiedItems.find((it) => it.data.id === prodId);
+        if (found && !topItems.some((t) => t.data.id === found.data.id)) {
+          topItems.push(found);
+          if (topItems.length >= 4) break;
+        }
+      }
+      if (topItems.length > 0) {
+        for (const it of unifiedItems) {
+          if (topItems.length >= 4) break;
+          if (!topItems.some((t) => t.data.id === it.data.id)) {
+            topItems.push(it);
+          }
+        }
+        return topItems;
+      }
+    }
+
     const items: CatalogEntry[] = [];
     const rec1 = recipes.find((r) => r.id === 'rec-1') || recipes[0];
     if (rec1) items.push({ type: 'recipe', data: rec1, key: `recipe-${rec1.id}` });
@@ -1455,7 +1503,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
     if (oilSauvage) items.push({ type: 'oil', data: oilSauvage, key: `oil-${oilSauvage.id}` });
 
     return items;
-  }, [oils, recipes]);
+  }, [oils, recipes, customProductOrder, unifiedItems]);
 
   // Luxury Haute Parfumerie Product Card Renderer
   const renderProductCard = (

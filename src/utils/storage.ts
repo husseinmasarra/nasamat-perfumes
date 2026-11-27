@@ -38,6 +38,7 @@ export const STORAGE_KEYS = {
   CRM_DELETED_LEADS: 'nasamat_crm_deleted_leads_v1',
   DELETED_NAV_CATEGORIES: 'nasamat_deleted_nav_categories_v2',
   DELETED_PRODUCTS: 'nasamat_deleted_products_v2',
+  PRODUCTS_ORDER: 'nasamat_products_order_v1',
   PIXEL_SETTINGS: 'nasamat_pixel_settings_v1',
   PIXEL_EVENTS_LOG: 'nasamat_pixel_events_log_v1',
   STAFF_MEMBERS: 'nasamat_staff_members_v1',
@@ -264,6 +265,25 @@ export function unrecordDeletedProductId(idOrCode: string): void {
     }
   } catch (e) {
     console.error('Failed to unrecord deleted product id', e);
+  }
+}
+
+// ================= CUSTOM PRODUCTS & OILS DISPLAY ORDER =================
+export function loadCustomProductOrder(): string[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.PRODUCTS_ORDER);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveCustomProductOrder(orderIds: string[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.PRODUCTS_ORDER, JSON.stringify(orderIds));
+    window.dispatchEvent(new Event('nasamat_products_order_updated'));
+  } catch (e) {
+    console.error('Failed to save custom product order', e);
   }
 }
 
