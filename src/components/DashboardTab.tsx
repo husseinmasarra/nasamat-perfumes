@@ -399,7 +399,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
 
               <div className="bg-slate-950/60 p-3 rounded-xl border border-amber-500/30">
                 <div className="flex justify-between items-center mb-1">
-                  <span className="font-bold text-amber-200">50ml ⭐:</span>
+                  <span className="font-bold text-amber-200">50ml:</span>
                   <span className="font-mono text-amber-400 font-black">{bottlesBySize.b50} {language === 'ar' ? 'زجاجة' : 'pcs'}</span>
                 </div>
                 <div className="text-[10px] text-amber-300 font-mono font-bold">

@@ -289,7 +289,7 @@ export const AdminFinancialStatementModal: React.FC<AdminFinancialStatementModal
                 className="py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs flex items-center gap-2 shadow-md transition cursor-pointer active:scale-95"
               >
                 <Printer className="w-4 h-4 text-black stroke-[2.5]" />
-                <span>{isAr ? 'طباعة كشف الحساب (A4) 🖨️' : 'Print Statement (A4) 🖨️'}</span>
+                <span>{isAr ? 'طباعة كشف الحساب (A4)' : 'Print Statement (A4)'}</span>
               </button>
             ) : (
               <div className="text-[11px] text-rose-300 bg-rose-950/80 border border-rose-800 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5">
@@ -321,7 +321,7 @@ export const AdminFinancialStatementModal: React.FC<AdminFinancialStatementModal
                   : 'text-neutral-600 hover:text-black'
               }`}
             >
-              📅 {isAr ? 'كشف حساب يومي (اليوم / تاريخ محدد)' : 'Daily Statement'}
+              {isAr ? 'كشف حساب يومي (اليوم / تاريخ محدد)' : 'Daily Statement'}
             </button>
             <button
               type="button"
@@ -332,7 +332,7 @@ export const AdminFinancialStatementModal: React.FC<AdminFinancialStatementModal
                   : 'text-neutral-600 hover:text-black'
               }`}
             >
-              📊 {isAr ? 'كشف حساب شهري (تقرير الدورة الكاملة)' : 'Monthly Statement'}
+              {isAr ? 'كشف حساب شهري (تقرير الدورة الكاملة)' : 'Monthly Statement'}
             </button>
           </div>
 
@@ -448,7 +448,7 @@ export const AdminFinancialStatementModal: React.FC<AdminFinancialStatementModal
                 </span>
               </div>
               <div className="text-neutral-500 font-mono text-[10px]">
-                {isAr ? '🔒 سري وخاص بالإدارة العامة والمدير المعتمد' : '🔒 Confidential - Executive Management Only'}
+                {isAr ? 'سري وخاص بالإدارة العامة والمدير المعتمد' : 'Confidential - Executive Management Only'}
               </div>
             </div>
           </div>
@@ -507,7 +507,7 @@ export const AdminFinancialStatementModal: React.FC<AdminFinancialStatementModal
             {/* Net Operating Profit */}
             <div className="p-3.5 rounded-2xl bg-amber-50 border-2 border-amber-400 space-y-1">
               <span className="text-[10px] font-black text-amber-950 uppercase tracking-wider block">
-                {isAr ? 'صافي الأرباح المقدرة ★' : 'Net Profit ★'}
+                {isAr ? 'صافي الأرباح المقدرة' : 'Net Profit'}
               </span>
               <div className="text-lg sm:text-xl font-black text-amber-800 font-mono">
                 +${metrics.netProfit.toFixed(2)}
@@ -667,9 +667,9 @@ export const AdminFinancialStatementModal: React.FC<AdminFinancialStatementModal
                             </span>
                           </td>
                           <td className="p-2.5 text-center font-bold text-neutral-700 text-[10px]">
-                            {inv.paymentMethod === 'cash' ? (isAr ? 'كاش 💵' : 'Cash') :
+                            {inv.paymentMethod === 'cash' ? (isAr ? 'كاش' : 'Cash') :
                              inv.paymentMethod === 'whish_omt' ? 'Whish / OMT' :
-                             inv.paymentMethod === 'bank_card' ? 'Card 💳' : 'Other'}
+                             inv.paymentMethod === 'bank_card' ? 'Card' : 'Other'}
                           </td>
                           <td className="p-2.5 text-end font-mono font-bold text-black">
                             ${inv.totalAmount.toFixed(2)}
@@ -735,7 +735,7 @@ export const AdminFinancialStatementModal: React.FC<AdminFinancialStatementModal
               {/* General Manager Approval */}
               <div className="space-y-8">
                 <span className="font-black text-black block text-[11px]">
-                  {isAr ? 'توقيع واعتماد المدير العام ★' : 'General Manager Approval ★'}
+                  {isAr ? 'توقيع واعتماد المدير العام' : 'General Manager Approval'}
                 </span>
                 <div className="border-b-2 border-black pb-1 text-black font-bold text-[10px]">
                   {isAr ? 'معتمد ومطابق للقيود الرسمية' : 'Approved & Verified'}

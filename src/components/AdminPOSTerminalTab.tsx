@@ -423,7 +423,7 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
                     <div className="flex items-center gap-1 min-w-0">
                       {oil.barcode ? (
                         <span className="text-[9px] font-mono font-bold text-neutral-600 bg-neutral-100 px-1 py-0.2 rounded border border-neutral-200 truncate" title={`باركود: ${oil.barcode}`}>
-                          📊 {oil.barcode.slice(-5)}
+                          {oil.barcode.slice(-5)}
                         </span>
                       ) : (
                         <span className="text-[9px] font-mono text-neutral-400">
@@ -551,7 +551,7 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
                   paymentMethod === 'cash' ? 'bg-black text-white border-black' : 'bg-neutral-50 border-neutral-200 text-neutral-700'
                 }`}
               >
-                💵 {isAr ? 'نقدي (Cash)' : 'Cash'}
+                {isAr ? 'نقدي (Cash)' : 'Cash'}
               </button>
               <button
                 onClick={() => setPaymentMethod('whish_omt')}
@@ -559,7 +559,7 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
                   paymentMethod === 'whish_omt' ? 'bg-black text-white border-black' : 'bg-neutral-50 border-neutral-200 text-neutral-700'
                 }`}
               >
-                📱 Whish / OMT
+                Whish / OMT
               </button>
               <button
                 onClick={() => setPaymentMethod('bank_card')}
@@ -567,7 +567,7 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
                   paymentMethod === 'bank_card' ? 'bg-black text-white border-black' : 'bg-neutral-50 border-neutral-200 text-neutral-700'
                 }`}
               >
-                💳 {isAr ? 'بطاقة بنكية' : 'Card'}
+                {isAr ? 'بطاقة بنكية' : 'Card'}
               </button>
             </div>
 
@@ -701,7 +701,7 @@ export const AdminPOSTerminalTab: React.FC<AdminPOSTerminalTabProps> = ({
                   className="w-full py-2.5 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-black text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition shadow-xs"
                 >
                   <Tag className="w-4 h-4 text-black" />
-                  <span>{isAr ? '🏷️ طباعة ليبل الزجاجة' : 'Print Bottle Label'}</span>
+                  <span>{isAr ? 'طباعة ليبل الزجاجة' : 'Print Bottle Label'}</span>
                 </button>
               )}
 

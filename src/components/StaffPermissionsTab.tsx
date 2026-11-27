@@ -2,19 +2,24 @@ import React, { useState } from 'react';
 import type { StaffMember, StaffRole, StaffPermissions } from '../types';
 import type { AdminNavTab } from './AdminSidebar';
 import { 
+  Award,
+  ShoppingBag,
+  FlaskConical,
+  Package,
+  Target,
+  Check,
+  EyeOff,
+  Eye,
   Users, 
   UserCheck, 
   ShieldCheck, 
   Key, 
   Lock, 
-  Check, 
   Plus, 
   Trash2, 
   Edit3, 
   X, 
-  ShoppingBag, 
   Tag, 
-  FlaskConical, 
   Truck, 
   Settings as SettingsIcon,
   Percent
@@ -40,7 +45,7 @@ const TAB_GROUPS: TabGroupInfo[] = [
   {
     titleAr: 'المبيعات وصالة العرض (POS & Sales)',
     titleEn: 'Sales & POS',
-    icon: '🛒',
+    icon: '',
     tabs: [
       { id: 'pos', labelAr: 'نقطة البيع الفورية (POS Terminal)', labelEn: 'POS Terminal' },
       { id: 'orders', labelAr: 'الطلبيات والفواتير', labelEn: 'Orders & Sales' },
@@ -49,7 +54,7 @@ const TAB_GROUPS: TabGroupInfo[] = [
   {
     titleAr: 'المنتجات وقاعدة العطور',
     titleEn: 'Products & Fragrances',
-    icon: '🧴',
+    icon: '',
     tabs: [
       { id: 'products', labelAr: 'المنتجات وقاعدة العطور', labelEn: 'Products & Pricing' },
       { id: 'brands', labelAr: 'الماركات ودور العطور', labelEn: 'Fragrance Brands' },
@@ -58,7 +63,7 @@ const TAB_GROUPS: TabGroupInfo[] = [
   {
     titleAr: 'مختبر الصياغة والتصنيع',
     titleEn: 'Lab & Formulation',
-    icon: '🧪',
+    icon: '',
     tabs: [
       { id: 'calculator', labelAr: 'مختبر وحاسبة العيارات', labelEn: 'Caliber Calculator' },
       { id: 'recipes', labelAr: 'خلطات نسمات الملكية', labelEn: 'Royal Recipes' },
@@ -68,7 +73,7 @@ const TAB_GROUPS: TabGroupInfo[] = [
   {
     titleAr: 'المخزون والموردين',
     titleEn: 'Inventory & Suppliers',
-    icon: '📦',
+    icon: '',
     tabs: [
       { id: 'suppliers', labelAr: 'الموردين والمواد الخام والعبوات', labelEn: 'Suppliers & Raw Materials' },
     ],
@@ -76,7 +81,7 @@ const TAB_GROUPS: TabGroupInfo[] = [
   {
     titleAr: 'التسويق والزبائن والواجهة',
     titleEn: 'Marketing & CRM',
-    icon: '📢',
+    icon: '',
     tabs: [
       { id: 'customers', labelAr: 'دليل الزبائن والـ CRM و Meta Ads', labelEn: 'Customers CRM & Ads' },
       { id: 'coupons', labelAr: 'الكوبونات والعروض الترويجية', labelEn: 'Coupons & Promos' },
@@ -89,7 +94,7 @@ const TAB_GROUPS: TabGroupInfo[] = [
   {
     titleAr: 'الإدارة العليا والأمان',
     titleEn: 'Administration & Security',
-    icon: '🔒',
+    icon: '',
     tabs: [
       { id: 'overview', labelAr: 'نظرة عامة والتقارير المالية', labelEn: 'Overview & Analytics' },
       { id: 'staff', labelAr: 'فريق العمل وتحديد الصلاحيات', labelEn: 'Staff & Roles' },
@@ -287,7 +292,7 @@ export const StaffPermissionsTab: React.FC<StaffPermissionsTabProps> = ({
         onUpdateCurrentStaff(updated);
       }
 
-      setSavedSuccessMessage(isAr ? `تم تحديث صلاحيات "${updated.name}" بنجاح ✅` : `Permissions updated for "${updated.name}" ✅`);
+      setSavedSuccessMessage(isAr ? `تم تحديث صلاحيات "${updated.name}" بنجاح` : `Permissions updated for "${updated.name}"`);
     } else {
       // Create new
       const newMember: StaffMember = {
@@ -304,7 +309,7 @@ export const StaffPermissionsTab: React.FC<StaffPermissionsTabProps> = ({
       };
 
       onUpdateStaffMembers([...staffMembers, newMember]);
-      setSavedSuccessMessage(isAr ? `تم إضافة المستخدم الجديد "${newMember.name}" وتحديد صلاحياته ✅` : `New staff member "${newMember.name}" added ✅`);
+      setSavedSuccessMessage(isAr ? `تم إضافة المستخدم الجديد "${newMember.name}" وتحديد صلاحياته` : `New staff member "${newMember.name}" added`);
     }
 
     setEditingStaff(null);
@@ -350,7 +355,7 @@ export const StaffPermissionsTab: React.FC<StaffPermissionsTabProps> = ({
       setIsPinSwitchModalOpen(false);
       setPinInput('');
       setPinError('');
-      setSavedSuccessMessage(isAr ? `تم الدخول بنجاح بحساب "${matched.name}" رمز PIN صحيح ✅` : `Unlocked as ${matched.name} ✅`);
+      setSavedSuccessMessage(isAr ? `تم الدخول بنجاح بحساب "${matched.name}" رمز PIN صحيح` : `Unlocked as ${matched.name}`);
       setTimeout(() => setSavedSuccessMessage(''), 3500);
     } else {
       setPinError(isAr ? 'رمز PIN غير صحيح أو الحساب معطل.' : 'Invalid PIN code.');
@@ -377,17 +382,17 @@ export const StaffPermissionsTab: React.FC<StaffPermissionsTabProps> = ({
   const getRoleIcon = (role: StaffRole) => {
     switch (role) {
       case 'owner':
-        return '👑';
+        return '';
       case 'cashier':
-        return '🛍️';
+        return '';
       case 'perfumer':
-        return '🧪';
+        return '';
       case 'inventory':
-        return '📦';
+        return '';
       case 'marketing':
-        return '🎯';
+        return '';
       default:
-        return '👤';
+        return '';
     }
   };
 
@@ -464,7 +469,7 @@ export const StaffPermissionsTab: React.FC<StaffPermissionsTabProps> = ({
         {savedSuccessMessage && (
           <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold flex items-center justify-between animate-fadeIn">
             <div className="flex items-center gap-2">
-              <span className="text-base">✅</span>
+              <Check className="w-4 h-4 text-emerald-400" />
               <span>{savedSuccessMessage}</span>
             </div>
             <span className="text-[10px] font-mono bg-white px-2 py-0.5 rounded border border-emerald-300">
@@ -508,7 +513,7 @@ export const StaffPermissionsTab: React.FC<StaffPermissionsTabProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
         <div className="bg-white border border-neutral-200 p-4 rounded-2xl shadow-2xs space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-2xl">👑</span>
+            <Award className="w-6 h-6 text-amber-400" />
             <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">Owner</span>
           </div>
           <h4 className="font-bold text-xs text-black">{isAr ? 'المدير العام' : 'Store Owner'}</h4>
@@ -519,7 +524,7 @@ export const StaffPermissionsTab: React.FC<StaffPermissionsTabProps> = ({
 
         <div className="bg-white border border-neutral-200 p-4 rounded-2xl shadow-2xs space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-2xl">🛍️</span>
+            <ShoppingBag className="w-6 h-6 text-emerald-400" />
             <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">POS</span>
           </div>
           <h4 className="font-bold text-xs text-black">{isAr ? 'كاشير الصالة' : 'POS Cashier'}</h4>
@@ -530,7 +535,7 @@ export const StaffPermissionsTab: React.FC<StaffPermissionsTabProps> = ({
 
         <div className="bg-white border border-neutral-200 p-4 rounded-2xl shadow-2xs space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-2xl">🧪</span>
+            <FlaskConical className="w-6 h-6 text-sky-400" />
             <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-purple-100 text-purple-800">Lab</span>
           </div>
           <h4 className="font-bold text-xs text-black">{isAr ? 'خبير ومصمم العطور' : 'Master Perfumer'}</h4>
@@ -541,7 +546,7 @@ export const StaffPermissionsTab: React.FC<StaffPermissionsTabProps> = ({
 
         <div className="bg-white border border-neutral-200 p-4 rounded-2xl shadow-2xs space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-2xl">📦</span>
+            <Package className="w-6 h-6 text-amber-400" />
             <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">Warehouse</span>
           </div>
           <h4 className="font-bold text-xs text-black">{isAr ? 'مسؤول المخزون' : 'Inventory Manager'}</h4>
@@ -552,7 +557,7 @@ export const StaffPermissionsTab: React.FC<StaffPermissionsTabProps> = ({
 
         <div className="bg-white border border-neutral-200 p-4 rounded-2xl shadow-2xs space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-2xl">🎯</span>
+            <Target className="w-6 h-6 text-rose-400" />
             <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-800">Marketing</span>
           </div>
           <h4 className="font-bold text-xs text-black">{isAr ? 'التسويق و CRM' : 'Marketing & Ads'}</h4>
@@ -631,7 +636,7 @@ export const StaffPermissionsTab: React.FC<StaffPermissionsTabProps> = ({
                         className="text-[10px] text-neutral-500 hover:text-black transition"
                         title={isShowingPin ? (isAr ? 'إخفاء الرمز' : 'Hide') : (isAr ? 'إظهار الرمز' : 'Show')}
                       >
-                        {isShowingPin ? '🙈' : '👁️'}
+                        {isShowingPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
 
@@ -650,7 +655,7 @@ export const StaffPermissionsTab: React.FC<StaffPermissionsTabProps> = ({
                     <div className="flex flex-wrap gap-1">
                       {staff.role === 'owner' ? (
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-300">
-                          {isAr ? '👑 كافة التبويبات والصلاحيات (وصول كامل)' : 'Full Access to All 17 Tabs'}
+                          {isAr ? 'كافة التبويبات والصلاحيات (وصول كامل)' : 'Full Access to All Tabs'}
                         </span>
                       ) : (
                         staff.allowedTabs.map((tabId) => (
@@ -764,12 +769,12 @@ export const StaffPermissionsTab: React.FC<StaffPermissionsTabProps> = ({
                     onChange={(e) => handleRoleChange(e.target.value as StaffRole)}
                     className="w-full p-2.5 rounded-xl bg-neutral-50 border border-neutral-200 text-xs focus:outline-none focus:border-black font-bold"
                   >
-                    <option value="owner">👑 {isAr ? 'المدير العام (Owner) — صلاحيات كاملة' : 'Owner (Full Access)'}</option>
-                    <option value="cashier">🛍️ {isAr ? 'كاشير الصالة (Cashier) — POS وفواتير' : 'POS Cashier'}</option>
-                    <option value="perfumer">🧪 {isAr ? 'خبير ومصمم العطور (Perfumer) — مختبر ووصفات' : 'Perfumer (Lab)'}</option>
-                    <option value="inventory">📦 {isAr ? 'مسؤول المخزون (Inventory) — موردين ومواد' : 'Inventory'}</option>
-                    <option value="marketing">🎯 {isAr ? 'مسؤول التسويق و CRM — زبائن وبكسل' : 'Marketing & CRM'}</option>
-                    <option value="custom">👤 {isAr ? 'دور مخصص (Custom Permissions)' : 'Custom'}</option>
+                    <option value="owner">{isAr ? 'المدير العام (Owner) — صلاحيات كاملة' : 'Owner (Full Access)'}</option>
+                    <option value="cashier">{isAr ? 'كاشير الصالة (Cashier) — POS وفواتير' : 'POS Cashier'}</option>
+                    <option value="perfumer">{isAr ? 'خبير ومصمم العطور (Perfumer) — مختبر ووصفات' : 'Perfumer (Lab)'}</option>
+                    <option value="inventory">{isAr ? 'مسؤول المخزون (Inventory) — موردين ومواد' : 'Inventory'}</option>
+                    <option value="marketing">{isAr ? 'مسؤول التسويق و CRM — زبائن وبكسل' : 'Marketing & CRM'}</option>
+                    <option value="custom">{isAr ? 'دور مخصص (Custom Permissions)' : 'Custom'}</option>
                   </select>
                 </div>
 
@@ -995,7 +1000,7 @@ export const StaffPermissionsTab: React.FC<StaffPermissionsTabProps> = ({
                   type="submit"
                   className="px-5 py-2.5 rounded-xl bg-black hover:bg-neutral-800 text-white text-xs font-bold uppercase tracking-wider shadow-md cursor-pointer"
                 >
-                  {isAr ? 'حفظ وتطبيق الصلاحيات فوراً ✅' : 'Save & Apply Permissions'}
+                  {isAr ? 'حفظ وتطبيق الصلاحيات فوراً' : 'Save & Apply Permissions'}
                 </button>
               </div>
             </form>
@@ -1052,7 +1057,7 @@ export const StaffPermissionsTab: React.FC<StaffPermissionsTabProps> = ({
                   type="submit"
                   className="py-2.5 px-4 rounded-xl bg-black hover:bg-neutral-800 text-white text-xs font-bold uppercase tracking-wider cursor-pointer"
                 >
-                  {isAr ? 'دخول ✅' : 'Unlock'}
+                  {isAr ? 'دخول' : 'Unlock'}
                 </button>
               </div>
             </form>

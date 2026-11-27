@@ -36,46 +36,36 @@ export const TabsNav: React.FC<TabsNavProps> = ({
       id: 'dashboard' as ActiveTab,
       label: t('tabDashboard'),
       icon: LayoutDashboard,
-      badge: lowStockCount > 0 ? `! ${lowStockCount}` : undefined,
-      badgeColor: lowStockCount > 0 ? 'bg-rose-100 text-rose-800 border border-rose-300 font-black' : undefined,
     },
     {
       id: 'invoices' as ActiveTab,
       label: t('tabInvoices'),
       icon: Receipt,
-      badge: invoicesCount,
     },
     {
       id: 'recipes' as ActiveTab,
       label: t('tabRecipes'),
       icon: Bookmark,
-      badge: recipesCount,
-      highlight: true,
     },
     {
       id: 'calculator' as ActiveTab,
       label: t('tabCalculator'),
       icon: FlaskConical,
-      badge: language === 'ar' ? 'حرفي' : 'Artisan',
-      highlight: true,
     },
     {
       id: 'catalog' as ActiveTab,
       label: t('tabCatalog'),
       icon: Table,
-      badge: oilsCount,
     },
     {
       id: 'materials' as ActiveTab,
       label: t('tabMaterials'),
       icon: Package,
-      badge: materialsCount,
     },
     {
       id: 'batches' as ActiveTab,
       label: t('tabBatches'),
       icon: History,
-      badge: batchesCount,
     },
   ];
 
@@ -98,17 +88,6 @@ export const TabsNav: React.FC<TabsNavProps> = ({
               >
                 <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-neutral-600'}`} />
                 <span className={isActive ? 'text-white' : 'text-neutral-800'}>{tab.label}</span>
-                {tab.badge !== undefined && (
-                  <span
-                    className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
-                      isActive
-                        ? 'bg-white text-black font-black'
-                        : tab.badgeColor || 'bg-neutral-100 text-neutral-800 border border-neutral-300'
-                    }`}
-                  >
-                    {tab.badge}
-                  </span>
-                )}
               </button>
             );
           })}

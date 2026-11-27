@@ -52,7 +52,20 @@ import {
   ArrowUpRight,
   Tag,
   FacebookIcon,
-  InstagramIcon
+  InstagramIcon,
+  Save,
+  Gift,
+  ShoppingBag,
+  Key,
+  Star,
+  Flame,
+  Zap,
+  Database,
+  Copy,
+  Mail,
+  FileText,
+  AlertTriangle,
+  Package
 } from './icons';
 import {
   exportCrmToGoogleSheetsCsv,
@@ -214,12 +227,12 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
       features: [
         isAr ? `${newBundleBottlesCount} زجاجات سعة ${newBundleBottleSize} مل` : `${newBundleBottlesCount} x ${newBundleBottleSize}ml bottles`,
         isAr ? 'تركيز إكستري دو بارفان فائق الثبات' : 'Extrait de Parfum concentration',
-        newBundleFreeDelivery ? (isAr ? 'توصيل مجاني لكافة مناطق لبنان 🚚' : 'Free delivery across Lebanon 🚚') : (isAr ? 'تغليف إهدائي فاخر وبوكس مميز' : 'Luxury gift packaging')
+        newBundleFreeDelivery ? (isAr ? 'توصيل مجاني لكافة مناطق لبنان' : 'Free delivery across Lebanon') : (isAr ? 'تغليف إهدائي فاخر وبوكس مميز' : 'Luxury gift packaging')
       ],
       featuresAr: [
         `${newBundleBottlesCount} زجاجات سعة ${newBundleBottleSize} مل`,
         'تركيز إكستري دو بارفان فائق الثبات',
-        newBundleFreeDelivery ? 'توصيل مجاني لكافة مناطق لبنان 🚚' : 'تغليف إهدائي فاخر وبوكس مميز'
+        newBundleFreeDelivery ? 'توصيل مجاني لكافة مناطق لبنان' : 'تغليف إهدائي فاخر وبوكس مميز'
       ],
       freeDelivery: newBundleFreeDelivery,
       isFeatured: newBundleFeatured,
@@ -318,7 +331,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
     saveSupabaseConfig(supabaseConfig);
     setSupabaseStatusMsg({
       type: 'success',
-      text: isAr ? '✓ تم حفظ إعدادات Supabase بنجاح!' : 'Supabase settings saved successfully!'
+      text: isAr ? 'تم حفظ إعدادات Supabase بنجاح' : 'Supabase settings saved successfully'
     });
     setTimeout(() => setSupabaseStatusMsg({ type: 'idle', text: '' }), 4000);
   };
@@ -330,7 +343,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
       const res = await syncLocalToSupabase();
       setSupabaseStatusMsg({
         type: 'success',
-        text: `✓ ${res.message}`
+        text: `${res.message}`
       });
       setSupabaseConfig(getSupabaseConfig());
     } catch (err: any) {
@@ -351,7 +364,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
       setCustomerBlendsList(loadCustomerBlends());
       setSupabaseStatusMsg({
         type: 'success',
-        text: `✓ ${res.message}`
+        text: `${res.message}`
       });
       setSupabaseConfig(getSupabaseConfig());
     } catch (err: any) {
@@ -417,7 +430,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
     };
     onUpdateSettings(updatedSettings);
     initPixels(pixelSettings);
-    setPixelSaveMessage(isAr ? 'تم حفظ وتفعيل إعدادات الـ Pixel بنجاح! 🎯' : 'Pixel settings saved & active!');
+    setPixelSaveMessage(isAr ? 'تم حفظ وتفعيل إعدادات الـ Pixel بنجاح' : 'Pixel settings saved & active');
     setTimeout(() => setPixelSaveMessage(''), 3500);
   };
 
@@ -864,7 +877,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
     });
     setGoogleSheetStatusMsg({
       type: 'success',
-      text: isAr ? 'تم حفظ روابط Google Sheet بنجاح ✅' : 'Google Sheet URLs saved successfully ✅'
+      text: isAr ? 'تم حفظ روابط Google Sheet بنجاح' : 'Google Sheet URLs saved successfully'
     });
     setTimeout(() => setGoogleSheetStatusMsg(null), 3500);
   };
@@ -940,14 +953,14 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
 
   // Categories list
   const categoriesList = [
-    { id: 'oriental', nameAr: 'شرقية وملكية (أخشاب وعنبر)', nameEn: 'Oriental & Royal Oud', icon: '👑', count: oils.filter(o => o.family === 'oriental').length },
-    { id: 'woody', nameAr: 'خشبية نيش (صندل وأرز)', nameEn: 'Woody & Cedar Niche', icon: '🪵', count: oils.filter(o => o.family === 'woody').length },
-    { id: 'floral', nameAr: 'زهرية رومانسية (ياسمين وغراس)', nameEn: 'Floral Grasse', icon: '🌸', count: oils.filter(o => o.family === 'floral').length },
-    { id: 'fresh', nameAr: 'منعشة وبحرية (حمضيات وأكوا)', nameEn: 'Fresh & Aquatic', icon: '🌊', count: oils.filter(o => o.family === 'fresh').length },
-    { id: 'leather', nameAr: 'جلود وباتشولي فاخرة', nameEn: 'Leather & Suede', icon: '💼', count: oils.filter(o => o.family === 'leather').length },
-    { id: 'gourmand', nameAr: 'جورماند وحلوة (فانيلا وتوباكو)', nameEn: 'Gourmand & Vanilla', icon: '🍨', count: oils.filter(o => o.family === 'gourmand').length },
-    { id: 'aromatic', nameAr: 'عطرية فوجير وفلفل وردي', nameEn: 'Aromatic & Fougere', icon: '🌿', count: oils.filter(o => o.family === 'aromatic').length },
-    { id: 'citrus', nameAr: 'حمضيات برغموت وكالابريا', nameEn: 'Citrus & Bergamot', icon: '🍋', count: oils.filter(o => o.family === 'citrus').length },
+    { id: 'oriental', nameAr: 'شرقية وملكية (أخشاب وعنبر)', nameEn: 'Oriental & Royal Oud', icon: '', count: oils.filter(o => o.family === 'oriental').length },
+    { id: 'woody', nameAr: 'خشبية نيش (صندل وأرز)', nameEn: 'Woody & Cedar Niche', icon: '', count: oils.filter(o => o.family === 'woody').length },
+    { id: 'floral', nameAr: 'زهرية رومانسية (ياسمين وغراس)', nameEn: 'Floral Grasse', icon: '', count: oils.filter(o => o.family === 'floral').length },
+    { id: 'fresh', nameAr: 'منعشة وبحرية (حمضيات وأكوا)', nameEn: 'Fresh & Aquatic', icon: '', count: oils.filter(o => o.family === 'fresh').length },
+    { id: 'leather', nameAr: 'جلود وباتشولي فاخرة', nameEn: 'Leather & Suede', icon: '', count: oils.filter(o => o.family === 'leather').length },
+    { id: 'gourmand', nameAr: 'جورماند وحلوة (فانيلا وتوباكو)', nameEn: 'Gourmand & Vanilla', icon: '', count: oils.filter(o => o.family === 'gourmand').length },
+    { id: 'aromatic', nameAr: 'عطرية فوجير وفلفل وردي', nameEn: 'Aromatic & Fougere', icon: '', count: oils.filter(o => o.family === 'aromatic').length },
+    { id: 'citrus', nameAr: 'حمضيات برغموت وكالابريا', nameEn: 'Citrus & Bergamot', icon: '', count: oils.filter(o => o.family === 'citrus').length },
   ];
 
   // Hero & Banner customizer state
@@ -1121,7 +1134,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                     : 'bg-neutral-100 text-neutral-700 hover:text-black hover:bg-neutral-200'
                 }`}
               >
-                <span>🎁</span>
+                <Gift className="w-5 h-5 text-amber-400" />
                 <span>{isAr ? 'باقات التوفير وتعديل الأسعار والعطور' : 'Savings Bundles & Pricing'}</span>
                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${couponSubTab === 'bundles' ? 'bg-amber-400 text-black' : 'bg-neutral-200 text-neutral-800'}`}>
                   {bundlesList.length}
@@ -1137,7 +1150,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                     : 'bg-neutral-100 text-neutral-700 hover:text-black hover:bg-neutral-200'
                 }`}
               >
-                <span>🏷️</span>
+                <Tag className="w-4 h-4 text-neutral-400" />
                 <span>{isAr ? 'أكواد الكوبونات والخصومات' : 'Discount Coupons'}</span>
                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${couponSubTab === 'coupons' ? 'bg-amber-400 text-black' : 'bg-neutral-200 text-neutral-800'}`}>
                   {coupons.length}
@@ -1165,7 +1178,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center font-bold shadow-md">
-                      <span className="text-2xl">🎁</span>
+                      <Gift className="w-6 h-6 text-amber-400" />
                     </div>
                     <div>
                       <h2 className="text-xl font-black font-serif uppercase tracking-wider text-black">
@@ -1223,12 +1236,12 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                               </span>
                               {bundle.freeDelivery && (
                                 <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold border border-emerald-300">
-                                  🚚 {isAr ? 'شحن مجاني' : 'Free Shipping'}
+                                  {isAr ? 'شحن مجاني' : 'Free Shipping'}
                                 </span>
                               )}
                               {bundle.isFeatured && (
                                 <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-bold border border-amber-300">
-                                  🔥 {isAr ? 'الأكثر طلباً' : 'Featured'}
+                                  {isAr ? 'الأكثر طلباً' : 'Featured'}
                                 </span>
                               )}
                             </div>
@@ -1249,7 +1262,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                                 : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600 border border-neutral-300'
                             }`}
                           >
-                            {bundle.isActive ? (isAr ? 'معروضة بالمتجر ✓' : 'Visible in Store ✓') : (isAr ? 'مخفية مؤقتاً ✕' : 'Hidden ✕')}
+                            {bundle.isActive ? (isAr ? 'معروضة بالمتجر' : 'Visible in Store') : (isAr ? 'مخفية مؤقتاً' : 'Hidden')}
                           </button>
 
                           {/* Delete Button */}
@@ -1395,7 +1408,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                               className="w-4 h-4 rounded text-black focus:ring-black cursor-pointer"
                             />
                             <span className="font-bold text-neutral-800">
-                              🚚 {isAr ? 'شحن مجاني لكافة لبنان ($0 توصيل)' : 'Free Lebanon Delivery ($0)'}
+                              {isAr ? 'شحن مجاني لكافة لبنان ($0 توصيل)' : 'Free Lebanon Delivery ($0)'}
                             </span>
                           </label>
 
@@ -1407,7 +1420,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                               className="w-4 h-4 rounded text-black focus:ring-black cursor-pointer"
                             />
                             <span className="font-bold text-neutral-800">
-                              🔥 {isAr ? 'تمييز كباقة الأكثر طلباً (Featured)' : 'Featured Bestseller Badge'}
+                              {isAr ? 'تمييز كباقة الأكثر طلباً (Featured)' : 'Featured Bestseller Badge'}
                             </span>
                           </label>
                         </div>
@@ -1417,7 +1430,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                       <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200 space-y-3">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                           <span className="text-xs font-black text-black flex items-center gap-1.5">
-                            <span>🧪</span>
+                            <FlaskConical className="w-3.5 h-3.5 text-neutral-600" />
                             <span>{isAr ? 'طريقة اختيار عطور الباقة:' : 'Fragrance Selection Mode:'}</span>
                           </span>
 
@@ -1454,7 +1467,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                                 {isAr ? `حدد العطور المتضمنة في هذه الباقة (المحدد حالياً: ${bundle.selectedItemIds.length} عطور):` : `Select fragrances included in this bundle (${bundle.selectedItemIds.length} selected):`}
                               </p>
                               <span className="text-[10px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full font-bold">
-                                {bundle.selectedItemIds.length === bundle.bottlesCount ? (isAr ? 'مكتملة تماماً ✓' : 'Exact match ✓') : (isAr ? `الموصى به: ${bundle.bottlesCount} عطور` : `Recommended: ${bundle.bottlesCount}`)}
+                                {bundle.selectedItemIds.length === bundle.bottlesCount ? (isAr ? 'مكتملة تماماً' : 'Exact match') : (isAr ? `الموصى به: ${bundle.bottlesCount} عطور` : `Recommended: ${bundle.bottlesCount}`)}
                               </span>
                             </div>
 
@@ -1499,7 +1512,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                           {isSaved ? (
                             <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-300 flex items-center gap-1.5 animate-fadeIn">
                               <Check className="w-4 h-4 text-emerald-600 stroke-[3]" />
-                              <span>{isAr ? 'تم حفظ التعديلات وتحديث السعر في المتجر بنجاح ✓' : 'Bundle updated successfully ✓'}</span>
+                              <span>{isAr ? 'تم حفظ التعديلات وتحديث السعر في المتجر بنجاح' : 'Bundle updated successfully'}</span>
                             </span>
                           ) : (
                             <span className="text-[11px] text-neutral-400">
@@ -1534,7 +1547,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                   >
                     <div className="bg-neutral-900 text-white px-6 py-4 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-xl">🎁</span>
+                        <Gift className="w-5 h-5 text-amber-400" />
                         <h3 className="font-bold text-sm">
                           {isAr ? 'إنشاء باقة توفير جديدة' : 'Create New Savings Bundle'}
                         </h3>
@@ -1648,7 +1661,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                             onChange={(e) => setNewBundleFreeDelivery(e.target.checked)}
                             className="w-4 h-4 rounded text-black cursor-pointer"
                           />
-                          <span>🚚 {isAr ? 'شحن مجاني' : 'Free Delivery'}</span>
+                          <span>{isAr ? 'شحن مجاني' : 'Free Delivery'}</span>
                         </label>
 
                         <label className="flex items-center gap-2 cursor-pointer font-bold">
@@ -1658,7 +1671,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                             onChange={(e) => setNewBundleFeatured(e.target.checked)}
                             className="w-4 h-4 rounded text-black cursor-pointer"
                           />
-                          <span>🔥 {isAr ? 'تمييز كالأكثر طلباً' : 'Featured Bestseller'}</span>
+                          <span>{isAr ? 'تمييز كالأكثر طلباً' : 'Featured Bestseller'}</span>
                         </label>
                       </div>
 
@@ -1674,7 +1687,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                           type="submit"
                           className="px-6 py-2.5 rounded-xl bg-black hover:bg-neutral-800 text-white font-bold transition cursor-pointer shadow-md"
                         >
-                          {isAr ? 'إضافة الباقة وحفظها ✓' : 'Add Bundle ✓'}
+                          {isAr ? 'إضافة الباقة وحفظها' : 'Add Bundle'}
                         </button>
                       </div>
                     </form>
@@ -1793,7 +1806,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                   className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-2 cursor-pointer shadow-sm transition"
                 >
                   <Plus className="w-4 h-4 text-white" />
-                  <span>{isAr ? '➕ إضافة قسم جديد' : '+ Add New Category'}</span>
+                  <span>{isAr ? '+ إضافة قسم جديد' : '+ Add New Category'}</span>
                 </button>
                 <button
                   onClick={() => openAdminCategoryEdit(adminNavCategories[0])}
@@ -1983,7 +1996,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
               }}
               className="py-2.5 px-6 rounded-xl bg-black text-white font-bold text-xs uppercase tracking-wider cursor-pointer hover:bg-neutral-800"
             >
-              {heroBannerSaved ? (isAr ? 'تم حفظ التعديلات ✅' : 'Saved ✅') : (isAr ? 'حفظ إعدادات البنر' : 'Save Banner Settings')}
+              {heroBannerSaved ? (isAr ? 'تم حفظ التعديلات' : 'Saved') : (isAr ? 'حفظ إعدادات البنر' : 'Save Banner Settings')}
             </button>
           </div>
         </div>
@@ -2175,7 +2188,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                   }`}
                 >
                   <Sparkles className="w-3.5 h-3.5 text-sky-400" />
-                  <span>{isAr ? 'سجل النشاط ⚡' : 'Activity Feed'}</span>
+                  <span>{isAr ? 'سجل النشاط' : 'Activity Feed'}</span>
                 </button>
 
                 <button
@@ -2188,7 +2201,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                   }`}
                 >
                   <GoogleSheetsIcon className="w-3.5 h-3.5" />
-                  <span>{isAr ? 'Google Sheets 📊' : 'Google Sheets 📊'}</span>
+                  <span>Google Sheets</span>
                   {settings.crmGoogleSheetUrl && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
                 </button>
 
@@ -2201,7 +2214,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                       : 'text-neutral-600 hover:text-black'
                   }`}
                 >
-                  <span className="text-amber-500 font-bold">🔥</span>
+                  <Flame className="w-3.5 h-3.5 text-amber-500" />
                   <span>{isAr ? 'ربط Firebase & Google' : 'Firebase Auth'}</span>
                 </button>
 
@@ -2214,7 +2227,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                       : 'text-neutral-600 hover:text-black'
                   }`}
                 >
-                  <span className="text-emerald-500 font-bold">⚡</span>
+                  <Zap className="w-3.5 h-3.5 text-emerald-500" />
                   <span>{isAr ? 'مزامنة Supabase السحابية' : 'Supabase Sync'}</span>
                   {isSupaConnected && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>}
                 </button>
@@ -2243,7 +2256,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                 <div className="bg-white border border-neutral-200 p-5 rounded-3xl shadow-xs space-y-2">
                   <div className="flex items-center justify-between text-neutral-500">
                     <span className="text-xs font-bold">{isAr ? 'كبار الزبائن (VIP)' : 'VIP Customers'}</span>
-                    <span className="text-base">👑</span>
+                    <Award className="w-4 h-4 text-amber-600" />
                   </div>
                   <div className="text-2xl font-black font-mono text-amber-900">
                     {crmMetrics.vipCount}
@@ -2286,7 +2299,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                 <div className="bg-white border border-neutral-200 p-6 rounded-3xl shadow-xs space-y-4">
                   <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
                     <h3 className="font-bold text-sm text-black flex items-center gap-2">
-                      <span>🏷️</span>
+                      <Tag className="w-4 h-4 text-neutral-400" />
                       <span>{isAr ? 'شرائح وتصنيف الزبائن (Customer Segments)' : 'Customer Segmentation'}</span>
                     </h3>
                     <button
@@ -2304,7 +2317,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                       className="p-3 rounded-2xl bg-amber-50/70 border border-amber-200 flex items-center justify-between cursor-pointer hover:bg-amber-100 transition"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-xl">👑</span>
+                        <Award className="w-5 h-5 text-amber-600" />
                         <div>
                           <span className="text-xs font-black text-amber-950 block">{isAr ? 'كبار الزبائن VIP' : 'VIP High-Value'}</span>
                           <span className="text-[10px] text-amber-800">{isAr ? 'أنفقوا أكثر من $100 أو طلبوا 3 مرات فأكثر' : 'Spent $100+ or 3+ orders'}</span>
@@ -2320,7 +2333,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                       className="p-3 rounded-2xl bg-neutral-50 border border-neutral-200 flex items-center justify-between cursor-pointer hover:bg-neutral-100 transition"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-xl">🧪</span>
+                        <FlaskConical className="w-5 h-5 text-sky-600" />
                         <div>
                           <span className="text-xs font-black text-black block">{isAr ? 'عشاق الصياغة والخلطات الحرفية' : 'Bespoke Atelier Connoisseurs'}</span>
                           <span className="text-[10px] text-neutral-500">{isAr ? 'زبائن قاموا بصياغة عطور خاصة بهم' : 'Customers with bespoke formulas'}</span>
@@ -2336,7 +2349,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                       className="p-3 rounded-2xl bg-neutral-50 border border-neutral-200 flex items-center justify-between cursor-pointer hover:bg-neutral-100 transition"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-xl">⭐</span>
+                        <Sparkles className="w-5 h-5 text-neutral-600" />
                         <div>
                           <span className="text-xs font-black text-black block">{isAr ? 'زبائن متكررون (Regulars)' : 'Repeat Customers'}</span>
                           <span className="text-[10px] text-neutral-500">{isAr ? 'أكثر من طلب واحد' : '2+ orders placed'}</span>
@@ -2352,7 +2365,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                       className="p-3 rounded-2xl bg-neutral-50 border border-neutral-200 flex items-center justify-between cursor-pointer hover:bg-neutral-100 transition"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-xl">🆕</span>
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300">NEW</span>
                         <div>
                           <span className="text-xs font-black text-black block">{isAr ? 'زبائن جدد (New Clients)' : 'New Clients'}</span>
                           <span className="text-[10px] text-neutral-500">{isAr ? 'الطلب الأول أو حساب جديد' : 'First order or new sign-in'}</span>
@@ -2385,10 +2398,10 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                     {crmActivityList.slice(0, 5).map((act) => (
                       <div key={act.id} className="p-3 rounded-2xl bg-neutral-50 border border-neutral-200 flex items-start gap-3">
                         <div className="w-8 h-8 rounded-xl bg-white border border-neutral-300 flex items-center justify-center shrink-0 text-sm shadow-2xs">
-                          {act.type === 'login' && '🔑'}
-                          {act.type === 'order' && '🛍️'}
-                          {act.type === 'blend_created' && '🧪'}
-                          {act.type === 'note_added' && '📝'}
+                          {act.type === 'login' && <Key className="w-3.5 h-3.5 text-amber-400" />}
+                          {act.type === 'order' && <ShoppingBag className="w-3.5 h-3.5 text-emerald-400" />}
+                          {act.type === 'blend_created' && <FlaskConical className="w-3.5 h-3.5 text-sky-400" />}
+                          {act.type === 'note_added' && <FileText className="w-3.5 h-3.5 text-purple-400" />}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
@@ -2431,7 +2444,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                     className="px-4 py-2.5 rounded-xl bg-black hover:bg-neutral-800 text-white font-bold text-xs flex items-center gap-2 cursor-pointer shadow-sm transition"
                   >
                     <Plus className="w-4 h-4 text-amber-400" />
-                    <span>{isAr ? '+ تسجيل خلطة جديدة باسم الزبون 🧪' : '+ Register Blend for Customer'}</span>
+                    <span>{isAr ? '+ تسجيل خلطة جديدة باسم الزبون' : '+ Register Blend for Customer'}</span>
                   </button>
 
                   <div className="text-xs text-neutral-500 font-bold hidden md:block">
@@ -2446,7 +2459,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
               {filteredCustomerBlends.length === 0 ? (
                 <div className="bg-white border border-neutral-200 rounded-3xl p-12 text-center space-y-3">
                   <div className="w-16 h-16 rounded-full bg-neutral-100 mx-auto flex items-center justify-center text-2xl text-neutral-400">
-                    🧪
+                    <FlaskConical className="w-4 h-4 text-amber-400 shrink-0" />
                   </div>
                   <h3 className="font-bold text-sm text-black">
                     {isAr ? 'لا توجد خلطات زبائن مسجلة حالياً' : 'No customer bespoke blends found'}
@@ -2487,7 +2500,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                               </h3>
                               {blend.customerName && (
                                 <p className="text-xs text-neutral-600 font-semibold mt-0.5">
-                                  👤 {isAr ? 'الزبون / الإهداء:' : 'Customer:'} <span className="text-black font-bold">{blend.customerName}</span>
+                                  {isAr ? 'الزبون / الإهداء:' : 'Customer:'} <span className="text-black font-bold">{blend.customerName}</span>
                                 </p>
                               )}
                             </div>
@@ -2505,7 +2518,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                           {/* Dynamic Size Recalculator Controls for Perfumer */}
                           <div className="bg-neutral-50 border border-neutral-200 rounded-2xl p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
                             <span className="font-bold text-neutral-700 flex items-center gap-1.5">
-                              <span>🧴</span>
+                              <Package className="w-4 h-4 text-neutral-400" />
                               <span>{isAr ? 'حساب المقادير حسب سعة الزجاجة:' : 'Recalculate for Size:'}</span>
                             </span>
                             <div className="flex items-center gap-1.5">
@@ -2588,7 +2601,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                                 {/* Final Total Bottle Volume */}
                                 <tr className="bg-black text-white font-black">
                                   <td colSpan={4} className="py-2 px-3 text-white">
-                                    {isAr ? '★ سعة القارورة الصافية:' : 'Total Bottle Capacity:'}
+                                    {isAr ? 'سعة القارورة الصافية:' : 'Total Bottle Capacity:'}
                                   </td>
                                   <td className="py-2 px-3 text-end font-mono text-white text-sm">
                                     {currentSize}.00 ملل
@@ -2631,7 +2644,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                                 title={isAr ? 'طباعة ملصق / ليبل الزجاجة الحراري الفاخر' : 'Print Luxury Bottle Sticker Label'}
                               >
                                 <Tag className="w-3.5 h-3.5 text-amber-700" />
-                                <span>{isAr ? '🏷️ ليبل الزجاجة' : 'Bottle Label'}</span>
+                                <span>{isAr ? 'ليبل الزجاجة' : 'Bottle Label'}</span>
                               </button>
                             )}
                             <button
@@ -2647,7 +2660,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                               className="px-4 py-2 rounded-xl bg-black hover:bg-neutral-800 text-white font-bold text-xs flex items-center gap-1.5 transition cursor-pointer shadow-xs"
                             >
                               <Printer className="w-3.5 h-3.5 text-white" />
-                              <span>{isAr ? 'طباعة بطاقة المعمل 🖨️' : 'Print Lab Ticket'}</span>
+                              <span>{isAr ? 'طباعة بطاقة المعمل' : 'Print Lab Ticket'}</span>
                             </button>
                           </div>
                         </div>
@@ -2682,10 +2695,10 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                   <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
                     {[
                       { id: 'all', label: isAr ? 'الكل' : 'All' },
-                      { id: 'vip', label: isAr ? '👑 VIP' : 'VIP' },
+                      { id: 'vip', label: isAr ? 'VIP النخبة' : 'VIP' },
                       { id: 'regular', label: isAr ? '⭐ دائمون' : 'Regular' },
-                      { id: 'connoisseur', label: isAr ? '🧪 خلطات' : 'Bespoke' },
-                      { id: 'new', label: isAr ? '🆕 جدد' : 'New' },
+                      { id: 'connoisseur', label: isAr ? 'خلطات خاصة' : 'Bespoke' },
+                      { id: 'new', label: isAr ? 'زبائن جدد' : 'New' },
                     ].map((seg) => (
                       <button
                         key={seg.id}
@@ -2719,7 +2732,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                       className="px-3 py-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 border border-neutral-300 text-neutral-800 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs transition"
                       title={isAr ? 'نسخ البيانات بالكامل للصقها مباشرة في أي Google Sheet بـ Ctrl+V' : 'Copy for direct paste into Google Sheets'}
                     >
-                      <span>{copiedForSheet ? '✅' : '📋'}</span>
+                      <span>{copiedForSheet ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}</span>
                       <span>{copiedForSheet ? (isAr ? 'تم النسخ!' : 'Copied!') : (isAr ? 'نسخ لـ Sheet' : 'Copy TSV')}</span>
                     </button>
 
@@ -2730,7 +2743,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                       title={isAr ? 'فتح لوحة مزامنة Google Sheets المباشرة' : 'Open Live Google Sheets Sync'}
                     >
                       <GoogleSheetsIcon className="w-3.5 h-3.5" />
-                      <span>{isAr ? 'مزامنة Sheets 🔄' : 'Sync Sheets'}</span>
+                      <span>{isAr ? 'مزامنة Sheets' : 'Sync Sheets'}</span>
                     </button>
 
                     {/* Add Blend Button */}
@@ -2740,7 +2753,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                       className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-sm transition shrink-0"
                     >
                       <Plus className="w-3.5 h-3.5" />
-                      <span>{isAr ? 'تركيب خلطة لزبون 🧪' : 'New Customer Blend'}</span>
+                      <span>{isAr ? 'تركيب خلطة لزبون' : 'New Customer Blend'}</span>
                     </button>
                   </div>
                 </div>
@@ -2801,7 +2814,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                                       )}
                                       {c.provider === 'email' && (
                                         <span title="مسجل عبر البريد الإلكتروني" className="text-xs">
-                                          ✉️
+                                          
                                         </span>
                                       )}
                                       {c.provider === 'device_passkey' && (
@@ -2821,12 +2834,12 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                               <td className="py-3 px-3">
                                 {c.segment === 'vip' && (
                                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-950 border border-amber-300 text-[10px] font-black">
-                                    <span>👑</span> VIP
+                                    <Award className="w-3.5 h-3.5 text-amber-400 shrink-0" /> VIP
                                   </span>
                                 )}
                                 {c.segment === 'connoisseur' && (
                                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-100 text-sky-950 border border-sky-300 text-[10px] font-bold">
-                                    <span>🧪</span> {isAr ? 'عاشق خلطات' : 'Bespoke'}
+                                    <FlaskConical className="w-3.5 h-3.5 text-sky-400 shrink-0" /> {isAr ? 'عاشق خلطات' : 'Bespoke'}
                                   </span>
                                 )}
                                 {c.segment === 'regular' && (
@@ -2836,7 +2849,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                                 )}
                                 {c.segment === 'new' && (
                                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold">
-                                    <span>🆕</span> {isAr ? 'جديد' : 'New'}
+                                    <UserCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> {isAr ? 'جديد' : 'New'}
                                   </span>
                                 )}
                               </td>
@@ -2958,10 +2971,10 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                 {crmActivityList.map((act) => (
                   <div key={act.id} className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200 flex items-start gap-4 hover:border-black transition">
                     <div className="w-10 h-10 rounded-2xl bg-white border border-neutral-300 flex items-center justify-center shrink-0 text-lg shadow-2xs">
-                      {act.type === 'login' && '🔑'}
-                      {act.type === 'order' && '🛍️'}
-                      {act.type === 'blend_created' && '🧪'}
-                      {act.type === 'note_added' && '📝'}
+                      {act.type === 'login' && <Key className="w-3.5 h-3.5 text-amber-400" />}
+                      {act.type === 'order' && <ShoppingBag className="w-3.5 h-3.5 text-emerald-400" />}
+                      {act.type === 'blend_created' && <FlaskConical className="w-3.5 h-3.5 text-sky-400" />}
+                      {act.type === 'note_added' && <FileText className="w-3.5 h-3.5 text-purple-400" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
@@ -2984,7 +2997,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-neutral-100 pb-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-2xl">🔥</span>
+                    <Flame className="w-6 h-6 text-amber-500" />
                     <h3 className="font-bold text-base text-black">
                       {isAr ? 'ربط Google Firebase Authentication الرسمي' : 'Official Google Firebase Authentication Hub'}
                     </h3>
@@ -3017,7 +3030,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                 <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 flex items-center justify-between">
                   <div>
                     <div className="text-xs font-black text-amber-950 flex items-center gap-1.5">
-                      <span>🔥</span>
+                      <Flame className="w-4 h-4 text-amber-500" />
                       <span>{isAr ? 'وحدة تحكم Firebase Console الرسمية' : 'Firebase Console'}</span>
                     </div>
                     <div className="text-[11px] text-amber-800 font-mono mt-0.5">
@@ -3038,7 +3051,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                 <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-50 to-sky-50 border border-blue-200 flex items-center justify-between">
                   <div>
                     <div className="text-xs font-black text-blue-950 flex items-center gap-1.5">
-                      <span>☁️</span>
+                      <Database className="w-4 h-4 text-amber-400" />
                       <span>{isAr ? 'منصة Google Colab والحوسبة السحابية' : 'Google Colab Research'}</span>
                     </div>
                     <div className="text-[11px] text-blue-800 font-mono mt-0.5">
@@ -3061,7 +3074,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
               <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200 space-y-2">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-black text-black uppercase tracking-wider flex items-center gap-1.5">
-                    <span>📌 خطوات تفعيل Google Sign-In والبريد الإلكتروني (Email Auth) خلال دقيقة واحدة:</span>
+                    <span>خطوات تفعيل Google Sign-In والبريد الإلكتروني (Email Auth) خلال دقيقة واحدة:</span>
                   </h4>
                   <a
                     href="https://console.firebase.google.com/u/0/project/nasmat-95a51/authentication"
@@ -3088,7 +3101,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                   <li>في تبويب <b>Settings &gt; Authorized domains</b> أضف النطاق <code>127.0.0.1</code> أو نطاق موقعك الرسمي.</li>
                   <li>
                     <span>من </span>
-                    <a href="https://console.firebase.google.com/u/0/project/nasmat-95a51/settings/general" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-bold">إعدادات المشروع (⚙️)</a>
+                    <a href="https://console.firebase.google.com/u/0/project/nasmat-95a51/settings/general" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-bold">إعدادات المشروع ()</a>
                     <span> انزل لأسفل عند قسم <b>Your apps</b> وانسخ كود <code>firebaseConfig</code> والصقه في المربع أدناه.</span>
                   </li>
                 </ol>
@@ -3119,7 +3132,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                         appId: parsed.appId || prev.appId,
                         isFirebaseEnabled: true,
                       }));
-                      setAdminFbSaveMsg('✓ تم استخراج مفاتيح المشروع تلقائياً من الكود!');
+                      setAdminFbSaveMsg('تم استخراج مفاتيح المشروع تلقائياً من الكود');
                       setTimeout(() => setAdminFbSaveMsg(''), 3000);
                     }
                   }}
@@ -3216,13 +3229,13 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                     const updated = { ...adminFbConfig, isFirebaseEnabled: true };
                     saveFirebaseConfig(updated);
                     onUpdateSettings({ ...settings, firebaseConfig: updated });
-                    setAdminFbSaveMsg(isAr ? '✓ تم حفظ وتفعيل إعدادات Firebase Console بنجاح!' : 'Firebase settings saved successfully!');
+                    setAdminFbSaveMsg(isAr ? 'تم حفظ وتفعيل إعدادات Firebase Console بنجاح' : 'Firebase settings saved successfully');
                     setTimeout(() => setAdminFbSaveMsg(''), 3000);
                   }}
                   className="px-6 py-3 rounded-xl bg-black hover:bg-neutral-800 text-white font-bold text-xs flex items-center gap-2 shadow-sm transition cursor-pointer"
                 >
                   <Check className="w-4 h-4" />
-                  <span>{isAr ? 'حفظ إعدادات Firebase وتفعيل Google Sign-In 💾' : 'Save Firebase Settings'}</span>
+                  <span>{isAr ? 'حفظ إعدادات Firebase وتفعيل Google Sign-In' : 'Save Firebase Settings'}</span>
                 </button>
               </div>
             </div>
@@ -3235,7 +3248,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-neutral-100 pb-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-2xl">⚡</span>
+                    <Zap className="w-6 h-6 text-amber-400" />
                     <h3 className="font-bold text-base text-black flex items-center gap-2">
                       <span>{isAr ? 'مزامنة Supabase السحابية (Cross-Device Cloud Sync)' : 'Supabase Cloud Database Sync'}</span>
                       {isSupaConnected ? (
@@ -3263,7 +3276,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                     onClick={handleTestSupabase}
                     className="px-4 py-2.5 rounded-xl border border-neutral-300 hover:border-black text-black font-bold text-xs transition cursor-pointer flex items-center gap-1.5"
                   >
-                    <span>🔍</span>
+                    <Search className="w-4 h-4 text-neutral-400" />
                     <span>{isAr ? 'اختبار الاتصال' : 'Test Connection'}</span>
                   </button>
                   <button
@@ -3284,7 +3297,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                   supabaseStatusMsg.type === 'error' ? 'bg-rose-50 border border-rose-300 text-rose-900' :
                   'bg-neutral-100 border border-neutral-300 text-neutral-800 animate-pulse'
                 }`}>
-                  <span>{supabaseStatusMsg.type === 'success' ? '✓' : supabaseStatusMsg.type === 'error' ? '⚠️' : '⏳'}</span>
+                  <span>{supabaseStatusMsg.type === 'success' ? <Check className="w-4 h-4 text-emerald-400" /> : <AlertTriangle className="w-4 h-4 text-rose-400" />}</span>
                   <span>{supabaseStatusMsg.text}</span>
                 </div>
               )}
@@ -3293,7 +3306,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
               <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 space-y-2">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-black text-emerald-900 flex items-center gap-1.5">
-                    <span>⚡</span>
+                    <Zap className="w-4 h-4 text-amber-400" />
                     <span>{isAr ? 'كيفية ربط قاعدة بيانات Supabase المجانية في 60 ثانية:' : 'Quick Supabase Setup in 60s:'}</span>
                   </h4>
                   <a
@@ -3347,7 +3360,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <h4 className="text-xs font-bold text-black flex items-center gap-1.5">
-                      <span>🔄</span>
+                      <RotateCcw className="w-4 h-4 text-neutral-400" />
                       <span>{isAr ? 'المزامنة الحية اليدوية بين السحابة وهذا الجهاز' : 'Two-way Manual Cloud Sync'}</span>
                     </h4>
                     <p className="text-[11px] text-neutral-500 mt-0.5">
@@ -3385,7 +3398,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-neutral-800 flex items-center gap-1.5">
-                    <span>🗄️</span>
+                    <Database className="w-4 h-4 text-neutral-400" />
                     <span>{isAr ? 'كود إنشاء جداول قاعدة البيانات (SQL Schema):' : 'Database SQL Schema:'}</span>
                   </label>
                   <button
@@ -3400,7 +3413,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                       </>
                     ) : (
                       <>
-                        <span>📋</span>
+                        <Copy className="w-4 h-4 text-neutral-400" />
                         <span>{isAr ? 'نسخ كود SQL بالكامل' : 'Copy SQL Schema'}</span>
                       </>
                     )}
@@ -3449,7 +3462,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                     disabled={isSyncingGoogleSheet}
                     className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-sm cursor-pointer disabled:opacity-50"
                   >
-                    <span>{isSyncingGoogleSheet ? '⏳' : '🔄'}</span>
+                    <RotateCcw className={`w-4 h-4 ${isSyncingGoogleSheet ? 'animate-spin' : ''}`} />
                     <span>{isSyncingGoogleSheet ? (isAr ? 'جاري المزامنة...' : 'Syncing...') : (isAr ? 'مزامنة سحابية للجدول الآن' : 'Sync to Sheet Now')}</span>
                   </button>
 
@@ -3458,7 +3471,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                     onClick={handleExportGoogleSheetCsv}
                     className="px-4 py-2.5 rounded-xl bg-neutral-900 hover:bg-black text-white font-bold text-xs flex items-center gap-1.5 transition shadow-sm cursor-pointer"
                   >
-                    <span>📥</span>
+                    <Download className="w-4 h-4 text-neutral-400" />
                     <span>{isAr ? 'تصدير CSV لـ Google Sheets' : 'Download CSV'}</span>
                   </button>
 
@@ -3467,7 +3480,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                     onClick={handleCopyForGoogleSheet}
                     className="px-4 py-2.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 border border-neutral-300 text-black font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
                   >
-                    <span>{copiedForSheet ? '✅' : '📋'}</span>
+                    <span>{copiedForSheet ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}</span>
                     <span>{copiedForSheet ? (isAr ? 'تم النسخ!' : 'Copied!') : (isAr ? 'نسخ للّصق المباشر (Ctrl+V)' : 'Copy for Sheet')}</span>
                   </button>
 
@@ -3492,7 +3505,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                     ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
                     : 'bg-rose-50 border-rose-300 text-rose-900'
                 }`}>
-                  <span>{googleSheetStatusMsg.type === 'success' ? '✅' : '⚠️'}</span>
+                  <span>{googleSheetStatusMsg.type === 'success' ? <Check className="w-4 h-4 text-emerald-400" /> : <AlertTriangle className="w-4 h-4 text-rose-400" />}</span>
                   <span>{googleSheetStatusMsg.text}</span>
                 </div>
               )}
@@ -3501,7 +3514,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
               <div className="bg-white border border-neutral-200 p-6 rounded-3xl shadow-xs space-y-4">
                 <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-base">⚙️</span>
+                    <span className="text-base"></span>
                     <h4 className="font-bold text-sm text-black">
                       {isAr ? 'إعدادات ربط جدول Google Sheets' : 'Google Sheets Connection Settings'}
                     </h4>
@@ -3605,7 +3618,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
               <div className="bg-white border border-neutral-200 p-6 rounded-3xl shadow-xs space-y-4">
                 <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-base">⚡</span>
+                    <Zap className="w-4 h-4 text-amber-400" />
                     <h4 className="font-bold text-sm text-black">
                       {isAr ? 'كود المزامنة التلقائية لـ Google Sheets (Google Apps Script)' : 'Automated Sync Script (Google Apps Script)'}
                     </h4>
@@ -3622,7 +3635,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                       </>
                     ) : (
                       <>
-                        <span>📋</span>
+                        <Copy className="w-4 h-4 text-neutral-400" />
                         <span>{isAr ? 'نسخ الكود بالكامل' : 'Copy Script Code'}</span>
                       </>
                     )}
@@ -3656,7 +3669,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
               <div className="bg-white rounded-3xl max-w-md w-full p-6 border border-neutral-200 shadow-2xl space-y-4">
                 <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-base">📝</span>
+                    <FileText className="w-4 h-4 text-neutral-400" />
                     <h3 className="font-bold text-sm text-black">
                       {isAr ? `تعديل ملاحظة CRM: ${editingCrmCustomerName}` : `Edit CRM Note for ${editingCrmCustomerName}`}
                     </h3>
@@ -3696,7 +3709,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                     onClick={() => handleSaveCrmNote(editingCrmCustomerName)}
                     className="px-5 py-2 rounded-xl bg-black text-white text-xs font-bold hover:bg-neutral-800 transition cursor-pointer"
                   >
-                    {isAr ? 'حفظ الملاحظة 💾' : 'Save Note'}
+                    {isAr ? 'حفظ الملاحظة' : 'Save Note'}
                   </button>
                 </div>
               </div>
@@ -3709,7 +3722,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
               <div className="bg-white border-2 border-black rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
                 <div className="flex items-center justify-between border-b border-neutral-200 pb-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-xl">🧪</span>
+                    <FlaskConical className="w-5 h-5 text-amber-400" />
                     <h3 className="font-bold text-sm text-black uppercase tracking-wider">
                       {isAr ? 'بطاقة خلط معملية (Haute Parfumerie Lab Ticket)' : 'Laboratory Formulation Ticket'}
                     </h3>
@@ -3791,7 +3804,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                     className="px-5 py-2 bg-black hover:bg-neutral-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition shadow-md"
                   >
                     <Printer className="w-3.5 h-3.5 text-white" />
-                    <span>{isAr ? 'طباعة التذكرة الآن 🖨️' : 'Print Ticket'}</span>
+                    <span>{isAr ? 'طباعة التذكرة الآن' : 'Print Ticket'}</span>
                   </button>
                 </div>
               </div>
@@ -3891,7 +3904,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                 <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-xl bg-neutral-900 text-white flex items-center justify-center font-bold text-sm">
-                      ♫
+                      
                     </div>
                     <div>
                       <h3 className="font-bold text-sm text-black">TikTok Pixel</h3>
@@ -3971,7 +3984,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                 <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-xl bg-yellow-100 text-yellow-800 flex items-center justify-center font-bold text-sm">
-                      👻
+                      
                     </div>
                     <div>
                       <h3 className="font-bold text-sm text-black">Snapchat Pixel</h3>
@@ -4025,7 +4038,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                 className="w-full sm:w-auto px-8 py-3 rounded-2xl bg-black hover:bg-neutral-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition cursor-pointer"
               >
                 <Check className="w-4 h-4 text-emerald-400" />
-                <span>{isAr ? 'حفظ وتفعيل الـ Pixels الآن 🎯' : 'Save & Activate Pixels'}</span>
+                <span>{isAr ? 'حفظ وتفعيل الـ Pixels الآن' : 'Save & Activate Pixels'}</span>
               </button>
             </div>
           </form>
@@ -4050,21 +4063,21 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                   onClick={() => handleFireTestPixelEvent('AddToCart', { content_name: 'عطر مسك الملوك 50ml', value: 8, currency: 'USD' })}
                   className="px-3 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-bold transition cursor-pointer"
                 >
-                  🧪 {isAr ? 'تجربة AddToCart' : 'Test AddToCart'}
+                  {isAr ? 'تجربة AddToCart' : 'Test AddToCart'}
                 </button>
                 <button
                   type="button"
                   onClick={() => handleFireTestPixelEvent('Purchase', { order_id: `TEST-${Date.now()}`, value: 25, currency: 'USD' })}
                   className="px-3 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-bold transition cursor-pointer"
                 >
-                  🧪 {isAr ? 'تجربة Purchase' : 'Test Purchase'}
+                  {isAr ? 'تجربة Purchase' : 'Test Purchase'}
                 </button>
                 <button
                   type="button"
                   onClick={() => handleFireTestPixelEvent('CompleteRegistration', { provider: 'Google', customer_name: 'وسام حيدر' })}
                   className="px-3 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-bold transition cursor-pointer"
                 >
-                  🧪 {isAr ? 'تجربة Google Login' : 'Test Registration'}
+                  {isAr ? 'تجربة Google Login' : 'Test Registration'}
                 </button>
               </div>
             </div>
@@ -4168,10 +4181,10 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                 onClick={(e) => handleSaveAllSettings(e, 'all')}
                 className="py-3 px-6 rounded-2xl bg-black hover:bg-neutral-800 text-white font-bold text-xs uppercase tracking-wider cursor-pointer transition flex items-center justify-center gap-2 shadow-md active:scale-95 shrink-0"
               >
-                <span>💾</span>
+                <Save className="w-4 h-4" />
                 <span>
                   {allSettingsSaved 
-                    ? (isAr ? 'تم تطبيق وحفظ كافة الإعدادات ✅' : 'All Settings Saved ✅') 
+                    ? (isAr ? 'تم تطبيق وحفظ كافة الإعدادات' : 'All Settings Saved') 
                     : (isAr ? 'حفظ وتطبيق كافة الإعدادات فوراً' : 'Save & Apply All Settings')}
                 </span>
               </button>
@@ -4181,7 +4194,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
             {allSettingsSaved && (
               <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center justify-between animate-fadeIn">
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">✅</span>
+                  <Check className="w-5 h-5 text-emerald-400" />
                   <span>
                     {isAr 
                       ? 'تم حفظ وتطبيق كافة الإعدادات بنجاح في كامل المتجر والنظام (تم التحديث الفوري).' 
@@ -4201,7 +4214,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-xl bg-neutral-900 text-white flex items-center justify-center font-bold text-sm">
-                    🏛️
+                    
                   </div>
                   <div>
                     <h3 className="font-bold text-sm text-black">
@@ -4303,7 +4316,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                       <WhatsAppIcon className="w-4 h-4 text-white" />
                       <span>
                         {phoneSaved 
-                          ? (isAr ? 'تم حفظ رقم الواتساب بنجاح ✅' : 'WhatsApp Saved ✅') 
+                          ? (isAr ? 'تم حفظ رقم الواتساب بنجاح' : 'WhatsApp Saved') 
                           : (isAr ? 'حفظ وتحديث رقم الواتساب' : 'Save WhatsApp Number')}
                       </span>
                     </button>
@@ -4442,7 +4455,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-neutral-100">
                   <div className="text-[11px] text-neutral-500 flex items-center gap-1.5">
-                    <span className="text-amber-600">✨</span>
+                    
                     <span>
                       {isAr
                         ? 'تظهر أيقونات فيسبوك وإنستغرام تلقائياً للزبائن في التذييل والقائمة الجانبية والشريط العلوي للمتجر.'
@@ -4455,7 +4468,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                   >
                     <span>
                       {socialSaved 
-                        ? (isAr ? 'تم حفظ الروابط بنجاح ✅' : 'Social Links Saved ✅') 
+                        ? (isAr ? 'تم حفظ الروابط بنجاح' : 'Social Links Saved') 
                         : (isAr ? 'حفظ وتحديث روابط التواصل' : 'Save Social Links')}
                     </span>
                   </button>
@@ -4555,7 +4568,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                   <Truck className="w-4 h-4 text-white" />
                   <span>
                     {deliverySettingsSaved 
-                      ? (isAr ? 'تم حفظ إعدادات التوصيل بنجاح ✅' : 'Delivery Settings Saved ✅') 
+                      ? (isAr ? 'تم حفظ إعدادات التوصيل بنجاح' : 'Delivery Settings Saved') 
                       : (isAr ? 'حفظ إعدادات التوصيل' : 'Save Delivery Settings')}
                   </span>
                 </button>
@@ -4567,7 +4580,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-900 flex items-center justify-center font-bold">
-                    💵
+                    
                   </div>
                   <div>
                     <h3 className="font-bold text-sm text-black">
@@ -4610,7 +4623,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                     >
                       <span>
                         {lbpRateSaved 
-                          ? (isAr ? 'تم حفظ سعر الصرف بنجاح ✅' : 'Rate Saved ✅') 
+                          ? (isAr ? 'تم حفظ سعر الصرف بنجاح' : 'Rate Saved') 
                           : (isAr ? 'حفظ وتحديث سعر الصرف' : 'Update Exchange Rate')}
                       </span>
                     </button>
@@ -4644,7 +4657,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                   type="submit"
                   className="py-2.5 px-5 rounded-xl bg-black text-white font-bold text-xs uppercase tracking-wider cursor-pointer hover:bg-neutral-800"
                 >
-                  {passwordSaved ? (isAr ? 'تم حفظ كلمة السر بنجاح ✅' : 'Saved ✅') : (isAr ? 'حفظ كلمة السر' : 'Update Password')}
+                  {passwordSaved ? (isAr ? 'تم حفظ كلمة السر بنجاح' : 'Saved') : (isAr ? 'حفظ كلمة السر' : 'Update Password')}
                 </button>
               </form>
             </div>
@@ -4654,7 +4667,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold">
-                    🛡️
+                    
                   </div>
                   <div>
                     <h3 className="font-bold text-sm text-black">
@@ -4680,7 +4693,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                     onClick={handleCopySecretAdminLink}
                     className="px-3 py-2 rounded-xl bg-neutral-900 hover:bg-black text-white text-xs font-bold transition shrink-0 cursor-pointer"
                   >
-                    {secretSlugCopied ? (isAr ? 'تم النسخ ✅' : 'Copied ✅') : (isAr ? '📋 نسخ' : 'Copy')}
+                    {secretSlugCopied ? (isAr ? 'تم النسخ' : 'Copied') : (isAr ? 'نسخ' : 'Copy')}
                   </button>
                 </div>
               </div>
@@ -4709,7 +4722,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                   type="submit"
                   className="py-2.5 px-5 rounded-xl bg-black text-white font-bold text-xs uppercase tracking-wider cursor-pointer hover:bg-neutral-800"
                 >
-                  {secretSlugSaved ? (isAr ? 'تم حفظ الرابط السري بنجاح ✅' : 'Saved ✅') : (isAr ? 'حفظ الرابط السري' : 'Save Secret Slug')}
+                  {secretSlugSaved ? (isAr ? 'تم حفظ الرابط السري بنجاح' : 'Saved') : (isAr ? 'حفظ الرابط السري' : 'Save Secret Slug')}
                 </button>
               </form>
             </div>
@@ -4766,10 +4779,10 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                 onClick={(e) => handleSaveAllSettings(e, 'all')}
                 className="py-3 px-8 rounded-2xl bg-white hover:bg-neutral-100 text-black font-black text-xs uppercase tracking-wider cursor-pointer transition flex items-center justify-center gap-2 shadow-md active:scale-95 shrink-0"
               >
-                <span>💾</span>
+                <Save className="w-4 h-4" />
                 <span>
                   {allSettingsSaved 
-                    ? (isAr ? 'تم تطبيق وحفظ كافة الإعدادات بنجاح ✅' : 'All Settings Saved ✅') 
+                    ? (isAr ? 'تم تطبيق وحفظ كافة الإعدادات بنجاح' : 'All Settings Saved') 
                     : (isAr ? 'حفظ وتطبيق كافة الإعدادات في المشروع' : 'Save & Apply All Settings')}
                 </span>
               </button>
@@ -5137,7 +5150,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                       onClick={handleEqualizeNewBlendRatios}
                       className="text-[11px] font-bold text-neutral-600 hover:text-black bg-neutral-100 hover:bg-neutral-200 px-2.5 py-1 rounded-lg border border-neutral-200 transition cursor-pointer"
                     >
-                      {isAr ? 'موازنة النسب بالتساوي ⚖️' : 'Equalize Ratios'}
+                      {isAr ? 'موازنة النسب بالتساوي' : 'Equalize Ratios'}
                     </button>
                   </div>
                 </div>
@@ -5216,7 +5229,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                           onClick={handleEqualizeNewBlendRatios}
                           className="underline hover:text-amber-900 cursor-pointer"
                         >
-                          {isAr ? 'موازنة الآن ⚖️' : 'Equalize now'}
+                          {isAr ? 'موازنة الآن' : 'Equalize now'}
                         </button>
                       </div>
                     )}
@@ -5327,7 +5340,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                   className="px-6 py-2.5 rounded-xl bg-black hover:bg-neutral-800 disabled:opacity-50 text-white text-xs font-bold cursor-pointer flex items-center gap-2 shadow-lg transition"
                 >
                   <Bookmark className="w-4 h-4 text-amber-400" />
-                  <span>{isAr ? 'حفظ الخلطة وتسجيلها في سجل الزبون 📜' : 'Register Blend to Customer Profile'}</span>
+                  <span>{isAr ? 'حفظ الخلطة وتسجيلها في سجل الزبون' : 'Register Blend to Customer Profile'}</span>
                 </button>
               </div>
             </form>

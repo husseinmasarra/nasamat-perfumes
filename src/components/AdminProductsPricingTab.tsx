@@ -2195,7 +2195,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                   {isAr ? 'سعر 30ml ($)' : '30ml Price ($)'}
                 </th>
                 <th className="py-3.5 px-3 text-center bg-amber-200 text-amber-950 font-black border-e border-amber-400">
-                  {isAr ? 'سعر 50ml ($) ★' : '50ml Price ($) ★'}
+                  {isAr ? 'سعر 50ml ($)' : '50ml Price ($)'}
                 </th>
                 <th className="py-3.5 px-3 text-center bg-amber-100/90 text-amber-950 font-black border-e border-amber-300">
                   {isAr ? 'سعر 100ml ($)' : '100ml Price ($)'}
@@ -2662,7 +2662,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-amber-900 mb-1">{isAr ? 'سعر 50ml ($) ★:' : '50ml ($) ★:'}</label>
+                  <label className="block font-bold text-amber-900 mb-1">{isAr ? 'سعر 50ml ($):' : '50ml ($):'}</label>
                   <input
                     type="number"
                     step="0.5"
@@ -3162,7 +3162,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                                 className="w-full py-1.5 px-3 rounded-lg bg-black hover:bg-neutral-800 text-amber-400 hover:text-white font-bold text-[11px] flex items-center justify-center gap-1.5 transition cursor-pointer shadow-2xs active:scale-[0.98]"
                               >
                                 <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                                <span>{isAr ? 'استيراد المواصفات والهرم العطري فوراً ⚡' : 'Auto-Fill Specifications ⚡'}</span>
+                                <span>{isAr ? 'استيراد المواصفات والهرم العطري فوراً' : 'Auto-Fill Specifications'}</span>
                               </button>
                             </div>
                           ))}
@@ -3245,7 +3245,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                           onClick={() => handleAutofillFromPreset(inlineMatch)}
                           className="px-2.5 py-1 rounded-lg bg-black text-amber-400 hover:text-white font-bold text-[10px] transition shrink-0 cursor-pointer shadow-2xs"
                         >
-                          {isAr ? '⚡ جلب المواصفات تلقائياً' : '⚡ Auto-Fill Specs'}
+                          {isAr ? 'جلب المواصفات تلقائياً' : 'Auto-Fill Specs'}
                         </button>
                       </div>
                     )}
@@ -3292,7 +3292,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                         }}
                         className="text-[10px] text-amber-700 hover:underline font-bold cursor-pointer"
                       >
-                        ⚡ {isAr ? 'توليد تلقائي' : 'Auto'}
+                        {isAr ? 'توليد تلقائي' : 'Auto'}
                       </button>
                     </div>
                     <input
@@ -4129,7 +4129,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                             }}
                             className="text-[10px] text-amber-800 hover:text-black font-bold cursor-pointer"
                           >
-                            {isAr ? '⚡ توليد كود' : '⚡ Auto-code'}
+                            {isAr ? 'توليد كود' : 'Auto-code'}
                           </button>
                         </div>
                         <input
@@ -4154,7 +4154,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                             }}
                             className="text-[10px] text-amber-800 hover:text-black font-bold cursor-pointer"
                           >
-                            {isAr ? '⚡ توليد باركود تلقائي' : '⚡ Generate Barcode'}
+                            {isAr ? 'توليد باركود تلقائي' : 'Generate Barcode'}
                           </button>
                         </div>
                         <input

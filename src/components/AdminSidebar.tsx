@@ -81,129 +81,129 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   const isAr = language === 'ar';
 
   const navItems = [
+    // 1. Core Analytics & Overview (أهم أولويات الإدارة)
+    {
+      id: 'overview' as AdminNavTab,
+      labelEn: 'Overview & Reports',
+      labelAr: 'نظرة عامة والتقارير',
+      icon: LayoutDashboard,
+    },
+    // 2. Orders & Sales
+    {
+      id: 'orders' as AdminNavTab,
+      labelEn: 'Orders & Sales',
+      labelAr: 'الطلبيات والمبيعات',
+      icon: Package,
+    },
+    // 3. POS Terminal (الكاشير)
     {
       id: 'pos' as AdminNavTab,
       labelEn: 'POS Terminal',
-      labelAr: 'نقطة البيع (POS)',
+      labelAr: 'نقطة البيع (الكاشير)',
       icon: ShoppingBag,
-      badge: 'الكاشير',
-      badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40',
     },
-    {
-      id: 'orders' as AdminNavTab,
-      labelEn: 'Orders',
-      labelAr: 'الطلبيات والمبيعات',
-      icon: Package,
-      badge: ordersCount > 0 ? `${ordersCount}` : undefined,
-      badgeColor: 'bg-neutral-800 text-white border border-neutral-700',
-    },
+    // 4. Products & Pricing
     {
       id: 'products' as AdminNavTab,
       labelEn: 'Products & Pricing',
       labelAr: 'المنتجات وقاعدة العطور',
       icon: Tag,
-      badge: isAr ? '242 بالسوق' : '242 Market',
-      badgeColor: 'bg-amber-400/20 text-amber-300 border border-amber-400/40',
     },
+    // 5. Add Product
     {
       id: 'add-product' as AdminNavTab,
-      labelEn: 'Add Product (All Types)',
-      labelAr: 'إضافة منتج جديد (شامل)',
+      labelEn: 'Add Product',
+      labelAr: 'إضافة منتج جديد',
       icon: Plus,
-      badge: isAr ? 'عطور • مكياج • إكسسوار' : 'All In 1',
-      badgeColor: 'bg-gradient-to-r from-amber-400 to-amber-500 text-black border border-amber-500 font-black shadow-xs text-[10px]',
     },
+    // 6. Categories & Photos
+    {
+      id: 'categories' as AdminNavTab,
+      labelEn: 'Categories & Photos',
+      labelAr: 'الأقسام وتعديل الصور',
+      icon: Folder,
+    },
+    // 7. Customers & CRM
+    {
+      id: 'customers' as AdminNavTab,
+      labelEn: 'Customers & CRM',
+      labelAr: 'الزبائن وسجل الخلطات',
+      icon: Users,
+    },
+    // 8. Coupons & Promos
     {
       id: 'coupons' as AdminNavTab,
       labelEn: 'Coupons & Promos',
       labelAr: 'الكوبونات والعروض',
       icon: Percent,
     },
-    {
-      id: 'overview' as AdminNavTab,
-      labelEn: 'Overview',
-      labelAr: 'نظرة عامة والتقارير',
-      icon: LayoutDashboard,
-      badge: lowStockCount > 0 ? `! ${lowStockCount}` : undefined,
-      badgeColor: 'bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold',
-    },
-    {
-      id: 'categories' as AdminNavTab,
-      labelEn: 'Categories & Photos',
-      labelAr: 'الأقسام وتعديل الصور',
-      icon: Folder,
-      badge: isAr ? 'تعديل الصور' : 'Photos',
-      badgeColor: 'bg-amber-400/20 text-amber-300 border border-amber-400/40 text-[10px] font-bold',
-    },
+    // 9. Hero Banner & Marketing
     {
       id: 'hero-banner' as AdminNavTab,
       labelEn: 'Hero Banner & Cards',
       labelAr: 'بنر المتجر والكروت',
       icon: ImageIcon,
     },
+    // 10. Brands Catalog
     {
       id: 'brands' as AdminNavTab,
       labelEn: 'Brands',
       labelAr: 'الماركات ودور العطور',
       icon: Award,
     },
+    // 11. Store Menu Builder
     {
       id: 'menu-builder' as AdminNavTab,
       labelEn: 'Menu Builder',
       labelAr: 'بناء قوائم المتجر',
       icon: Menu,
     },
-    {
-      id: 'customers' as AdminNavTab,
-      labelEn: 'CRM & Meta Ads Leads',
-      labelAr: 'الزبائن وحملات Meta Ads (CRM)',
-      icon: Users,
-      badge: 'CRM & Meta',
-      badgeColor: 'bg-purple-500/20 text-purple-300 border border-purple-500/40 text-[10px] font-bold',
-    },
-    {
-      id: 'pixel' as AdminNavTab,
-      labelEn: 'Pixels & Ads Tracking',
-      labelAr: 'بكسل وتتبع الإعلانات (Pixel)',
-      icon: Target,
-      badge: 'Ads & Pixel',
-      badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold',
-    },
-    {
-      id: 'staff' as AdminNavTab,
-      labelEn: 'Staff & Roles',
-      labelAr: 'فريق العمل والصلاحيات',
-      icon: UserCheck,
-    },
-    {
-      id: 'suppliers' as AdminNavTab,
-      labelEn: 'Suppliers & Invoices',
-      labelAr: 'الموردين والمواد الخام',
-      icon: Truck,
-    },
+    // 12. Lab Calculator & Calibers
     {
       id: 'calculator' as AdminNavTab,
-      labelEn: 'Lab & Calibers Calculator',
-      labelAr: 'مختبر وحاسبة العيارات والنسب',
+      labelEn: 'Lab Calculator',
+      labelAr: 'مختبر وحاسبة العيارات',
       icon: FlaskConical,
-      badge: isAr ? 'عيارات ونسب' : 'Calibers',
-      badgeColor: 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold',
     },
+    // 13. Signature Recipes
     {
       id: 'recipes' as AdminNavTab,
       labelEn: 'Signature Blends',
       labelAr: 'خلطات نسمات الملكية',
       icon: Bookmark,
     },
+    // 14. Suppliers & Materials
+    {
+      id: 'suppliers' as AdminNavTab,
+      labelEn: 'Suppliers & Materials',
+      labelAr: 'الموردين والمواد الخام',
+      icon: Truck,
+    },
+    // 15. Production Batches
     {
       id: 'batches' as AdminNavTab,
       labelEn: 'Production Batches',
       labelAr: 'سجل دفعات الإنتاج',
       icon: History,
     },
+    // 16. Staff & Permissions
+    {
+      id: 'staff' as AdminNavTab,
+      labelEn: 'Staff & Roles',
+      labelAr: 'فريق العمل والصلاحيات',
+      icon: UserCheck,
+    },
+    // 17. Tracking Pixels
+    {
+      id: 'pixel' as AdminNavTab,
+      labelEn: 'Pixels & Ads Tracking',
+      labelAr: 'بكسل وتتبع الإعلانات',
+      icon: Target,
+    },
+    // 18. System Settings & Backup
     {
       id: 'settings' as AdminNavTab,
-      labelEn: 'Settings',
+      labelEn: 'Settings & Backup',
       labelAr: 'إعدادات النظام والنسخ',
       icon: SettingsIcon,
     },
@@ -222,25 +222,25 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
       {/* Main Vertical Sidebar matching media_1795121443094_2b8f2dff.png */}
       <aside className={`
-        admin-sidebar fixed md:sticky top-0 start-0 z-40 h-screen w-64 min-w-[256px] max-w-[256px] bg-[#0c0c0e] text-white flex flex-col border-e border-neutral-800 shadow-2xl transition-transform duration-200 ease-in-out shrink-0 select-none
+        admin-sidebar fixed md:sticky top-0 start-0 z-40 h-screen max-h-screen w-60 min-w-[240px] max-w-[240px] bg-[#0c0c0e] text-white flex flex-col border-e border-neutral-800 shadow-2xl transition-transform duration-200 ease-in-out shrink-0 select-none overflow-hidden
         ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0 rtl:translate-x-full rtl:md:translate-x-0'}
       `}>
         
         {/* Brand Profile Header */}
-        <div className="p-4 border-b border-neutral-800 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full overflow-hidden border border-neutral-700 bg-white p-0.5 shadow-sm shrink-0">
+        <div className="px-3.5 py-2.5 border-b border-neutral-800 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full overflow-hidden border border-neutral-700 bg-white p-0.5 shadow-sm shrink-0">
               <img src={isAr ? '/logo.png' : '/logo-en.webp'} alt={isAr ? 'شعار نسمات' : 'Nasamat'} className="w-full h-full object-contain" />
             </div>
             <div>
-              <div className="font-serif font-black text-base text-white tracking-wider flex items-center gap-1.5 uppercase">
+              <div className="font-serif font-black text-sm text-white tracking-wider flex items-center gap-1.5 uppercase">
                 <span>{isAr ? 'نَسَمَات' : 'NASAMAT'}</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-amber-400 text-black font-black uppercase tracking-wider shadow-xs">
+                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-amber-400 text-black font-black uppercase tracking-wider shadow-xs">
                   ADMIN
                 </span>
               </div>
-              <div className="text-[11px] text-neutral-300 font-semibold uppercase">
-                {isAr ? 'لوحة القيادة v3.0' : 'Dashboard v3.0'}
+              <div className="text-[10px] text-neutral-400 font-semibold uppercase">
+                {isAr ? 'لوحة الإدارة' : 'Dashboard'}
               </div>
             </div>
           </div>
@@ -248,22 +248,30 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           {/* Close button for mobile */}
           <button 
             onClick={onCloseMobile}
-            className="md:hidden p-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800 cursor-pointer"
+            className="md:hidden p-1 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800 cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Current Active User & Switch Profile Badge */}
         {currentStaff && (
-          <div className="mx-3 my-2 p-2.5 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-center justify-between shadow-xs">
+          <div className="mx-2 my-1 px-2.5 py-1 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-between shadow-xs shrink-0">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-base shrink-0">
-                {currentStaff.role === 'owner' ? '👑' : currentStaff.role === 'cashier' ? '🛍️' : currentStaff.role === 'perfumer' ? '🧪' : currentStaff.role === 'inventory' ? '📦' : '👤'}
-              </span>
+              <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                {currentStaff.role === 'owner' ? (
+                  <Award className="w-3.5 h-3.5 text-amber-400" />
+                ) : currentStaff.role === 'cashier' ? (
+                  <ShoppingBag className="w-3.5 h-3.5 text-emerald-400" />
+                ) : currentStaff.role === 'perfumer' ? (
+                  <FlaskConical className="w-3.5 h-3.5 text-sky-400" />
+                ) : (
+                  <UserCheck className="w-3.5 h-3.5 text-neutral-300" />
+                )}
+              </div>
               <div className="min-w-0">
-                <div className="text-xs font-bold text-white truncate">{currentStaff.name}</div>
-                <div className="text-[10px] text-amber-300 font-mono">
+                <div className="text-[11px] font-bold text-white truncate leading-tight">{currentStaff.name}</div>
+                <div className="text-[9px] text-amber-300 font-mono leading-tight">
                   {currentStaff.role === 'owner' ? (isAr ? 'المدير العام' : 'Owner') : currentStaff.role === 'cashier' ? (isAr ? 'كاشير' : 'Cashier') : currentStaff.role === 'perfumer' ? (isAr ? 'خبير عطور' : 'Perfumer') : (isAr ? 'مستخدم' : 'Staff')}
                 </div>
               </div>
@@ -272,17 +280,17 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
               <button
                 type="button"
                 onClick={onSwitchUser}
-                className="p-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-amber-300 hover:text-white transition cursor-pointer shrink-0"
-                title={isAr ? 'تبديل المستخدم (رمز PIN)' : 'Switch User'}
+                className="p-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-amber-300 hover:text-white transition cursor-pointer shrink-0"
+                title={isAr ? 'تبديل المستخدم' : 'Switch User'}
               >
-                <UserCheck className="w-4 h-4" />
+                <UserCheck className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
         )}
 
-        {/* Navigation Items (Exact styling from media_1795121443094_2b8f2dff.png) */}
-        <div className="flex-1 overflow-y-auto p-2.5 space-y-1.5 scrollbar-thin scrollbar-thumb-neutral-800">
+        {/* Navigation Items (Exact Priority Hierarchy, Clean Without Scrollbars & Without Badges) */}
+        <div className="flex-1 overflow-y-auto scrollbar-none px-2 py-1 space-y-0.5 flex flex-col justify-between">
           {navItems
             .filter((item) => {
               if (!currentStaff) return true;
@@ -300,9 +308,9 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                   onSelectTab(item.id);
                   if (onCloseMobile) onCloseMobile();
                 }}
-                className={`admin-sidebar-nav-btn ${isActive ? 'active' : ''} w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-150 text-start cursor-pointer group ${
+                className={`admin-sidebar-nav-btn ${isActive ? 'active' : ''} w-full flex items-center px-2.5 py-1.5 rounded-lg transition-all duration-150 text-start cursor-pointer group ${
                   isActive
-                    ? 'bg-white text-black shadow-lg font-black ring-1 ring-white/20'
+                    ? 'bg-white text-black shadow-md font-black ring-1 ring-white/20'
                     : 'text-white hover:bg-white/10 font-bold'
                 }`}
                 style={{
@@ -311,104 +319,70 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                 }}
                 title={isAr ? item.labelAr : item.labelEn}
               >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-5 h-5 min-w-[20px] max-w-[20px] shrink-0 flex items-center justify-center">
+                <div className="flex items-center gap-2.5 min-w-0 w-full">
+                  <div className="w-4 h-4 min-w-[16px] max-w-[16px] shrink-0 flex items-center justify-center">
                     <Icon 
-                      className="w-5 h-5 min-w-[20px] max-w-[20px] shrink-0 transition-colors"
+                      className="w-4 h-4 min-w-[16px] max-w-[16px] shrink-0 transition-colors"
                       style={{ color: isActive ? '#000000' : '#ffffff' }}
                     />
                   </div>
                   <span 
-                    className={`text-xs sm:text-[13px] tracking-wide truncate ${isActive ? 'font-black text-black' : 'font-bold text-white'}`}
+                    className={`text-[12px] tracking-wide truncate ${isActive ? 'font-black text-black' : 'font-bold text-white'}`}
                     style={{ color: isActive ? '#000000' : '#ffffff' }}
                   >
                     {isAr ? item.labelAr : item.labelEn}
                   </span>
                 </div>
-
-                {item.badge && (
-                  <span 
-                    className={`admin-badge text-[10px] px-2 py-0.5 rounded-full shrink-0 font-mono font-bold ${
-                      isActive 
-                        ? 'bg-black text-white' 
-                        : (item.badgeColor || 'bg-neutral-800 text-white border border-neutral-700')
-                    }`}
-                    style={{
-                      color: isActive ? '#ffffff' : undefined,
-                      backgroundColor: isActive ? '#000000' : undefined,
-                    }}
-                  >
-                    {item.badge}
-                  </span>
-                )}
               </button>
             );
           })}
         </div>
 
-        {/* View Storefront & Security Footer */}
-        <div className="p-3 border-t border-neutral-800 space-y-2 bg-[#09090b]">
-          {/* Executive Financial Statement Trigger (Manager Only) */}
-          {onOpenFinancialStatement && (!currentStaff || currentStaff.permissions.canViewFinancials) && (
-            <button
-              onClick={onOpenFinancialStatement}
-              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition text-xs font-bold cursor-pointer group border border-amber-500/40 bg-neutral-900 hover:bg-black text-amber-400 shadow-md hover:border-amber-400 hover:brightness-110"
-              style={{ color: '#fbbf24', backgroundColor: '#18181b' }}
-              title={isAr ? 'كشف حساب مالي تفصيلي يومي وشهري خاص بالمدير' : 'Manager Daily & Monthly Statement'}
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="w-4 h-4 min-w-[16px] max-w-[16px] shrink-0 flex items-center justify-center">
-                  <Printer className="w-4 h-4" style={{ color: '#fbbf24' }} />
-                </div>
-                <span className="font-bold text-amber-300" style={{ color: '#fcd34d' }}>
-                  {isAr ? 'كشف حساب الإدارة' : 'Executive Statement'}
-                </span>
-              </div>
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 border border-amber-400/30">
-                {isAr ? 'يومي/شهري' : 'Daily/Mth'}
-              </span>
-            </button>
-          )}
+        {/* Compact View Storefront & Security Footer (No Overflows, No Emojis, No Scrollbars) */}
+        <div className="p-2 border-t border-neutral-800 space-y-1.5 bg-[#09090b] shrink-0">
+          <div className="grid grid-cols-2 gap-1.5">
+            {/* Executive Financial Statement */}
+            {onOpenFinancialStatement && (!currentStaff || currentStaff.permissions.canViewFinancials) && (
+              <button
+                onClick={onOpenFinancialStatement}
+                className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg transition text-[11px] font-bold cursor-pointer border border-amber-500/40 bg-neutral-900 hover:bg-black text-amber-300 shadow-2xs hover:border-amber-400"
+                style={{ color: '#fbbf24', backgroundColor: '#18181b' }}
+                title={isAr ? 'كشف حساب الإدارة' : 'Executive Statement'}
+              >
+                <Printer className="w-3.5 h-3.5 shrink-0" style={{ color: '#fbbf24' }} />
+                <span className="truncate">{isAr ? 'كشف الإدارة' : 'Statement'}</span>
+              </button>
+            )}
 
-          {/* View Storefront (Direct match to bottom item in image) */}
-          <button
-            onClick={onViewStorefront}
-            className="admin-store-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition text-xs font-bold cursor-pointer group border border-neutral-700 shadow-md hover:brightness-110"
-            style={{ color: '#ffffff', backgroundColor: '#1e293b' }}
-            title={isAr ? 'الانتقال إلى واجهة الزبائن ومتجر العطور' : 'Switch to Customer Storefront'}
-          >
-            <div className="flex items-center gap-2.5">
-              <div className="w-4 h-4 min-w-[16px] max-w-[16px] shrink-0 flex items-center justify-center">
-                <ExternalLink className="w-4 h-4 min-w-[16px] max-w-[16px] shrink-0" style={{ color: '#fbbf24' }} />
-              </div>
-              <span className="font-bold text-white" style={{ color: '#ffffff' }}>
-                {isAr ? 'معاينة متجر الزبائن' : 'View Storefront'}
-              </span>
-            </div>
-            <span className="text-xs font-mono font-bold" style={{ color: '#fbbf24' }}>
-              ↗
-            </span>
-          </button>
+            {/* View Storefront */}
+            <button
+              onClick={onViewStorefront}
+              className={`admin-store-btn flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg transition text-[11px] font-bold cursor-pointer border border-neutral-700 shadow-2xs hover:brightness-110 ${
+                !onOpenFinancialStatement ? 'col-span-2' : ''
+              }`}
+              style={{ color: '#ffffff', backgroundColor: '#1e293b' }}
+              title={isAr ? 'معاينة متجر الزبائن' : 'View Storefront'}
+            >
+              <ExternalLink className="w-3.5 h-3.5 shrink-0" style={{ color: '#fbbf24' }} />
+              <span className="truncate text-white">{isAr ? 'معاينة المتجر' : 'Storefront'}</span>
+            </button>
+          </div>
 
           {/* Admin Lock / Exit button */}
           {onLogout && (
             <button
               onClick={onLogout}
-              className="admin-logout-btn w-full flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer border border-rose-500 shadow-md hover:brightness-110"
+              className="admin-logout-btn w-full flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-[11px] font-bold transition cursor-pointer border border-rose-500/80 shadow-2xs hover:brightness-110"
               style={{ color: '#ffffff', backgroundColor: '#e11d48' }}
-              title={isAr ? 'قفل صفحة الإدارة والعودة للمتجر' : 'Lock Admin Session'}
+              title={isAr ? 'قفل الإدارة وخروج' : 'Lock Admin'}
             >
-              <div className="w-4 h-4 min-w-[16px] max-w-[16px] shrink-0 flex items-center justify-center">
-                <Lock className="w-4 h-4" style={{ color: '#ffffff' }} />
-              </div>
-              <span className="font-bold text-white" style={{ color: '#ffffff' }}>
-                {isAr ? 'قفل الإدارة وخروج' : 'Lock Admin'}
-              </span>
+              <Lock className="w-3.5 h-3.5 shrink-0" style={{ color: '#ffffff' }} />
+              <span className="font-bold text-white">{isAr ? 'قفل الإدارة وخروج' : 'Lock Admin'}</span>
             </button>
           )}
 
-          <div className="text-[10px] text-neutral-300 text-center font-mono pt-1" style={{ color: '#d1d5db' }}>
-            {isAr ? 'نَسَمَات للعطور الفاخرة • بيروت' : 'NASAMAT LUXURY BESPOKE PERFUMERY • BEIRUT'}
+          <div className="text-[9px] text-neutral-400 text-center font-mono leading-none pt-0.5">
+            {isAr ? 'دار نَسَمَات • بيروت' : 'NASAMAT ATELIER • BEIRUT'}
           </div>
         </div>
 
