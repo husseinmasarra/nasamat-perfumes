@@ -96,10 +96,10 @@ export const INITIAL_NAV_CATEGORIES: CategoryNavConfig[] = [
   },
   {
     id: 'original',
-    labelAr: 'عطور أصلية معلبة',
+    labelAr: 'عطورات أصلية',
     labelEn: 'Original Boxed Perfumes',
     imageUrl: 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=300&q=80',
-    countAr: 'أصلي 100%',
+    countAr: 'عطور حصرية',
     countEn: '100% Authentic',
   },
   {
@@ -311,6 +311,30 @@ export function loadNavCategories(): CategoryNavConfig[] {
       filtered.forEach((c) => {
         if (c.countAr && /\d+/.test(c.countAr)) c.countAr = '';
         if (c.countEn && /\d+/.test(c.countEn)) c.countEn = '';
+      });
+
+      // Crucial: Auto-merge any initial essential categories like 'original' (عطورات أصلية) if missing and not deleted
+      INITIAL_NAV_CATEGORIES.forEach((initCat) => {
+        const isDeleted = deletedIds.has(initCat.id) ||
+                          deletedIds.has(initCat.id.toLowerCase()) ||
+                          deletedIds.has(initCat.labelAr) ||
+                          deletedIds.has(initCat.labelEn);
+        if (!isDeleted) {
+          const exists = filtered.some(
+            (c) => c.id === initCat.id ||
+                   c.labelAr === initCat.labelAr ||
+                   c.labelEn === initCat.labelEn ||
+                   (initCat.id === 'original' && (c.id.includes('original') || c.labelAr.includes('أصلية') || c.labelAr.includes('اصلية')))
+          );
+          if (!exists) {
+            const sigIdx = filtered.findIndex((c) => c.id === 'signatures');
+            if (sigIdx !== -1) {
+              filtered.splice(sigIdx + 1, 0, initCat);
+            } else {
+              filtered.push(initCat);
+            }
+          }
+        }
       });
 
       // Auto-position any custom fragrance categories prominently before utility tools (linen, bakhoor, mix-perfume)

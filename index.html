@@ -15,6 +15,13 @@
     <meta name="apple-mobile-web-app-title" content="نسمات" />
     <title>Nasamat | Luxury Bespoke Perfumery - NASMAT</title>
     
+    <!-- Canonical Domain Redirect: Unifies storage under official domain -->
+    <script>
+      if (window.location.hostname === 'nasamat-perfumes.vercel.app') {
+        window.location.replace('https://www.nasamat-perfumes.com' + window.location.pathname + window.location.search + window.location.hash);
+      }
+    </script>
+    
     <!-- PWA Service Worker Instant Update Checker -->
     <script>
       if ('serviceWorker' in navigator) {

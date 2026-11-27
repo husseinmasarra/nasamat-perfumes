@@ -422,9 +422,34 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
     const handleUpdate = () => {
       setNavCategories(loadNavCategories());
     };
+    const handleStorage = (e: StorageEvent) => {
+      if (!e.key || e.key.includes('nav_categories')) {
+        setNavCategories(loadNavCategories());
+      }
+    };
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        setNavCategories(loadNavCategories());
+      }
+    };
     window.addEventListener('nasamat_categories_updated', handleUpdate);
-    return () => window.removeEventListener('nasamat_categories_updated', handleUpdate);
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('focus', handleVisibility);
+    return () => {
+      window.removeEventListener('nasamat_categories_updated', handleUpdate);
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('focus', handleVisibility);
+    };
   }, []);
+
+  // Re-fetch categories every time the Add Product modal/section is opened
+  useEffect(() => {
+    if (isAddModalOpen || isAddInlineOpen) {
+      setNavCategories(loadNavCategories());
+    }
+  }, [isAddModalOpen, isAddInlineOpen]);
 
   const toggleAdditionalCategory = (catId: string) => {
     if (catId === selectedPrimaryCategory) return;
@@ -733,6 +758,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
     setAutofillSuccessNotice(null);
     setIsDbSectionExpanded(true);
     setUploadedImageMeta(null);
+    setNavCategories(loadNavCategories());
 
     const defaultImg = dept === 'makeup' ? (LUXURY_PRESET_IMAGES[3]?.url || LUXURY_PRESET_IMAGES[0]?.url) :
                        dept === 'accessories' ? (LUXURY_PRESET_IMAGES[6]?.url || LUXURY_PRESET_IMAGES[0]?.url) :
@@ -1547,6 +1573,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
 
           <button
             onClick={() => {
+              setNavCategories(loadNavCategories());
               setIsAddInlineOpen((prev) => !prev);
               if (!isAddInlineOpen) {
                 handleOpenAddModal('perfume');
