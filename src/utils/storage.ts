@@ -177,7 +177,7 @@ export function loadDeletedNavCategoryIds(): Set<string> {
     const list: string[] = raw ? JSON.parse(raw) : [];
     let changed = false;
     // Permanently ensure 'bundles' and 'delivery' are blacklisted unless explicitly restored
-    ['bundles', 'delivery', 'التوصيل والدفع', 'باقات التوفير'].forEach((id) => {
+    ['bundles', 'delivery', 'التوصيل والدفع', 'باقات التوفير', 'Delivery & COD'].forEach((id) => {
       if (!list.includes(id)) {
         list.push(id);
         changed = true;
@@ -188,7 +188,7 @@ export function loadDeletedNavCategoryIds(): Set<string> {
     }
     return new Set(list);
   } catch {
-    return new Set(['bundles', 'delivery', 'التوصيل والدفع', 'باقات التوفير']);
+    return new Set(['bundles', 'delivery', 'التوصيل والدفع', 'باقات التوفير', 'Delivery & COD']);
   }
 }
 
@@ -198,6 +198,7 @@ export function recordDeletedNavCategoryId(idOrLabel: string): void {
     const set = loadDeletedNavCategoryIds();
     set.add(idOrLabel);
     set.add(idOrLabel.toLowerCase());
+    set.add(idOrLabel.trim());
     localStorage.setItem(STORAGE_KEYS.DELETED_NAV_CATEGORIES, JSON.stringify(Array.from(set)));
   } catch (e) {
     console.error('Failed to record deleted nav category', e);
@@ -264,7 +265,16 @@ export function loadNavCategories(): CategoryNavConfig[] {
       const saved: CategoryNavConfig[] = JSON.parse(raw);
       // Strictly exclude any category explicitly deleted by the merchant (by id or Arabic/English label)
       const filtered = saved.filter(
-        (c) => !deletedIds.has(c.id) && !deletedIds.has(c.labelAr) && !deletedIds.has(c.labelEn) && c.id !== 'delivery' && c.id !== 'bundles'
+        (c) =>
+          !deletedIds.has(c.id) &&
+          !deletedIds.has(c.id.toLowerCase()) &&
+          !deletedIds.has(c.labelAr) &&
+          !deletedIds.has(c.labelEn) &&
+          c.id !== 'delivery' &&
+          c.id !== 'bundles' &&
+          c.labelAr !== 'التوصيل والدفع' &&
+          c.labelAr !== 'باقات التوفير' &&
+          c.labelEn !== 'Delivery & COD'
       );
 
       // Auto-strip product count numbers from countAr / countEn for clean luxury UI
@@ -282,13 +292,24 @@ export function loadNavCategories(): CategoryNavConfig[] {
 
     // First time initializing: exclude any previously marked deleted categories
     const initialList = INITIAL_NAV_CATEGORIES.filter(
-      (c) => !deletedIds.has(c.id) && !deletedIds.has(c.labelAr) && !deletedIds.has(c.labelEn) && c.id !== 'delivery' && c.id !== 'bundles'
+      (c) =>
+        !deletedIds.has(c.id) &&
+        !deletedIds.has(c.id.toLowerCase()) &&
+        !deletedIds.has(c.labelAr) &&
+        !deletedIds.has(c.labelEn) &&
+        c.id !== 'delivery' &&
+        c.id !== 'bundles' &&
+        c.labelAr !== 'التوصيل والدفع' &&
+        c.labelAr !== 'باقات التوفير' &&
+        c.labelEn !== 'Delivery & COD'
     );
     saveNavCategories(initialList);
     return initialList;
   } catch (e) {
     console.error('Failed to load nav categories', e);
-    return INITIAL_NAV_CATEGORIES.filter((c) => c.id !== 'delivery' && c.id !== 'bundles');
+    return INITIAL_NAV_CATEGORIES.filter(
+      (c) => c.id !== 'delivery' && c.id !== 'bundles' && c.labelAr !== 'التوصيل والدفع' && c.labelAr !== 'باقات التوفير'
+    );
   }
 }
 

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import type { FragranceOil, SavedRecipe, AppSettings, FragranceFamily } from '../types';
+import type { FragranceOil, SavedRecipe, AppSettings, FragranceFamily, CategoryNavConfig } from '../types';
 import { 
   Tag, 
   Search, 
@@ -27,7 +27,7 @@ import {
   ShoppingBag
 } from './icons';
 import { useLanguage } from '../context/LanguageContext';
-import { LUXURY_PRESET_IMAGES, generatePerfumeBarcode, recordDeletedProductId, unrecordDeletedProductId } from '../utils/storage';
+import { LUXURY_PRESET_IMAGES, generatePerfumeBarcode, recordDeletedProductId, unrecordDeletedProductId, loadNavCategories } from '../utils/storage';
 import {
   PERFUME_PRESETS_DATABASE,
   POPULAR_DATABASE_BRANDS,
@@ -389,6 +389,66 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
   const [customSizeStock, setCustomSizeStock] = useState('');
   const [unitMeasurement, setUnitMeasurement] = useState('50 مل');
   const [statusAvailability, setStatusAvailability] = useState<'available' | 'out_of_stock'>('available');
+  const [navCategories, setNavCategories] = useState<CategoryNavConfig[]>(() => loadNavCategories());
+  const [selectedPrimaryCategory, setSelectedPrimaryCategory] = useState<string>('unisex');
+  const [selectedAdditionalCategories, setSelectedAdditionalCategories] = useState<string[]>([]);
+
+  // Keep categories updated if edited or added in the admin modules
+  useEffect(() => {
+    const handleUpdate = () => {
+      setNavCategories(loadNavCategories());
+    };
+    window.addEventListener('nasamat_categories_updated', handleUpdate);
+    return () => window.removeEventListener('nasamat_categories_updated', handleUpdate);
+  }, []);
+
+  const toggleAdditionalCategory = (catId: string) => {
+    if (catId === selectedPrimaryCategory) return;
+    setSelectedAdditionalCategories((prev) =>
+      prev.includes(catId) ? prev.filter((id) => id !== catId) : [...prev, catId]
+    );
+  };
+
+  const allAvailableCategoryOptions = useMemo(() => {
+    const validNavs = navCategories.filter(
+      (c) =>
+        c.id !== 'home' &&
+        c.id !== 'all' &&
+        c.id !== 'delivery' &&
+        c.id !== 'bundles' &&
+        c.id !== 'atelier' &&
+        c.id !== 'mix-perfume'
+    );
+
+    const standardDepts: { id: string; labelAr: string; labelEn: string; isCustom?: boolean }[] = [
+      { id: 'makeup', labelAr: 'مكياج وتجميل', labelEn: 'Makeup & Cosmetics' },
+      { id: 'accessories', labelAr: 'إكسسوارات ومجوهرات', labelEn: 'Accessories & Jewelry' },
+      { id: 'bakhoor', labelAr: 'بخور ومباخر ملكية', labelEn: 'Bakhoor & Royal Incense' },
+      { id: 'other', labelAr: 'أصناف متنوعة', labelEn: 'Other Items' },
+    ];
+
+    const result: { id: string; labelAr: string; labelEn: string; isCustom?: boolean }[] = [];
+    const seenIds = new Set<string>();
+
+    validNavs.forEach((c) => {
+      result.push({
+        id: c.id,
+        labelAr: c.labelAr,
+        labelEn: c.labelEn,
+        isCustom: !['men', 'women', 'unisex', 'signatures', 'original', 'oriental', 'musk', 'home_linen', 'bakhoor'].includes(c.id),
+      });
+      seenIds.add(c.id);
+    });
+
+    standardDepts.forEach((dept) => {
+      if (!seenIds.has(dept.id)) {
+        result.push(dept);
+        seenIds.add(dept.id);
+      }
+    });
+
+    return result;
+  }, [navCategories]);
 
   const toggleColor = (colorName: string) => {
     setAvailableColors((prev) =>
@@ -800,6 +860,17 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
       label: sz
     }));
 
+    const allAssignedCategories = Array.from(
+      new Set([selectedPrimaryCategory, ...selectedAdditionalCategories].filter(Boolean))
+    );
+
+    const derivedDepartment: ProductDepartment =
+      selectedPrimaryCategory === 'makeup' ? 'makeup' :
+      selectedPrimaryCategory === 'accessories' ? 'accessories' :
+      selectedPrimaryCategory === 'bakhoor' ? 'bakhoor' :
+      selectedPrimaryCategory === 'other' ? 'other' :
+      newFragrance.department;
+
     const newProductItem: FragranceOil = {
       id: newOilId,
       code,
@@ -807,8 +878,8 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
       nameEn: newFragrance.nameEn.trim() || newFragrance.name.trim(),
       company: newFragrance.brand.trim() || 'نسمات',
       brand: newFragrance.brand.trim() || 'نسمات',
-      family: newFragrance.department === 'perfume' ? newFragrance.family : 'other',
-      targetGender: newFragrance.targetGender,
+      family: derivedDepartment === 'perfume' ? newFragrance.family : 'other',
+      targetGender: selectedPrimaryCategory === 'men' ? 'men' : selectedPrimaryCategory === 'women' ? 'women' : newFragrance.targetGender,
       density: 1,
       costPrice: Number((costPrice * stockCount).toFixed(2)),
       initialQuantity: stockCount,
@@ -817,7 +888,7 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
       reorderLevelMl: 2,
       lowStockThreshold: 2,
       isAvailable: statusAvailability === 'available',
-      unit: newFragrance.department === 'perfume' ? 'ml' : 'piece',
+      unit: derivedDepartment === 'perfume' ? 'ml' : 'piece',
       costPerGram: costPrice,
       costPerMl: costPrice,
       unitCost: costPrice,
@@ -827,26 +898,28 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
       wholesalePrice50ml: directPrice * 0.75,
       sizePrices: { 50: directPrice },
       customSizes: mappedCustomSizes.length > 0 ? mappedCustomSizes : [{ size: 50, price: directPrice, label: unitMeasurement || '50ml' }],
-      perfumeType: newFragrance.department === 'perfume' ? newFragrance.perfumeType : 'custom',
+      perfumeType: derivedDepartment === 'perfume' ? newFragrance.perfumeType : 'custom',
       barcode: newFragrance.barcode.trim() || generatePerfumeBarcode(code, '6281'),
       availableSizes: [30, 50, 100],
       notes: newFragrance.description.trim() || (isAr ? 'منتج فاخر من دار نسمات' : 'Luxury boutique product by Nasamat'),
       imageUrl: newFragrance.imageUrl.trim() || LUXURY_PRESET_IMAGES[0]?.url,
-      productNature: newFragrance.department === 'perfume' ? 'perfume_crafted' : newFragrance.department,
-      department: newFragrance.department,
-      category: newFragrance.subCategory.trim() || undefined,
+      productNature: derivedDepartment === 'perfume' ? 'perfume_crafted' : derivedDepartment,
+      department: derivedDepartment,
+      category: selectedPrimaryCategory,
+      categories: allAssignedCategories,
+      variants: customVariants.length > 0 ? customVariants : undefined,
       colorOrShade: colorsList.length > 0 ? colorsList.join(', ') : (newFragrance.colorOrShade.trim() || undefined),
       colors: colorsList,
       selectedSizes: sizesList,
       specification: newFragrance.specification.trim() || (sizesList.length > 0 ? `الأحجام: ${sizesList.join(' • ')}` : undefined),
-      isOriginalPackaged: newFragrance.department !== 'perfume',
+      isOriginalPackaged: derivedDepartment !== 'perfume' || selectedPrimaryCategory === 'original',
       packageStockCount: stockCount,
       singleBottleSizeMl: parseInt(unitMeasurement.replace(/\D/g, ''), 10) || 50,
       singleBottlePrice: directPrice,
       originalRetailPrice: compareAt,
-      concentration: newFragrance.department === 'makeup' ? 'COSMETICS' :
-                     newFragrance.department === 'accessories' ? 'ACCESSORY' :
-                     newFragrance.department === 'bakhoor' ? 'BAKHOOR' : 'EXTRAIT',
+      concentration: derivedDepartment === 'makeup' ? 'COSMETICS' :
+                     derivedDepartment === 'accessories' ? 'ACCESSORY' :
+                     derivedDepartment === 'bakhoor' ? 'BAKHOOR' : 'EXTRAIT',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -1099,6 +1172,8 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
       packageStockCount?: number;
       productNature?: string;
       department?: string;
+      category?: string;
+      categories?: string[];
       colorOrShade?: string;
       specification?: string;
       rawOil?: FragranceOil;
@@ -1139,6 +1214,8 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
         packageStockCount: oil.packageStockCount,
         productNature: oil.productNature,
         department: oil.department,
+        category: oil.category,
+        categories: oil.categories || (oil.category ? [oil.category] : []),
         colorOrShade: oil.colorOrShade,
         specification: oil.specification,
         rawOil: oil,
@@ -1173,6 +1250,8 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
         p50,
         p100,
         wholesale,
+        category: rec.category,
+        categories: rec.category ? [rec.category] : [],
         rawRecipe: rec,
       });
     });
@@ -1196,6 +1275,14 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
           if (p.productNature !== 'bakhoor') return false;
         } else if (selectedType === 'other') {
           if (p.productNature !== 'other') return false;
+        } else {
+          // Direct category / multi-category match
+          const matchesCat =
+            p.category === selectedType ||
+            (p.categories && p.categories.includes(selectedType)) ||
+            p.department === selectedType ||
+            p.productNature === selectedType;
+          if (!matchesCat) return false;
         }
       }
       if (selectedBrand !== 'all' && p.brand !== selectedBrand) return false;
@@ -1472,19 +1559,27 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                   />
                 </div>
 
-                {/* القسم / التصنيف */}
+                {/* القسم / التصنيف الأساسي */}
                 <div className="space-y-1">
                   <label className="block text-[11px] font-black text-neutral-800">
-                    {isAr ? 'القسم / التصنيف' : 'Department'}
+                    {isAr ? 'التصنيف الأساسي' : 'Primary Category'} <span className="text-red-500">*</span>
                   </label>
                   <select
-                    value={newFragrance.department}
-                    onChange={(e) => handleSelectDepartment(e.target.value as ProductDepartment)}
+                    value={selectedPrimaryCategory}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setSelectedPrimaryCategory(val);
+                      if (['makeup', 'accessories', 'bakhoor', 'other'].includes(val)) {
+                        handleSelectDepartment(val as ProductDepartment);
+                      } else {
+                        handleSelectDepartment('perfume');
+                      }
+                    }}
                     className="w-full p-2.5 rounded-xl border border-neutral-300 bg-neutral-50 focus:bg-white focus:outline-none focus:border-black font-bold text-xs cursor-pointer"
                   >
-                    {PRODUCT_DEPARTMENTS.map((dept) => (
-                      <option key={dept.id} value={dept.id}>
-                        {isAr ? dept.labelAr : dept.labelEn}
+                    {allAvailableCategoryOptions.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {isAr ? cat.labelAr : cat.labelEn}
                       </option>
                     ))}
                   </select>
@@ -1575,6 +1670,77 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                     <option value="طقم كامل">طقم كامل</option>
                   </select>
                 </div>
+              </div>
+            </div>
+
+            {/* MULTI-CATEGORY LINKING SECTION (ربط المنتج بالتصنيفات الموجودة) */}
+            <div className="bg-neutral-50/80 border border-neutral-200 rounded-2xl p-4 sm:p-5 space-y-3 shadow-2xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <h4 className="font-black text-xs text-neutral-900 flex items-center gap-2">
+                    <Layers className="w-4 h-4 text-amber-600" />
+                    <span>{isAr ? 'ربط المنتج بالتصنيفات الموجودة في المتجر' : 'Link Product to Store Categories'}</span>
+                  </h4>
+                  <p className="text-[11px] text-neutral-500 font-medium">
+                    {isAr
+                      ? 'حدد التصنيفات التي ترغب بظهور المنتج فيها داخل المتجر — يمكن اختيار أكثر من تصنيف'
+                      : 'Choose all categories where you want this product to be visible in the storefront'}
+                  </p>
+                </div>
+                <div className="text-[11px] font-bold text-neutral-700 bg-white border border-neutral-300 px-3 py-1 rounded-xl shadow-2xs self-start sm:self-auto">
+                  <span>{isAr ? 'إجمالي الأقسام المربوطة:' : 'Total Linked:'} </span>
+                  <span className="text-amber-800 font-black">
+                    {Array.from(new Set([selectedPrimaryCategory, ...selectedAdditionalCategories])).length}
+                  </span>
+                </div>
+              </div>
+
+              {/* Category Chips */}
+              <div className="flex flex-wrap gap-2 pt-1">
+                {allAvailableCategoryOptions.map((cat) => {
+                  const isPrimary = selectedPrimaryCategory === cat.id;
+                  const isAdditional = selectedAdditionalCategories.includes(cat.id);
+                  const isLinked = isPrimary || isAdditional;
+
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => toggleAdditionalCategory(cat.id)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs border ${
+                        isPrimary
+                          ? 'bg-black text-amber-300 border-black'
+                          : isLinked
+                          ? 'bg-amber-100 text-amber-900 border-amber-400 ring-1 ring-amber-400'
+                          : 'bg-white text-neutral-700 border-neutral-200 hover:border-black hover:bg-neutral-100'
+                      }`}
+                    >
+                      {isLinked && <Check className={`w-3.5 h-3.5 ${isPrimary ? 'text-amber-300' : 'text-amber-800'} stroke-[3]`} />}
+                      <span>{isAr ? cat.labelAr : cat.labelEn}</span>
+                      {isPrimary && (
+                        <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-amber-400/20 text-amber-300 font-normal">
+                          {isAr ? 'أساسي' : 'Primary'}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Live Preview Note */}
+              <div className="text-[11px] text-neutral-700 bg-white p-2.5 rounded-xl border border-neutral-200 flex items-center gap-2">
+                <span className="text-emerald-600 font-bold">✓</span>
+                <span>
+                  {isAr ? 'سيظهر المنتج في أقسام:' : 'Product will appear in:'}{' '}
+                  <strong className="text-black">
+                    {Array.from(new Set([selectedPrimaryCategory, ...selectedAdditionalCategories]))
+                      .map((id) => {
+                        const match = allAvailableCategoryOptions.find((c) => c.id === id);
+                        return match ? (isAr ? match.labelAr : match.labelEn) : id;
+                      })
+                      .join(' • ')}
+                  </strong>
+                </span>
               </div>
             </div>
 
@@ -1949,19 +2115,30 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
             />
           </div>
 
-          {/* Type Filter */}
+          {/* Type & Category Filter */}
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value as any)}
             className="px-3 py-2 rounded-xl bg-neutral-50 border border-neutral-200 text-xs text-black font-bold focus:outline-none cursor-pointer"
           >
-            <option value="all">{isAr ? 'كل الأقسام والمنتجات' : 'All Departments'}</option>
-            <option value="oil">{isAr ? 'عطورات وزيوت فاخرة' : 'Perfumes & Oils'}</option>
-            <option value="makeup">{isAr ? 'مكياج ومستحضرات' : 'Makeup & Cosmetics'}</option>
-            <option value="accessories">{isAr ? 'إكسسوارات وهدايا' : 'Accessories & Gifts'}</option>
-            <option value="bakhoor">{isAr ? 'بخور ومعطرات جو' : 'Bakhoor & Scents'}</option>
-            <option value="recipe">{isAr ? 'خلطات نسمات الملكية ★' : 'Signature Blends'}</option>
-            <option value="other">{isAr ? 'منتجات عامة ومتنوعة' : 'Other Products'}</option>
+            <option value="all">{isAr ? 'كل الأقسام والتصنيفات' : 'All Departments & Categories'}</option>
+            <optgroup label={isAr ? 'الأقسام الرئيسية' : 'Main Departments'}>
+              <option value="oil">{isAr ? 'عطورات وزيوت فاخرة' : 'Perfumes & Oils'}</option>
+              <option value="makeup">{isAr ? 'مكياج ومستحضرات' : 'Makeup & Cosmetics'}</option>
+              <option value="accessories">{isAr ? 'إكسسوارات وهدايا' : 'Accessories & Gifts'}</option>
+              <option value="bakhoor">{isAr ? 'بخور ومعطرات جو' : 'Bakhoor & Scents'}</option>
+              <option value="recipe">{isAr ? 'خلطات نسمات الملكية' : 'Signature Blends'}</option>
+              <option value="other">{isAr ? 'منتجات عامة ومتنوعة' : 'Other Products'}</option>
+            </optgroup>
+            {allAvailableCategoryOptions.length > 0 && (
+              <optgroup label={isAr ? 'تصنيفات المتجر' : 'Store Categories'}>
+                {allAvailableCategoryOptions.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {isAr ? cat.labelAr : cat.labelEn}
+                  </option>
+                ))}
+              </optgroup>
+            )}
           </select>
 
           {/* Brand Filter */}
@@ -2124,6 +2301,22 @@ export const AdminProductsPricingTab: React.FC<AdminProductsPricingTabProps> = (
                               </>
                             )}
                           </div>
+
+                          {/* Linked Store Categories */}
+                          {p.categories && p.categories.length > 0 && (
+                            <div className="flex items-center gap-1 mt-1 flex-wrap">
+                              <span className="text-[10px] text-neutral-500 font-bold">{isAr ? 'الأقسام:' : 'Categories:'}</span>
+                              {p.categories.map((catId) => {
+                                const catObj = allAvailableCategoryOptions.find((c) => c.id === catId);
+                                const label = catObj ? (isAr ? catObj.labelAr : catObj.labelEn) : catId;
+                                return (
+                                  <span key={catId} className="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-neutral-100 text-neutral-800 border border-neutral-300">
+                                    {label}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          )}
 
                           {/* Available Sizes / Units */}
                           <div className="flex items-center gap-1 mt-1.5 flex-wrap">

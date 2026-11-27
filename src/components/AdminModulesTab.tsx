@@ -1853,7 +1853,9 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
           </div>
 
           {/* Blacklisted / Deleted Categories Card for Full Transparency */}
-          {Array.from(loadDeletedNavCategoryIds()).filter((id) => id !== 'bundles').length > 0 && (
+          {Array.from(loadDeletedNavCategoryIds()).filter(
+            (id) => !['bundles', 'delivery', 'التوصيل والدفع', 'باقات التوفير', 'delivery & cod'].includes(id.toLowerCase())
+          ).length > 0 && (
             <div className="bg-neutral-50 border border-neutral-200 p-6 rounded-3xl shadow-xs space-y-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -1870,7 +1872,9 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {Array.from(loadDeletedNavCategoryIds())
-                  .filter((id) => id !== 'bundles')
+                  .filter(
+                    (id) => !['bundles', 'delivery', 'التوصيل والدفع', 'باقات التوفير', 'delivery & cod'].includes(id.toLowerCase())
+                  )
                   .map((delId) => {
                     const original = INITIAL_NAV_CATEGORIES.find((c) => c.id === delId);
                     const label = original ? (isAr ? original.labelAr : original.labelEn) : delId;
@@ -4985,14 +4989,17 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                 type="button"
                 onClick={() => {
                   recordDeletedNavCategoryId(categoryToDelete.id);
-                  const updated = adminNavCategories.filter((c) => c.id !== categoryToDelete.id);
+                  recordDeletedNavCategoryId(categoryToDelete.label);
+                  const updated = adminNavCategories.filter(
+                    (c) => c.id !== categoryToDelete.id && c.labelAr !== categoryToDelete.label && c.labelEn !== categoryToDelete.label
+                  );
                   setAdminNavCategories(updated);
                   saveNavCategories(updated);
                   window.dispatchEvent(new Event('nasamat_categories_updated'));
                   setCategoryToast(
                     isAr
-                      ? `🗑️ تم حذف قسم "${categoryToDelete.label}" وحظره نهائياً من المتجر`
-                      : `🗑️ Permanently deleted "${categoryToDelete.label}"`
+                      ? `تم حذف قسم "${categoryToDelete.label}" وحظره نهائياً من المتجر`
+                      : `Permanently deleted "${categoryToDelete.label}"`
                   );
                   setCategoryToDelete(null);
                   setTimeout(() => setCategoryToast(null), 3500);

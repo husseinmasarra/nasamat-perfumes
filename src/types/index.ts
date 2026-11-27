@@ -81,7 +81,8 @@ export interface FragranceOil {
   selectedSizes?: string[]; // المقاسات أو السعات المختارة للمنتج
   variants?: { name: string; price: number; stock: number }[]; // الخيارات الإضافية
   specification?: string; // مواصفات الخامة أو المقاس للإكسسوارات (e.g. كريستال بوهيمي منقوش)
-  category?: string; // القسم الفرعي (أحمر شفاه، مباخر، سلاسل، بخور)
+  category?: string; // القسم الرئيسي أو التصنيف المرتبط به المنتج
+  categories?: string[]; // قائمة بكافة الأقسام والتصنيفات المرتبط بها المنتج في المتجر
   // Original Packaged Perfume attributes (عطور أصلية معلبة وجاهزة)
   isOriginalPackaged?: boolean; // عطر أصلي معلب بكرتونته الرسمية
   packageStockCount?: number; // عدد العبوات الجاهزة المتوفرة بالمخزون (حبة)

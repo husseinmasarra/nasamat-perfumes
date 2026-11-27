@@ -1012,7 +1012,48 @@ export const StoreTab: React.FC<StoreTabProps> = ({
 
     // Filter by category
     if (selectedCategory !== 'all') {
+      const targetCatId = selectedCategory.toLowerCase();
+      const currentCatConfig = getCategoryConfig(selectedCategory);
+      const catLabelAr = (currentCatConfig?.labelAr || '').trim().toLowerCase();
+      const catLabelEn = (currentCatConfig?.labelEn || '').trim().toLowerCase();
+
       filtered = filtered.filter((item) => {
+        const isRec = item.type === 'recipe';
+        const rec = isRec ? (item.data as SavedRecipe) : null;
+        const oil = !isRec ? (item.data as FragranceOil) : null;
+
+        // 1. DIRECT EXPLICIT CATEGORY LINK (Highest Priority)
+        if (oil) {
+          const directCat = (oil.category || '').toLowerCase();
+          const directDept = (oil.department || '').toLowerCase();
+          const directNature = (oil.productNature || '').toLowerCase();
+          const linkedCats = (oil.categories || []).map((c) => c.toLowerCase());
+
+          if (
+            directCat === targetCatId ||
+            (catLabelAr && directCat === catLabelAr) ||
+            (catLabelEn && directCat === catLabelEn) ||
+            directDept === targetCatId ||
+            directNature === targetCatId ||
+            linkedCats.includes(targetCatId) ||
+            (catLabelAr && linkedCats.includes(catLabelAr)) ||
+            (catLabelEn && linkedCats.includes(catLabelEn))
+          ) {
+            return true;
+          }
+        }
+        if (rec) {
+          const directCat = (rec.category || '').toLowerCase();
+          if (
+            directCat === targetCatId ||
+            (catLabelAr && directCat === catLabelAr) ||
+            (catLabelEn && directCat === catLabelEn)
+          ) {
+            return true;
+          }
+        }
+
+        // 2. STANDARD CATEGORY RULES & FALLBACKS
         if (selectedCategory === 'signatures') {
           return item.type === 'recipe' || (item.type === 'oil' && parseInt(item.data.code.replace(/\D/g, ''), 10) >= 91);
         }
@@ -1026,33 +1067,30 @@ export const StoreTab: React.FC<StoreTabProps> = ({
           return item.type === 'oil' && (item.data as FragranceOil).productNature === 'accessories';
         }
         if (selectedCategory === 'bakhoor') {
-          return item.type === 'oil' && (item.data as FragranceOil).productNature === 'bakhoor';
+          if (oil) return oil.productNature === 'bakhoor' || oil.name.includes('بخور') || (!!oil.notes && oil.notes.includes('بخور'));
+          return rec ? (rec.name.includes('بخور') || rec.category === 'oriental') : false;
         }
         if (selectedCategory === 'men') {
           if (item.type === 'recipe') return item.data.targetGender === 'men';
-          const oil = item.data as FragranceOil;
-          if (oil.targetGender) return oil.targetGender === 'men';
-          const codeNum = parseInt(oil.code.replace(/\D/g, ''), 10);
-          return (codeNum >= 1 && codeNum <= 20) || (!!oil.notes && (oil.notes.includes('رجالي') || oil.notes.includes('للرجال')));
+          const o = item.data as FragranceOil;
+          if (o.targetGender) return o.targetGender === 'men';
+          const codeNum = parseInt(o.code.replace(/\D/g, ''), 10);
+          return (codeNum >= 1 && codeNum <= 20) || (!!o.notes && (o.notes.includes('رجالي') || o.notes.includes('للرجال')));
         }
         if (selectedCategory === 'women') {
           if (item.type === 'recipe') return item.data.targetGender === 'women';
-          const oil = item.data as FragranceOil;
-          if (oil.targetGender) return oil.targetGender === 'women';
-          const codeNum = parseInt(oil.code.replace(/\D/g, ''), 10);
-          return (codeNum >= 21 && codeNum <= 40) || (!!oil.notes && (oil.notes.includes('نسائي') || oil.notes.includes('للنساء')));
+          const o = item.data as FragranceOil;
+          if (o.targetGender) return o.targetGender === 'women';
+          const codeNum = parseInt(o.code.replace(/\D/g, ''), 10);
+          return (codeNum >= 21 && codeNum <= 40) || (!!o.notes && (o.notes.includes('نسائي') || o.notes.includes('للنساء')));
         }
         if (selectedCategory === 'unisex') {
           if (item.type === 'recipe') return item.data.targetGender === 'unisex';
-          const oil = item.data as FragranceOil;
-          if (oil.targetGender) return oil.targetGender === 'unisex';
-          const codeNum = parseInt(oil.code.replace(/\D/g, ''), 10);
-          return (codeNum >= 41 && codeNum <= 60) || (!!oil.notes && (oil.notes.includes('للجنسين') || oil.notes.includes('مشترك')));
+          const o = item.data as FragranceOil;
+          if (o.targetGender) return o.targetGender === 'unisex';
+          const codeNum = parseInt(o.code.replace(/\D/g, ''), 10);
+          return (codeNum >= 41 && codeNum <= 60) || (!!o.notes && (o.notes.includes('للجنسين') || o.notes.includes('مشترك')));
         }
-        const isRec = item.type === 'recipe';
-        const rec = isRec ? (item.data as SavedRecipe) : null;
-        const oil = !isRec ? (item.data as FragranceOil) : null;
-
         if (selectedCategory === 'oriental') {
           if (rec) return rec.category === 'oriental' || rec.name.includes('عود') || rec.name.includes('عنبر');
           return oil!.family === 'oriental' || oil!.name.includes('عود') || oil!.name.includes('عنبر');
@@ -1065,10 +1103,6 @@ export const StoreTab: React.FC<StoreTabProps> = ({
           if (rec) return rec.name.includes('معطر');
           return oil!.name.includes('معطر') || oil!.family === 'fresh' || oil!.family === 'citrus';
         }
-        if (selectedCategory === 'bakhoor') {
-          if (rec) return rec.name.includes('بخور') || rec.category === 'oriental';
-          return oil!.name.includes('بخور') || oil!.family === 'oriental' || oil!.family === 'woody';
-        }
         if (selectedCategory === 'fresh') {
           if (rec) return rec.category === 'fresh';
           return oil!.family === 'fresh' || oil!.family === 'citrus';
@@ -1077,7 +1111,9 @@ export const StoreTab: React.FC<StoreTabProps> = ({
           if (rec) return rec.category === 'gourmand';
           return oil!.family === 'gourmand';
         }
-        return true;
+
+        // Custom categories: only show if explicitly linked above
+        return false;
       });
     }
 
