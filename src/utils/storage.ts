@@ -19,7 +19,7 @@ import type {
 } from '../types';
 import { INITIAL_OILS, INITIAL_RAW_MATERIALS, INITIAL_BATCHES, INITIAL_SETTINGS, INITIAL_RECIPES, INITIAL_INVOICES } from '../data/initialData';
 
-const STORAGE_KEYS = {
+export const STORAGE_KEYS = {
   OILS: 'nasamat_oils_v5',
   MATERIALS: 'nasamat_materials_v3',
   BATCHES: 'nasamat_batches_v2',
@@ -205,11 +205,21 @@ export function recordDeletedNavCategoryId(idOrLabel: string): void {
   }
 }
 
-export function unrecordDeletedNavCategoryId(id: string): void {
+export function unrecordDeletedNavCategoryId(idOrLabel: string): void {
   try {
+    if (!idOrLabel) return;
     const set = loadDeletedNavCategoryIds();
-    if (set.has(id)) {
-      set.delete(id);
+    let changed = false;
+    const keysToRemove = [
+      idOrLabel,
+      idOrLabel.toLowerCase(),
+      idOrLabel.trim(),
+      idOrLabel.trim().toLowerCase(),
+    ];
+    keysToRemove.forEach((k) => {
+      if (set.delete(k)) changed = true;
+    });
+    if (changed) {
       localStorage.setItem(STORAGE_KEYS.DELETED_NAV_CATEGORIES, JSON.stringify(Array.from(set)));
     }
   } catch (e) {
@@ -283,10 +293,20 @@ export function loadNavCategories(): CategoryNavConfig[] {
         if (c.countEn && /\d+/.test(c.countEn)) c.countEn = '';
       });
 
-      // Always persist the clean list so unwanted categories never resurrect
-      if (filtered.length !== saved.length) {
-        saveNavCategories(filtered);
+      // Auto-position any custom fragrance categories prominently before utility tools (linen, bakhoor, mix-perfume)
+      const utilityIds = ['home_linen', 'bakhoor', 'mix-perfume', 'atelier'];
+      const firstUtilityIdx = filtered.findIndex((c) => utilityIds.includes(c.id));
+      if (firstUtilityIdx !== -1) {
+        for (let i = filtered.length - 1; i > firstUtilityIdx; i--) {
+          if (!utilityIds.includes(filtered[i].id)) {
+            const [item] = filtered.splice(i, 1);
+            filtered.splice(firstUtilityIdx, 0, item);
+          }
+        }
       }
+
+      // Always persist the clean list so unwanted categories never resurrect
+      saveNavCategories(filtered);
       return filtered;
     }
 

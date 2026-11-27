@@ -53,7 +53,9 @@ import {
   AppleIcon,
   FacebookIcon,
   InstagramIcon,
-  Users
+  Users,
+  ChevronLeft,
+  ChevronRight
 } from './icons';
 import { 
   loadNavCategories, 
@@ -195,6 +197,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
 
   // Category Images & Navigation configuration (Managed exclusively from Admin)
   const [navCategories, setNavCategories] = useState<CategoryNavConfig[]>(() => loadNavCategories());
+  const categoryScrollRef = useRef<HTMLDivElement>(null);
 
   // Helper to find category config (strictly respects deleted/blocked categories)
   const getCategoryConfig = (id: string): CategoryNavConfig => {
@@ -219,7 +222,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
     };
   };
 
-  // Listen to global events
+  // Listen to global events and cross-tab storage changes
   useEffect(() => {
     const handleHome = () => {
       setCustomerPage('home');
@@ -234,14 +237,31 @@ export const StoreTab: React.FC<StoreTabProps> = ({
     const handleCategoriesUpdated = () => {
       setNavCategories(loadNavCategories());
     };
+    const handleStorage = (e: StorageEvent) => {
+      if (!e.key || e.key.includes('nav_categories')) {
+        setNavCategories(loadNavCategories());
+      }
+    };
+    const handleVisibilityOrFocus = () => {
+      if (document.visibilityState === 'visible') {
+        setNavCategories(loadNavCategories());
+      }
+    };
 
     window.addEventListener('nasamat_go_home', handleHome);
     window.addEventListener('nasamat_open_menu', handleOpenMenu);
     window.addEventListener('nasamat_categories_updated', handleCategoriesUpdated);
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('visibilitychange', handleVisibilityOrFocus);
+    window.addEventListener('focus', handleVisibilityOrFocus);
+
     return () => {
       window.removeEventListener('nasamat_go_home', handleHome);
       window.removeEventListener('nasamat_open_menu', handleOpenMenu);
       window.removeEventListener('nasamat_categories_updated', handleCategoriesUpdated);
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+      window.removeEventListener('focus', handleVisibilityOrFocus);
     };
   }, []);
 
@@ -1883,61 +1903,103 @@ export const StoreTab: React.FC<StoreTabProps> = ({
             </div>
           </div>
 
-          {/* Circular Category Quick-Nav Strip (Real Luxury Photos - 100% Editable) */}
-          <div className="py-2 overflow-x-auto scrollbar-none no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            <div className="flex items-center justify-between gap-4 min-w-max mx-auto px-1">
-              {navCategories
-                .filter((cat) => cat.id !== 'home' && cat.id !== 'atelier')
-                .map((cat) => (
-                  <div
-                    key={cat.id}
-                    className="flex flex-col items-center gap-2.5 p-2 rounded-2xl hover:bg-neutral-50 transition group shrink-0 relative"
-                  >
-                    <div 
-                      onClick={() => {
-                        if (cat.id === 'mix-perfume' || cat.id === 'bundles' || cat.id === 'delivery' || cat.id === 'signatures') {
-                          navigateToCustomerPage(cat.id as any);
-                        } else {
-                          navigateToCustomerPage('catalog', cat.id);
-                        }
-                      }}
-                      className="relative cursor-pointer"
-                    >
-                      <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-neutral-300 group-hover:border-black group-hover:scale-105 shadow-sm group-hover:shadow-md transition-all duration-300 bg-neutral-100 p-0.5">
-                        <img
-                          src={cat.imageUrl}
-                          alt={language === 'ar' ? cat.labelAr : cat.labelEn}
-                          className="w-full h-full object-cover rounded-full group-hover:scale-110 transition-transform duration-500"
-                          loading="lazy"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=300&q=80';
-                          }}
-                        />
-                      </div>
-                    </div>
+          {/* Circular Category Quick-Nav Strip (Real Luxury Photos - 100% Editable, Scrollable with Floating Controls) */}
+          <div className="relative group/nav py-2">
+            {/* Scroll Control - Start / Left in LTR, Right in RTL */}
+            <button
+              type="button"
+              onClick={() => {
+                if (categoryScrollRef.current) {
+                  categoryScrollRef.current.scrollBy({ left: isAr ? 280 : -280, behavior: 'smooth' });
+                }
+              }}
+              className="hidden md:flex absolute start-0 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/90 hover:bg-black text-white items-center justify-center shadow-lg border border-neutral-700 hover:scale-110 transition cursor-pointer backdrop-blur-xs"
+              title={isAr ? 'الأقسام السابقة' : 'Previous Categories'}
+              aria-label="Previous"
+            >
+              <ChevronRight className="w-4 h-4 rtl:rotate-0 rotate-180" />
+            </button>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (cat.id === 'mix-perfume' || cat.id === 'bundles' || cat.id === 'delivery' || cat.id === 'signatures') {
-                          navigateToCustomerPage(cat.id as any);
-                        } else {
-                          navigateToCustomerPage('catalog', cat.id);
-                        }
-                      }}
-                      className="text-center cursor-pointer"
+            {/* Scroll Control - End / Right in LTR, Left in RTL */}
+            <button
+              type="button"
+              onClick={() => {
+                if (categoryScrollRef.current) {
+                  categoryScrollRef.current.scrollBy({ left: isAr ? -280 : 280, behavior: 'smooth' });
+                }
+              }}
+              className="hidden md:flex absolute end-0 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/90 hover:bg-black text-white items-center justify-center shadow-lg border border-neutral-700 hover:scale-110 transition cursor-pointer backdrop-blur-xs"
+              title={isAr ? 'المزيد من الأقسام' : 'More Categories'}
+              aria-label="Next"
+            >
+              <ChevronLeft className="w-4 h-4 rtl:rotate-0 rotate-180" />
+            </button>
+
+            <div 
+              ref={categoryScrollRef}
+              onWheel={(e) => {
+                if (categoryScrollRef.current && categoryScrollRef.current.scrollWidth > categoryScrollRef.current.clientWidth) {
+                  if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                    categoryScrollRef.current.scrollLeft += (isAr ? -e.deltaY : e.deltaY);
+                  }
+                }
+              }}
+              className="py-1 px-1 overflow-x-auto scroll-smooth scrollbar-none no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            >
+              <div className="flex items-center gap-3 sm:gap-4 min-w-max px-2">
+                {navCategories
+                  .filter((cat) => cat.id !== 'home' && cat.id !== 'atelier')
+                  .map((cat) => (
+                    <div
+                      key={cat.id}
+                      className="flex flex-col items-center gap-2 p-1.5 rounded-2xl hover:bg-neutral-50 transition group shrink-0 relative"
                     >
-                      <span className="text-xs font-black text-black group-hover:underline block">
-                        {language === 'ar' ? cat.labelAr : cat.labelEn}
-                      </span>
-                      {cat.countAr && !/\d+/.test(cat.countAr) && (
-                        <span className="text-[10px] text-neutral-500 font-bold block mt-0.5">
-                          {language === 'ar' ? cat.countAr : cat.countEn}
+                      <div 
+                        onClick={() => {
+                          if (cat.id === 'mix-perfume' || cat.id === 'bundles' || cat.id === 'delivery' || cat.id === 'signatures') {
+                            navigateToCustomerPage(cat.id as any);
+                          } else {
+                            navigateToCustomerPage('catalog', cat.id);
+                          }
+                        }}
+                        className="relative cursor-pointer"
+                      >
+                        <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-neutral-300 group-hover:border-black group-hover:scale-105 shadow-sm group-hover:shadow-md transition-all duration-300 bg-neutral-100 p-0.5">
+                          <img
+                            src={cat.imageUrl}
+                            alt={language === 'ar' ? cat.labelAr : cat.labelEn}
+                            className="w-full h-full object-cover rounded-full group-hover:scale-110 transition-transform duration-500"
+                            loading="lazy"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=300&q=80';
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (cat.id === 'mix-perfume' || cat.id === 'bundles' || cat.id === 'delivery' || cat.id === 'signatures') {
+                            navigateToCustomerPage(cat.id as any);
+                          } else {
+                            navigateToCustomerPage('catalog', cat.id);
+                          }
+                        }}
+                        className="text-center cursor-pointer"
+                      >
+                        <span className="text-xs font-black text-black group-hover:underline block">
+                          {language === 'ar' ? cat.labelAr : cat.labelEn}
                         </span>
-                      )}
-                    </button>
-                  </div>
-                ))}
+                        {cat.countAr && !/\d+/.test(cat.countAr) && (
+                          <span className="text-[10px] text-neutral-500 font-bold block mt-0.5">
+                            {language === 'ar' ? cat.countAr : cat.countEn}
+                          </span>
+                        )}
+                      </button>
+                    </div>
+                  ))}
+              </div>
             </div>
           </div>
 

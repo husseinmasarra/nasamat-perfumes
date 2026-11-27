@@ -65,7 +65,10 @@ import {
   Mail,
   FileText,
   AlertTriangle,
-  Package
+  Package,
+  ChevronLeft,
+  ChevronRight,
+  ArrowUpDown
 } from './icons';
 import {
   exportCrmToGoogleSheetsCsv,
@@ -612,14 +615,44 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
   const [modalEditCountAr, setModalEditCountAr] = useState('');
   const [modalEditCountEn, setModalEditCountEn] = useState('');
 
-  // Re-sync categories automatically whenever updated anywhere in the app
+  // Re-sync categories automatically whenever updated anywhere in the app (or across tabs)
   useEffect(() => {
     const handleUpdate = () => {
       setAdminNavCategories(loadNavCategories());
     };
+    const handleStorage = (e: StorageEvent) => {
+      if (!e.key || e.key.includes('nav_categories')) {
+        setAdminNavCategories(loadNavCategories());
+      }
+    };
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        setAdminNavCategories(loadNavCategories());
+      }
+    };
+
     window.addEventListener('nasamat_categories_updated', handleUpdate);
-    return () => window.removeEventListener('nasamat_categories_updated', handleUpdate);
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('focus', handleVisibility);
+    return () => {
+      window.removeEventListener('nasamat_categories_updated', handleUpdate);
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('focus', handleVisibility);
+    };
   }, []);
+
+  const moveCategory = (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= adminNavCategories.length) return;
+    const updated = [...adminNavCategories];
+    const [moved] = updated.splice(index, 1);
+    updated.splice(targetIndex, 0, moved);
+    setAdminNavCategories(updated);
+    saveNavCategories(updated);
+    window.dispatchEvent(new Event('nasamat_categories_updated'));
+  };
 
   const openAdminCategoryEdit = (cat: CategoryNavConfig) => {
     setIsAddingCategory(false);
@@ -663,6 +696,8 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
       }
       const newCatId = (modalEditId.trim() || 'cat_' + Date.now().toString().slice(-4)).toLowerCase().replace(/\s+/g, '_');
       unrecordDeletedNavCategoryId(newCatId);
+      unrecordDeletedNavCategoryId(modalEditLabelAr.trim());
+      unrecordDeletedNavCategoryId(modalEditLabelEn.trim());
       const newCat: CategoryNavConfig = {
         id: newCatId,
         labelAr: modalEditLabelAr.trim(),
@@ -671,7 +706,15 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
         countAr: modalEditCountAr.trim() || 'عطور حصرية',
         countEn: modalEditCountEn.trim() || 'Exclusive',
       };
-      const updated = [...adminNavCategories, newCat];
+      
+      // Auto-insert before utility categories (linen, bakhoor, mix-perfume) so new custom categories are visible on screen
+      const utilityIdx = adminNavCategories.findIndex((c) => ['home_linen', 'bakhoor', 'mix-perfume', 'atelier'].includes(c.id));
+      const updated = [...adminNavCategories];
+      if (utilityIdx !== -1) {
+        updated.splice(utilityIdx, 0, newCat);
+      } else {
+        updated.push(newCat);
+      }
       setAdminNavCategories(updated);
       saveNavCategories(updated);
       window.dispatchEvent(new Event('nasamat_categories_updated'));
@@ -1821,7 +1864,7 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
 
           {/* Editable Category Photo Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {adminNavCategories.map((cat) => (
+            {adminNavCategories.map((cat, idx) => (
               <div key={cat.id} className="bg-white border border-neutral-200 p-5 rounded-3xl shadow-xs space-y-3 hover:border-black transition-all flex flex-col justify-between group">
                 <div className="flex items-center gap-3.5">
                   <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-neutral-300 group-hover:border-black shadow-sm shrink-0 bg-neutral-100 p-0.5">
@@ -1834,16 +1877,34 @@ export const AdminModulesTab: React.FC<AdminModulesTabProps> = ({
                       }}
                     />
                   </div>
-                  <div className="space-y-0.5">
-                    <h4 className="font-bold text-sm text-black">{isAr ? cat.labelAr : cat.labelEn}</h4>
-                    <p className="text-xs text-neutral-500 font-medium">{isAr ? cat.countAr : cat.countEn}</p>
+                  <div className="space-y-0.5 min-w-0">
+                    <h4 className="font-bold text-sm text-black truncate">{isAr ? cat.labelAr : cat.labelEn}</h4>
+                    <p className="text-xs text-neutral-500 font-medium truncate">{isAr ? cat.countAr : cat.countEn}</p>
                     <span className="inline-block px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200">
                       {isAr ? 'صورة مخصصة نشطة' : 'Active Photo'}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 pt-1">
+                <div className="flex items-center gap-1.5 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => moveCategory(idx, 'up')}
+                    disabled={idx === 0}
+                    className="p-2 rounded-xl border border-neutral-300 hover:border-black disabled:opacity-25 disabled:cursor-not-allowed hover:bg-neutral-50 text-neutral-800 text-xs font-bold transition flex items-center justify-center cursor-pointer shadow-2xs"
+                    title={isAr ? 'تقديم الترتيب للأمام' : 'Move up / earlier'}
+                  >
+                    <ChevronRight className="w-3.5 h-3.5 rtl:rotate-0 rotate-180" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => moveCategory(idx, 'down')}
+                    disabled={idx === adminNavCategories.length - 1}
+                    className="p-2 rounded-xl border border-neutral-300 hover:border-black disabled:opacity-25 disabled:cursor-not-allowed hover:bg-neutral-50 text-neutral-800 text-xs font-bold transition flex items-center justify-center cursor-pointer shadow-2xs"
+                    title={isAr ? 'تأخير الترتيب للخلف' : 'Move down / later'}
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5 rtl:rotate-0 rotate-180" />
+                  </button>
                   <button
                     type="button"
                     onClick={() => openAdminCategoryEdit(cat)}
